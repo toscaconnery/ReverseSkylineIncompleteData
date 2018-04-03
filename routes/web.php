@@ -14,3 +14,9 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/testpython', 'TestController@testPython');
+
+Route::get('/main', 'SkylineController@main');
+
+Route::get('/index', 'SkylineController@index');
