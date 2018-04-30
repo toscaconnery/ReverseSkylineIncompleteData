@@ -1,0 +1,75 @@
+Function Reverse_Skyline(DataSet S, Threshold t)
+	Why_Not_Points <- {}		v
+	Global_Skyline <- {}		v
+	Candidate_Skyline <- {}		v
+	read the query point Q (product specification)
+	read point P
+	if node N bitmap P doesn't exists
+		create node N bitmap P (local skyline N, shadow skyline N, etc)
+	read user_preference U
+	repeat
+		for each P
+			foreach dimension D of P that comparable with U
+				N[d] = |P[d] - U[d]| 
+			Is_Skyline <- Insert_Local_Skyline(P, N)
+			if Is_Skyline = true
+				Insert_Candidate_Skyline(P)
+				if number of Candidate_Skyline > t then
+					Update_Global_Skyline()
+					Candidate_Skyline <- {}
+				end if
+			else 
+				Why_Not_Points <- U
+			end if
+		empty all node N bitmap P
+	until end of user preference U
+	Update_Global_Skyline()
+	for each Why_Not_Points
+		adjust the query points / why-not point
+	end for
+
+
+Function Insert_Local_Skyline(Point P, Node N)
+	if P is not dominated by any point in the Local_Skyline list of N
+		Insert P into Local_Skyline list of N
+		Delete all real points that are dominated by P from Local_Skyline and Shadow_Skyline list of N
+		return true
+	else if  P is dominated by a virtual point
+		Insert P into Shadow_Skyline list of N
+		N.updated_flag <- true
+		Delete all points that are dominated by P from Shadow_Skyline list
+	end if
+	return false
+
+
+Function Insert_Candidate_Skyline(Point P)
+	for each point Q element Candidate_Skyline where P and Q are comparable do
+		if P dominate Q then
+			Delete Q from Candidate_Skyline list
+			Insert_Virtual_Point(P, Node N of Q)
+		else if Q dominate P
+			Insert_Virtual_Point(Q, Node N of P)
+		end if
+	end for
+	if P is not dominated by any point, then insert P to Candicate_Skyline list
+
+
+Function Update_Global_Skyline()
+	for each pair of comparable points P element Global_Skyline and Q element Candidate_Skyline do
+		if P dominates Q or Q dominates P, then mark the dominated point
+	end for
+	Delete all marked points from Candidate_Skyline and Global_Skyline lists
+	for each point P element Global Skyline do
+		for each node N with comparable bitmap to P and a true updated flag do
+			if any point N Shadow_Skyline list dominates P
+				delete P from Global_Skyline list
+		end for
+	end for
+	for each point Q element Candidate Skyline do
+		for each node N with comparable bitmap to Q do
+			if any point in N Shadow_Skyline list dominates Q
+				delete Q from the Candidate_Skyline list
+		end for
+	end for
+	Global_Skyline <- Global_Skyline union Candidate_Skyline
+	set all updated_flags to false

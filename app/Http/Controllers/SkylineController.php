@@ -9,7 +9,7 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 class SkylineController extends Controller
 {
     public function main() {
-    	$process = new Process("py ReverseSkylineIncompleteData.py");
+    	$process = new Process("py script.py");
     	$process->run();
 
     	if(!$process->isSuccessful()) {

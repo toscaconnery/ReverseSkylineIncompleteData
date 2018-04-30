@@ -59,7 +59,7 @@ def Insert_Local_Skyline(current_specs, node, current_bit):
 	if(dominating == 1):		#P is not dominated by any points on local_skyline list of N
 		local_skyline[current_bit].append(current_specs)
 		#delete all real points that are dominated by P from the local_skyline and shadow_skyline list of N
-		return true
+		return True
 	else:
 		pass
 		#if P is dominated only by virtual_point
