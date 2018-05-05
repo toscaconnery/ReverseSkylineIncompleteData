@@ -15,13 +15,11 @@ why_not_points = {}
 n_updated_flag = {}
 data_length = 0
 t = 5
-indexhelper = 1
 rsl = []
+number_of_preference = 0
 
 def Insert_Local_Skyline(current_specs, current_bit):
-	global indexhelper
-	print(str(indexhelper) + "\t@@@@ Insert_Local_Skyline : " + str(current_specs))
-	indexhelper += 1
+	print("Insert_Local_Skyline : " + str(current_specs))
 	global local_skyline
 	global shadow_skyline
 	global virtual_point
@@ -72,7 +70,7 @@ def Insert_Local_Skyline(current_specs, current_bit):
 				else:
 					if(virtual_point[current_bit][i][j] >= current_specs[j]):
 						bit_dominated_by_virtual += 1
-						if(virtual_point[current_bit][i][j] >= current_specs[j]):
+						if(virtual_point[current_bit][i][j] > current_specs[j]):
 							virtual_greater_flag = 1
 			if(bit_dominated_by_virtual == len(current_specs) and virtual_greater_flag == 1):
 				dominated_by_virtual = 1
@@ -80,15 +78,13 @@ def Insert_Local_Skyline(current_specs, current_bit):
 		if(dominated_by_virtual == 1):
 			content = list(current_specs)
 			content.append("ok")
-			print(">>> Shadow " + str(content)  + " appended")
 			shadow_skyline[current_bit].append(content)
+			print(">>> Shadow " + str(content)  + " appended, data dominated by virtual")
 			n_updated_flag[current_bit] = True
 			for i in range(0, len(shadow_skyline[current_bit])):
 				bit_dominating_shadow = 0
 				shadow_smaller_flag = 0
 				for j in range(0, len(current_specs)):
-					# print("current_specs[j]                  : " + str(current_specs[j]))
-					# print("shadow_skyline[current_bit][i][j] : " + str(shadow_skyline[current_bit][i][j]))
 					if(current_specs[j] >= shadow_skyline[current_bit][i][j]):
 						bit_dominating_shadow += 1
 						if(current_specs[j] > shadow_skyline[current_bit][i][j]):
@@ -129,7 +125,7 @@ def Insert_Local_Skyline(current_specs, current_bit):
 
 
 def Insert_Candidate_Skyline(current_specs, current_bit):
-	print("\t@@@@ Insert_Candidate_Skyline : " + str(current_specs))
+	print("Insert_Candidate_Skyline : " + str(current_specs))
 	global candidate_skyline
 	global virtual_point
 	list_bit_inserted = []
@@ -162,8 +158,7 @@ def Insert_Candidate_Skyline(current_specs, current_bit):
 			q = list(candidate_skyline[i][:-2])
 			Insert_Virtual_Point(q, current_bit)
 			dominated = 1
-	shadow_skyline[current_bit] = [i for i in shadow_skyline[current_bit] if i[-1] == 'ok']
-	print(">>> All 'delete' candidate will be removed here")
+	#shadow_skyline[current_bit] = [i for i in shadow_skyline[current_bit] if i[-1] == 'ok']
 	candidate_skyline = [i for i in candidate_skyline if i[-1] == 'ok']
 	if(dominated == 0):
 		content = list(current_specs)
@@ -173,7 +168,7 @@ def Insert_Candidate_Skyline(current_specs, current_bit):
 		print(">>> Candidate inserted")
 
 def Insert_Virtual_Point(current_specs, current_bit):
-	print("\t@@@@ Insert_Virtual_Point : " + str(current_specs) + " to " + str(current_bit))
+	print("Insert_Virtual_Point : " + str(current_specs) + " to " + str(current_bit))
 	global local_skyline
 	global virtual_point
 	global shadow_skyline
@@ -191,12 +186,7 @@ def Insert_Virtual_Point(current_specs, current_bit):
 				bit_dominating_local += 1
 		if((bit_dominating_local == len(current_specs)) and (local_smaller_flag == 1)):
 			local_skyline[current_bit][i][-1] = 'delete'
-	# for i in sorted(local_skyline[current_bit], reverse=True):
-	# 	if (i[-1] == 'delete'):
-	# 		i[-1] = 'ok'
-	# 		print(">>> Local " + str(i) + " moved to shadow")
-	# 		shadow_skyline[current_bit].append(i)
-	# 		local_skyline[current_bit].remove(i)
+	
 	for i in reversed(local_skyline[current_bit]):
 		if (i[-1] == 'delete'):
 			print(">>> Local " + str(i) + " moved to shadow")
@@ -234,12 +224,11 @@ def Insert_Virtual_Point(current_specs, current_bit):
 
 
 def Update_Global_Skyline():
-	print("\t@@@@ Update_Global_Skyline")
+	print("Update_Global_Skyline")
 	global global_skyline
 	global candidate_skyline
 	global shadow_skyline
 	global data_length
-	#data_length = len(candidate_skyline[])
 	for c in range(0, len(candidate_skyline)):
 		for g in range(0, len(global_skyline)):
 			bit_dominating_global = 0
@@ -319,35 +308,22 @@ def Update_Global_Skyline():
 product_specs = np.loadtxt('product_specs.txt', skiprows=1, unpack=True)
 user_preference = np.loadtxt('user_preference.txt', skiprows=1, unpack=True)
 current_product = np.loadtxt('current_product.txt', skiprows=1, unpack=True)
-#print(current_product)
-#fd = open("current_product.txt")
-#fd.close()
 
 for x in range(0, len(user_preference[0])):	#pengulangan sebanyak user preference
-	print("NILAI X ADALAH : " + str(x))
-	print("NILAI user preference adalah : " + str(user_preference[x]))
-	fp = open("newdataset2.txt")
+	fp = open("unsorted_paper_data.txt")
 	node.clear()
 	local_skyline.clear()
 	candidate_skyline.clear()
 	global_skyline.clear()
 	shadow_skyline.clear()
 	virtual_point.clear()
-	indexhelper = 1
+	indexhelper = 0
 	print("")
 	print("")
 	print("")
 	print("")
-	print("NEW")
-	print("")
-	print("Initial condition : ")
-	print("local     : " + str(local_skyline))
-	print("candidate : " + str(candidate_skyline))
-	print("global    : " + str(global_skyline))
-	print("shadow    : " + str(shadow_skyline))
-	print("virtual   : " + str(virtual_point))
-	# fp.append(current_product)
-	# print("DELETEDEBUG : " + str(line))
+	number_of_preference += 1
+	print("Processing User Preference No : " + str(number_of_preference))
 	for line in fp:
 		print("")
 		print("")
@@ -369,6 +345,10 @@ for x in range(0, len(user_preference[0])):	#pengulangan sebanyak user preferenc
 			n_updated_flag[current_bit] = False
 		else:
 			node[current_bit].append(current_specs)
+
+		indexhelper += 1
+		print(indexhelper)
+		
 		is_skyline = Insert_Local_Skyline(current_specs, current_bit)
 		if is_skyline == True:
 			print(">>> Local inserted")
@@ -384,36 +364,10 @@ for x in range(0, len(user_preference[0])):	#pengulangan sebanyak user preferenc
 		print("**************************************************")
 	fp.close()
 	Update_Global_Skyline()
-	print("777777777777777777777777777777777")
-	print("local   : " + str(local_skyline))
-	print("shadow  : " + str(shadow_skyline))
-	print("virtual : " + str(virtual_point))
-	print("canddte : " + str(candidate_skyline))
-	print("n_flag  : " + str(n_updated_flag))
-	print("GLOBAL  : " + str(global_skyline))
-	for y in n_updated_flag:
-		n_updated_flag[y] = False
+	
+	print("global skyline  : " + str(global_skyline))
+	
+	# for y in n_updated_flag:
+	# 	n_updated_flag[y] = False
 
-	#is_global_skyline = 0
-	# for y in range(0, len(global_skyline)):
-	# 	counter = 0
-	# 	print("Nih global skyline : " +  str(global_skyline[y]))
-	# 	for i in range(0, data_length):
-	# 		if(global_skyline[y][i] == current_product[i]):
-	# 			counter += 1
-	# 		print("Pecahannya jadi : " + str(global_skyline[y][i]))
-	# 	if(counter == data_length):
-	# 		print("RSL data appended because of : " + str(global_skyline[y]))
-	# print("current_product : " + str(current_product))
-	# if(counter == data_length):
-	# 	rslcontent = []
-	# 	for i in range(0, data_length):
-	# 		rslcontent.append(user_preference[i][x])
-	# 	rsl.append(rslcontent)
-	# 	print("RSL appended here")
-	print("000000000000000000000000000000000")
-	print("update ;")
 	print("")
-	print("")
-	print("NEW")
-#print("HAHAHAH" + str(rsl))
