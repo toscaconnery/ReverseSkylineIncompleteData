@@ -1,6 +1,6 @@
-null 3 6 2
-null 1 7 1
-6 2 null 4
-7 1 null 3
-3 4 2 3
-4 3 7 1
+A1 nan 3 6 2
+A2 nan 1 7 1
+A3 6 2 nan 4
+A4 7 1 nan 3
+A5 3 4 2 3
+A6 4 3 7 1

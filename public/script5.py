@@ -23,11 +23,15 @@ def Insert_Local_Skyline(current_specs, current_bit):
 	global local_skyline
 	global shadow_skyline
 	global virtual_point
+	global data_length
 
 	for i in range(0, len(local_skyline[current_bit])):	#pengulangan sebanyak data yang ada didalam local_skyline, untuk dibandingkan satu persatu dengan data baru
 		dominating_local = False
 		dominated_by_local = False
-		for j in range(0, len(current_specs)):
+		#for j in range(0, len(current_specs)):
+		print("data_length   : " + str(data_length))
+		print("current_specs : " + str(current_specs))
+		for j in range(data_length + 1, data_length * 2 + 1):
 			if(current_specs[j] != 'null' and local_skyline[current_bit][i][j] != 'null'):
 				if(current_specs[j] < local_skyline[current_bit][i][j]):
 					dominating_local = True
@@ -43,7 +47,7 @@ def Insert_Local_Skyline(current_specs, current_bit):
 	for i in range(0, len(virtual_point[current_bit])):
 		dominating_virtual = False
 		dominated_by_virtual = False
-		for j in range(0, len(current_specs)):
+		for j in range(data_length + 1, data_length * 2 + 1):
 			if(current_specs[j] != 'null' and virtual_point[current_bit][i][j] != 'null'):
 				if(current_specs[j] < virtual_point[current_bit][i][j]):
 					dominating_virtual = True
@@ -71,7 +75,7 @@ def Insert_Local_Skyline(current_specs, current_bit):
 		for i in range(0, len(shadow_skyline[current_bit])):
 			dominating_shadow = False
 			dominated_by_shadow = False
-			for j in range(0, len(current_specs)):
+			for j in range(data_length + 1, data_length * 2 + 1):
 				if(current_specs[j] != 'null' and shadow_skyline[current_bit][i][j] != 'null'):
 					if(current_specs[j] < shadow_skyline[current_bit][i][j]):
 						dominating_shadow = True
@@ -89,7 +93,7 @@ def Insert_Local_Skyline(current_specs, current_bit):
 		for i in range(0, len(shadow_skyline[current_bit])):
 			dominating_shadow = False
 			dominated_by_shadow = False
-			for j in range(0, len(current_specs)):
+			for j in range(data_length + 1, data_length * 2 + 1):
 				if(current_specs[j] != 'null' and shadow_skyline[current_bit][i][j] != 'null'):
 					if(current_specs[j] < shadow_skyline[current_bit][i][j]):
 						dominating_shadow = True
@@ -111,13 +115,14 @@ def Insert_Local_Skyline(current_specs, current_bit):
 def Insert_Candidate_Skyline(current_specs, current_bit):
 	print("Insert_Candidate_Skyline : " + str(current_specs))
 	global candidate_skyline
+	global data_length
 	list_bit_inserted = []
 	dominated = 0
 
 	for i in range(0, len(candidate_skyline)):
 		dominating_candidate = False
 		dominated_by_candidate = False
-		for j in range(0, len(current_specs)):
+		for j in range(data_length + 1, data_length * 2 + 1):
 			if(current_specs[j] != 'null' and candidate_skyline[i][j] != 'null'):
 				if(current_specs[j] < candidate_skyline[i][j]):
 					dominating_candidate = True
@@ -151,7 +156,7 @@ def Insert_Virtual_Point(current_specs, current_bit):
 	for i in range(0, len(local_skyline[current_bit])):
 		dominating_local = False
 		dominated_by_local = False
-		for j in range(0, len(current_specs)):
+		for j in range(data_length + 1, data_length * 2 + 1):
 			if(current_specs[j] != 'null' and local_skyline[current_bit][i][j] != 'null'):
 				if(current_specs[j] < local_skyline[current_bit][i][j]):
 					dominating_local = True
@@ -173,7 +178,7 @@ def Insert_Virtual_Point(current_specs, current_bit):
 		dominated_by_virtual = False
 		superset_check = 0
 
-		for j in range(0, len(current_specs)):
+		for j in range(data_length + 1, data_length * 2 + 1):
 			if(current_specs[j] != 'null' and virtual_point[current_bit][i][j] != 'null'):
 				if(current_specs[j] < virtual_point[current_bit][i][j]):
 					dominating_virtual = True
@@ -206,7 +211,7 @@ def Update_Global_Skyline():
 		for g in range(0, len(global_skyline)):
 			dominating_global = False
 			dominating_candidate = False
-			for i in range(0, data_length):
+			for i in range(data_length + 1, data_length * 2 + 1):
 				if(candidate_skyline[c][i] != 'null' and global_skyline[g][i] != 'null'):
 					if(candidate_skyline[c][i] < global_skyline[g][i]):
 						dominating_global = True
@@ -231,7 +236,7 @@ def Update_Global_Skyline():
 				for s in range(0, len(shadow_skyline[i])):
 					dominating_global = False
 					dominating_shadow = False
-					for j in range(0, data_length):
+					for j in range(data_length + 1, data_length * 2 + 1):
 						if(global_skyline[g][j] != 'null' and shadow_skyline[i][s][j] != 'null' ):
 							if(global_skyline[g][j] < shadow_skyline[i][s][j]):
 								dominating_shadow = True
@@ -245,7 +250,7 @@ def Update_Global_Skyline():
 			for s in range(0, len(shadow_skyline[i])):
 				dominating_candidate = False
 				dominating_shadow = False
-				for j in range(0, data_length):
+				for j in range(data_length + 1, data_length * 2 + 1):
 					if(candidate_skyline[c][j] != 'null' and shadow_skyline[i][s][j] != 'null'):
 						if(candidate_skyline[c][j] < shadow_skyline[i][s][j]):
 							dominating_shadow = True
@@ -273,7 +278,7 @@ user_preference = np.loadtxt('user_preference.txt', skiprows=1, unpack=True)
 current_product = np.loadtxt('current_product.txt', skiprows=1, unpack=True)
 
 for x in range(0, len(user_preference[0])):
-	fp = open("unlabeled_random_specs.txt")
+	fp = open("random_specs.txt")
 	node.clear()
 	local_skyline.clear()
 	candidate_skyline.clear()
@@ -292,27 +297,31 @@ for x in range(0, len(user_preference[0])):
 		print("")
 		current_bit = ""
 		current_specs = line.split()
-		data_length = len(current_specs)
-		for i in range(0, data_length):
+		data_length = len(current_specs) - 1
+		product_data = list(current_specs)
+		print("CS : " + str(current_specs))
+		for i in range(1, data_length + 1):
 			if(current_specs[i] == "null"):
 				current_bit += "0"
+				product_data.append("null")
 			else:
 				current_bit += "1"
-				current_specs[i] = abs(int(current_specs[i]) - user_preference[i][x])
+				product_data.append(abs(int(current_specs[i]) - user_preference[i-1][x]))
+				#current_specs[i] = abs(int(current_specs[i]) - user_preference[i][x])
 		if current_bit not in node:
 			node[current_bit] = []
-			node[current_bit].append(current_specs)
+			node[current_bit].append(product_data)
 			local_skyline[current_bit] = []
 			shadow_skyline[current_bit] = []
 			virtual_point[current_bit] = []
 			n_updated_flag[current_bit] = False
 		else:
-			node[current_bit].append(current_specs)
+			node[current_bit].append(product_data)
 
 		indexhelper += 1
 		print(indexhelper)
-		
-		is_skyline = Insert_Local_Skyline(current_specs, current_bit)
+
+		is_skyline = Insert_Local_Skyline(product_data, current_bit)
 		if is_skyline == True:
 			print(">>> Local inserted")
 			Insert_Candidate_Skyline(current_specs, current_bit)

@@ -18,7 +18,7 @@ t = 5
 rsl = []
 number_of_preference = 0
 
-def Insert_Local_Skyline(current_specs, current_bit):
+def Insert_Local_Skyline(current_specs, current_bit, dict_index):
 	print("Insert_Local_Skyline : " + str(current_specs))
 	global local_skyline
 	global shadow_skyline
@@ -64,7 +64,8 @@ def Insert_Local_Skyline(current_specs, current_bit):
 	if(dominated == 0):
 		content = list(current_specs)
 		content.append('ok')
-		local_skyline[current_bit].append(content)
+		local_skyline[current_bit][dict_index].append(content)
+		#local_skyline[current_bit].append(content)
 		for i in sorted(local_skyline[current_bit], reverse=True):
 			if (i[-1] == 'delete'):
 				local_skyline[current_bit].remove(i)
@@ -272,8 +273,10 @@ product_specs = np.loadtxt('product_specs.txt', skiprows=1, unpack=True)
 user_preference = np.loadtxt('user_preference.txt', skiprows=1, unpack=True)
 current_product = np.loadtxt('current_product.txt', skiprows=1, unpack=True)
 
+product_data = {}
+
 for x in range(0, len(user_preference[0])):
-	fp = open("unlabeled_random_specs.txt")
+	fp = open("labeled_unsorted_paper_data.txt")
 	node.clear()
 	local_skyline.clear()
 	candidate_skyline.clear()
@@ -281,41 +284,48 @@ for x in range(0, len(user_preference[0])):
 	shadow_skyline.clear()
 	virtual_point.clear()
 	indexhelper = 0
-	print("")
-	print("")
-	print("")
-	print("")
+	
 	number_of_preference += 1
 	print("Processing User Preference No : " + str(number_of_preference))
 	for line in fp:
 		print("")
 		print("")
 		current_bit = ""
-		current_specs = line.split()
-		data_length = len(current_specs)
-		for i in range(0, data_length):
-			if(current_specs[i] == "null"):
+		current_spec = line.split()
+		data_length = len(current_spec)
+		dict_index = current_spec[0]
+		print("DICT INDEX : " + str(dict_index))
+		data = []
+		for i in range(1, data_length):
+			if(current_spec[i] == "null"):
 				current_bit += "0"
+				data.append("null")
 			else:
 				current_bit += "1"
-				current_specs[i] = abs(int(current_specs[i]) - user_preference[i][x])
+				#current_spec[i] = abs(int(current_spec[i]) - user_preference[i][x])
+				difference = abs(int(current_spec[i]) - user_preference[i-1][x])
+				data.append(difference)
 		if current_bit not in node:
-			node[current_bit] = []
-			node[current_bit].append(current_specs)
-			local_skyline[current_bit] = []
+			node[current_bit] = {}
+			node[current_bit][dict_index] = []
+			node[current_bit][dict_index].append(data)
+			local_skyline[current_bit] = {}
 			shadow_skyline[current_bit] = []
 			virtual_point[current_bit] = []
 			n_updated_flag[current_bit] = False
 		else:
-			node[current_bit].append(current_specs)
+			node[current_bit][dict_index] = []
+			node[current_bit][dict_index].append(data)
 
 		indexhelper += 1
 		print(indexhelper)
+
+		print("ISI DATA : " + str(data))
 		
-		is_skyline = Insert_Local_Skyline(current_specs, current_bit)
+		is_skyline = Insert_Local_Skyline(data, current_bit, dict_index)
 		if is_skyline == True:
 			print(">>> Local inserted")
-			Insert_Candidate_Skyline(current_specs, current_bit)
+			Insert_Candidate_Skyline(data, current_bit)
 			if(len(candidate_skyline) > t):
 				Update_Global_Skyline()
 				candidate_skyline.clear()
@@ -329,8 +339,3 @@ for x in range(0, len(user_preference[0])):
 	Update_Global_Skyline()
 	
 	print("global skyline  : " + str(global_skyline))
-	
-	# for y in n_updated_flag:
-	# 	n_updated_flag[y] = False
-
-	#print("")
