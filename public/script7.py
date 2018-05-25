@@ -17,7 +17,8 @@ data_length = 0
 t = 5
 rsl = []
 number_of_preference = 0
-consumer = {}
+customer = []
+customer_index = 0
 
 def Insert_Local_Skyline(current_specs, current_bit):
 	print("Insert_Local_Skyline : " + str(current_specs))
@@ -320,12 +321,10 @@ for x in range(0, len(user_preference[0])):
 
 		# indexhelper += 1
 		# print(indexhelper)
-		is_skyline = Insert_Local_Skyline(data, current_bit)
+		is_skyline = Insert_Local_Skyline(transformed_data, current_bit)
 		if is_skyline == True:
-			print("TAG ; = ")
-			print(local_skyline[current_bit])
 			print(">>> Local inserted")
-			Insert_Candidate_Skyline(data, current_bit)
+			Insert_Candidate_Skyline(transformed_data, current_bit)
 			if(len(candidate_skyline) > t):
 				Update_Global_Skyline()
 				candidate_skyline.clear()
@@ -337,8 +336,26 @@ for x in range(0, len(user_preference[0])):
 		print("**************************************************")
 	fp.close()
 	Update_Global_Skyline()
+
+	#print("global skyline  : " + str(global_skyline))
+
+	print("GLOBAL SKYLINE : " + str(global_skyline))
+
+	for g in global_skyline:
+		print(g)
+
+	customer.append(customer_index)
+	customer[customer_index] = list(global_skyline)
+	customer_index += 1
+
+print(customer)
+
+for c in customer:
+	print(c)
+
+	#inputing the result to customer variable
 	
-	print("global skyline  : " + str(global_skyline))
+	
 	
 	# for y in n_updated_flag:
 	# 	n_updated_flag[y] = False
