@@ -16,10 +16,12 @@ n_updated_flag = {}
 data_length = 0
 t = 5
 rsl = []
+safe_region = []
 number_of_preference = 0
-customer = []
+customer_skyline = {}
 customer_index = 0
 query_point = []
+list_customer = []
 
 def Insert_Local_Skyline(current_specs, current_bit):
 	print("Insert_Local_Skyline : " + str(current_specs))
@@ -205,6 +207,8 @@ def Update_Global_Skyline():
 	global candidate_skyline
 	global shadow_skyline
 	global data_length
+	print("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+	print("GLOBAL DATA : " + str(global_skyline))
 	for c in range(0, len(candidate_skyline)):
 		for g in range(0, len(global_skyline)):
 			dominating_global = False
@@ -238,7 +242,7 @@ def Update_Global_Skyline():
 						if(global_skyline[g][j] != 'null' and shadow_skyline[i][s][j] != 'null' ):
 							if(global_skyline[g][j] < shadow_skyline[i][s][j]):
 								dominating_shadow = True
-							elif(global_skyline[g][j] > shadow_skyline[i][s][j]):
+							elif(global_skyline[g][j] > shadow_skyline[i][s][j]): 
 								dominating_global = True
 					if(dominating_global == True and dominating_shadow == False):
 						global_skyline[g][-1] == 'delete'
@@ -265,13 +269,19 @@ def Update_Global_Skyline():
 		if(i[-1] == 'delete'):
 			print(">>> Candidate " + str(i) + " removed by shadow")
 			candidate_skyline.remove(i)
+	print("GLOBAL t : " + str(global_skyline))
+	print("CANDIDATE : " + str(candidate_skyline))
 	for i in candidate_skyline:
+		print("i : " + str(i))
 		global_skyline.append(i)
+
 	for i in n_updated_flag:
 		n_updated_flag[i] == False
+	print("GLOBAL DATA : " + str(global_skyline))
+	print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
 
 
-def Generate_Q():
+def Generate_Query_Point():
 	query_point.append(6)
 	query_point.append(2)
 	query_point.append("null")
@@ -279,17 +289,25 @@ def Generate_Q():
 
 
 def Get_RSL():
-	global customer
+	print("")
+	print("")
+	print("")
+	print("Get_RSL()")
+	global customer_skyline
 	global query_point
-	for c in customer:
+	print("CUSTOMER SKYLINE : " + str(customer_skyline))
+	for c in customer_skyline:
 		q_status = True
-		for data in c:
+		print("INNER LOOP : " + str(customer_skyline[c]))
+		for data in customer_skyline[c]:
+			print("More In (data) : " + str(data))
+			#After this, looping for all dimension in data
 			dominating_q = False
 			dominating_customer = False
-			for i in range(1, len(c) - 2):
-				if(query_point[i - 1] < customer[i]):
+			for i in range(1, len(customer_skyline[c]) - 2):
+				if(query_point[i - 1] < customer_skyline[i]):
 					dominating_customer = True
-				elif(query_point[i - 1] < customer[i]):
+				elif(query_point[i - 1] < customer_skyline[i]):
 					dominating_q = True
 			if(dominating_q == True and dominating_customer == False):
 				#tell that q is dominated
@@ -297,30 +315,40 @@ def Get_RSL():
 				pass
 				#q tidak perlu dibandingkan dengan customer, proses dilanjutkan untuk user berikutnya
 			elif(dominating_q == False and dominating_customer == True):
-				pass
-				#delete customer skyline
+				data[-1] = 'delete'
 		if(q_status == True):
-			rsl.append()#sambung
+			for i in sorted(data, reverse=True):
+				if(i[-1] == 'delete'):
+					data.remove(i)
+			rsl.append(list(data))
+			if(len(safe_region) == 0):
+				temp = []
+				for data in c:
+					pass
+					#pembuatan SAFE REGION
+					#nilai minimal dan maksimal dari tiap dimensi
+					#butuh nilai asli dari tiap data
+	print("RSL : " + str(rsl))
 
 
-if(current_specs[j] != 'null' and local_skyline[current_bit][i][j] != 'null'):
-				if(current_specs[j] < local_skyline[current_bit][i][j]):
-					dominating_local = True
-				elif(current_specs[j] > local_skyline[current_bit][i][j]):
-					dominated_by_local = True
-		if(dominating_local == True and dominated_by_local == False):
-			local_skyline[current_bit][i][-1] = 'delete'
-		elif(dominating_local == False and dominated_by_local == True):
-			for k in range(0, i+1):
-				local_skyline[current_bit][k][-1] = 'ok'
-			return False
+# for i in sorted(local_skyline[current_bit], reverse=True):
+# 			if (i[-1] == 'delete'):
+# 				local_skyline[current_bit].remove(i)
 
 
-product_specs = np.loadtxt('product_specs.txt', skiprows=1, unpack=True)
-user_preference = np.loadtxt('user_preference.txt', skiprows=1, unpack=True)
-current_product = np.loadtxt('current_product.txt', skiprows=1, unpack=True)
 
-for x in range(0, len(user_preference[0])):
+#product_specs = np.loadtxt('product_specs.txt', skiprows=1, unpack=True)
+#user_preference = np.loadtxt('user_preference.txt', skiprows=1, unpack=True)
+#current_product = np.loadtxt('current_product.txt', skiprows=1, unpack=True)
+
+fu = open("unlabeled_user_preference.txt")
+for list_user in fu:
+	temp = [float(x) for x in list_user.split()]
+	list_customer.append(temp)
+
+
+#for x in range(0, len(user_preference[0])):
+for x in range(0, len(list_customer)):
 	fp = open("random_specs.txt")
 	node.clear()
 	local_skyline.clear()
@@ -352,7 +380,7 @@ for x in range(0, len(user_preference[0])):
 				transformed_data.append(current_spec[i])
 			else:
 				current_bit += "1"
-				difference = abs(float(current_spec[i]) - user_preference[i-1][x])
+				difference = abs(float(current_spec[i]) - list_customer[x][i-1])
 				data.append(float(current_spec[i]))
 				transformed_data.append(float(difference))
 		if current_bit not in node:
@@ -384,17 +412,26 @@ for x in range(0, len(user_preference[0])):
 	Update_Global_Skyline()
 
 	#Menyimpan semua skyline untuk tiap user
-	customer.append(customer_index)
-	customer[customer_index] = list(global_skyline)
+	customer_skyline[str(customer_index)] = list(global_skyline)
 	customer_index += 1
+
+	print("GLOBAL SKYLINE : " + str(global_skyline))
+
+	# print("GLOBAL ELEMENT : ")
+	# for g in global_skyline:
+	# 	print(g[0])
+
 	
-Generate_Q()
-print("QUERY POINT: " + str(query_point))
+Generate_Query_Point()
+# print("QUERY POINT: " + str(query_point))
 
-for c in customer:
-	print(c)
+# print("CUSTOMER SKYLINE : " + str(customer_skyline))
+# for c in customer_skyline:
+# 	print(customer_skyline[c])
+# 	for n in customer_skyline[c]:
+# 		print(n[0])
 
-	#inputing the result to customer variable
+Get_RSL()
 	
 	
 	
@@ -402,3 +439,4 @@ for c in customer:
 	# 	n_updated_flag[y] = False
 
 	#print("")
+fu.close()
