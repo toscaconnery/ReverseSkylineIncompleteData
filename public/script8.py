@@ -284,7 +284,7 @@ def Update_Global_Skyline():
 def Generate_Query_Point():
 	query_point.append(6)
 	query_point.append(2)
-	query_point.append("null")
+	query_point.append(1)
 	query_point.append(3)
 
 
@@ -295,46 +295,152 @@ def Get_RSL():
 	print("Get_RSL()")
 	global customer_skyline
 	global query_point
-	print("CUSTOMER SKYLINE : " + str(customer_skyline))
-	for c in customer_skyline:
+	global safe_region
+	print("ALL CUSTOMER SKYLINE : " + str(customer_skyline))
+	helper = 1
+	for dict_index in customer_skyline:		#c is dictionary index
+		print("")
+		print("")
+		print("CUSTOMER SKYLINE INDEX " + str(helper))
+		helper += 1
+		#mentransformasikan query point untuk kemudian dibandingkan dengan skyline dari customer
+		transformed_query = []
+		for q in range(0, len(query_point)):
+			transformed_value = abs(query_point[q] - customer_skyline[dict_index][-2][q])
+			transformed_query.append(transformed_value)
 		q_status = True
-		print("INNER LOOP : " + str(customer_skyline[c]))
-		for data in customer_skyline[c]:
-			print("More In (data) : " + str(data))
+		for data_index in range(0, len(customer_skyline[dict_index]) - 2):
 			#After this, looping for all dimension in data
 			dominating_q = False
 			dominating_customer = False
-			for i in range(1, len(customer_skyline[c]) - 2):
-				if(query_point[i - 1] < customer_skyline[i]):
-					dominating_customer = True
-				elif(query_point[i - 1] < customer_skyline[i]):
-					dominating_q = True
-			if(dominating_q == True and dominating_customer == False):
+			for i in range(1, len(customer_skyline[dict_index][data_index]) - 2):
+				if(transformed_query[i - 1] != 'null' and customer_skyline[dict_index][data_index][i] != 'null'):
+					if(transformed_query[i - 1] < customer_skyline[dict_index][data_index][i]):
+						dominating_customer = True
+					elif(transformed_query[i - 1] > customer_skyline[dict_index][data_index][i]):
+						dominating_q = True
+			if(dominating_q == True and dominating_customer == False): #query_point dominated
 				#tell that q is dominated
-				q_status = False
-				pass
-				#q tidak perlu dibandingkan dengan customer, proses dilanjutkan untuk user berikutnya
-			elif(dominating_q == False and dominating_customer == True):
-				data[-1] = 'delete'
-		if(q_status == True):
-			for i in sorted(data, reverse=True):
-				if(i[-1] == 'delete'):
-					data.remove(i)
-			rsl.append(list(data))
+				# q_status = False
+				#hapus customer dari daftar RSL
+				customer_skyline[dict_index][-1] = 'not rsl'
+				#q tidak perlu dibandingkan dengan customer, proses dilanjutkan untuk user berikutnya ####
+				
+			elif(dominating_q == False and dominating_customer == True): #query_point_not dominating customer skyline
+				customer_skyline[dict_index][data_index][-1] = 'delete'
+		if(customer_skyline[dict_index][-1] == 'ok'):
+			#data yang statusnya 'not rsl' tidak perlu dihapus demi efisiensi waktu, cukup cari safe region dari data yang statusnya 'ok'
 			if(len(safe_region) == 0):
-				temp = []
-				for data in c:
-					pass
-					#pembuatan SAFE REGION
-					#nilai minimal dan maksimal dari tiap dimensi
-					#butuh nilai asli dari tiap data
-	print("RSL : " + str(rsl))
+				#Bagian ini hanya menentukan DDR PRIME dari data pertama kemudian memasukkannya ke safe region
+				safe_data = []
+				for data_index in range(0, len(customer_skyline[dict_index]) - 2):
+					if(customer_skyline[dict_index][data_index][-1] == 'ok'):
+						projected_value = []
+						for i in range(1, len(customer_skyline[dict_index][data_index]) - 2):
+							if(customer_skyline[dict_index][data_index][i] == 'null'):
+								bottom = 'null'
+								top = 'null'
+							else:
+								bottom = customer_skyline[dict_index][-2][i-1] - customer_skyline[dict_index][data_index][i]
+								top = customer_skyline[dict_index][-2][i-1] + customer_skyline[dict_index][data_index][i]
+							min_max_value = [bottom, top]
+							projected_value.append(min_max_value)
+						safe_data.append(projected_value)
+						print("this_safe_data : " + str(safe_data))
+				safe_region = list(safe_data)
+			else:
+				#Bagian ini menentukan DDR PRIME dari data yang diperiksa, kemudian membandingkannya dengan safe region
+				#Penghitungan DDR PRIME
+				safe_data = []
+				for data_index in range(0, len(customer_skyline[dict_index]) - 2):
+					if(customer_skyline[dict_index][data_index][-1] == 'ok'):
+						projected_value = []
+						for i in range(1, len(customer_skyline[dict_index][data_index]) - 2):
+							if (customer_skyline[dict_index][data_index][i] == 'null'):
+								bottom = 'null'
+								top = 'null'
+							else:
+								bottom = customer_skyline[dict_index][-2][i-1] - customer_skyline[dict_index][data_index][i]
+								top = customer_skyline[dict_index][-2][i-1] + customer_skyline[dict_index][data_index][i]
+							min_max_value = [bottom, top]
+							projected_value.append(min_max_value)
+						safe_data.append(projected_value)
+				print("GELOMBANG DUA   : " + str(safe_data))
+				print("PEMBANDINg (SR) : " + str(safe_region))
+				#Memperbaharui Safe Region
+				new_safe_region = []
+				for sr_index in range(0, len(safe_region)):
+					for sd_index in range(0, len(safe_data)):
+						intersect_status = True
+						intersect_data = []
+						for i in range(0, len(safe_data[sd_index])):
+							#min
+							if(safe_data[sd_index][i][0] != 'null' and safe_region[sr_index][i][0] != 'null'):
+								min_value = max(safe_data[sd_index][i][0], safe_region[sr_index][i][0])
+							elif(safe_data[sd_index][i][0] == 'null' and safe_region[sr_index][i][0] == 'null'):
+								min_value = 'null'
+							elif(safe_data[sd_index][i][0] == 'null'):
+								min_value = safe_region[sr_index][i][0]
+							elif(safe_region[sr_index][i][0] == 'null'):
+								min_value = safe_data[sd_index][i][0]
+							
+							#max
+							if(safe_data[sd_index][i][1] != 'null' and safe_region[sr_index][i][1] != 'null'):
+								max_value = min(safe_data[sd_index][i][1], safe_region[sr_index][i][1])
+							elif(safe_data[sd_index][i][1] != 'null' and safe_region[sr_index][i][1] != 'null'):
+								max_value = 'null'
+							elif(safe_data[sd_index][i][1] == 'null'):
+								max_value = safe_region[sr_index][i][1]
+							elif(safe_region[sr_index][i][1] == 'null'):
+								max_value = safe_data[sd_index][i][1]
+							
+							if(min_value != 'null' and max_value != 'null'):
+								if(min_value > max_value):
+									intersect_status = False
+							min_max_intersect = [min_value, max_value]
+							intersect_data.append(min_max_intersect)
+						if(intersect_status == True):
+							new_safe_region.append(intersect_data)
+				safe_region = list(new_safe_region)
 
-
-# for i in sorted(local_skyline[current_bit], reverse=True):
-# 			if (i[-1] == 'delete'):
-# 				local_skyline[current_bit].remove(i)
-
+						# 	if(min_value == 'null' and max_value == 'null'):
+						# 		pass
+						# 	else:
+						# 		if(min_value > max_value )
+						# 	if(min_value > max_value):
+						# 		intersect_status = False
+						# 		min_max_value = []
+						# 	else:
+						# 		min_max_intersect = [min_value, max_value] ######
+						# 	intersect_data.append(min_max_intersect) ########
+						# if(intersect_status == True):
+						# 	new_safe_region.append(intersect_data)
+					# 		print("TNY DATA : " + str(safe_data[sd_index][i]))
+					# 	print("TOOST : " + str(safe_data[sd_index]))
+					# print("TEXST : " + str(safe_region[sr_index]))
+				print("new SR : " + str(new_safe_region))
+			#safe_region.append(safe_data)
+		print("SR : " + str(safe_region))
+			# if(len(safe_region) == 0):
+			# 	print("safe_region masih kosong YUYUYUYUYUYUYUYUYUY")
+			# 	for data_index in range(0, len(customer_skyline[dict_index]) - 2):
+			# 		if(customer_skyline[dict_index][data_index][-1] == 'ok'):
+			# 			projected_value = []
+			# 			for i in range(1, len(customer_skyline[dict_index][data_index]) - 2):
+			# 				if(customer_skyline[dict_index][data_index][i] == 'null'): #jika user_preference bisa null, maka harus ditambah pengecekan user preference bisa null:
+			# 					bottom = 'null'
+			# 					top = 'null'
+			# 				else:
+			# 					bottom = customer_skyline[dict_index][-2][i-1] - customer_skyline[dict_index][data_index][i]
+			# 					top = customer_skyline[dict_index][-2][i-1] + customer_skyline[dict_index][data_index][i]
+			# 				min_max_value = [bottom, top]
+			# 				projected_value.append(min_max_value)
+			# 			safe_data.append(projected_value)
+			# 			print("M SAFE REGION : " + str(safe_region))
+			# else:
+			# 	print("safe_region sudah ada YAYAYAYAYAYAYAYAYAYAY")
+			# 	print("TESX : " + str(customer_skyline[dict_index][data_index]))
+			# 	print("SAFE DATA : " + str(safe_region))
 
 
 #product_specs = np.loadtxt('product_specs.txt', skiprows=1, unpack=True)
@@ -412,31 +518,15 @@ for x in range(0, len(list_customer)):
 	Update_Global_Skyline()
 
 	#Menyimpan semua skyline untuk tiap user
+	#sisipkan nilai asli customer preference di akhir list untuk digunakan pada fungsi pembandingan q
+	# print("test : " + str(list_customer[x]))
+	# temp = list(global_skyline)
 	customer_skyline[str(customer_index)] = list(global_skyline)
+	customer_skyline[str(customer_index)].append(list(list_customer[x]))
+	customer_skyline[str(customer_index)].append("ok")
 	customer_index += 1
 
-	print("GLOBAL SKYLINE : " + str(global_skyline))
-
-	# print("GLOBAL ELEMENT : ")
-	# for g in global_skyline:
-	# 	print(g[0])
-
-	
 Generate_Query_Point()
-# print("QUERY POINT: " + str(query_point))
-
-# print("CUSTOMER SKYLINE : " + str(customer_skyline))
-# for c in customer_skyline:
-# 	print(customer_skyline[c])
-# 	for n in customer_skyline[c]:
-# 		print(n[0])
-
 Get_RSL()
-	
-	
-	
-	# for y in n_updated_flag:
-	# 	n_updated_flag[y] = False
 
-	#print("")
 fu.close()
