@@ -31,6 +31,8 @@ def Insert_Local_Skyline(current_specs, current_bit):
 	global shadow_skyline
 	global virtual_point
 
+	print("LOCAL SKYLI : " + str(local_skyline))
+	print("CURRENT BIT : " + str(current_bit))
 	for i in range(0, len(local_skyline[current_bit])):	#pengulangan sebanyak data yang ada didalam local_skyline, untuk dibandingkan satu persatu dengan data baru
 		dominating_local = False
 		dominated_by_local = False
@@ -299,12 +301,12 @@ def Generate_Ct():
 	ct.append(2)
 
 
-def Get_RSL():
+def Get_Safe_Region_Q():
 	#This function calculate all safe region areas from every DDR Prime of customer data
 	print("")
 	print("")
 	print("")
-	print("RUNNING GET_RSL()")
+	print("RUNNING GET_SAFE_REGION_Q()")
 	global customer_skyline
 	global query_point
 	global safe_region
@@ -417,16 +419,61 @@ def Get_DDR_Ct(ct):
 	#It will return Ct DDR Prime and status of query point
 	print("RUNNING GET_DDR_CT()")
 	global product_list
-	print("PRODUK : " + str(product_list))
-	fp = open(product_list)
-	local_skyline = []
-	candidate_skyline = []
-	global_skyline = []
-	shadow_skyline = []
-	virtual_point = []
+	global node
+	global local_skyline
+	global candidate_skyline
+	global global_skyline
+	global shadow_skyline
+	global virtual_point
+	global current_bit
+	global safe_region
 
-	# for line in fp:
-	# 	current_bit
+	print("PRODUK : " + str(product_list))
+	
+	fp = open(product_list)
+	local_skyline.clear()
+	candidate_skyline.clear()
+	global_skyline.clear()
+	shadow_skyline.clear()
+	virtual_point.clear()
+	node.clear()
+	for line in fp:
+		current_bit = ""
+		print("CALLING PREPARE_DATA : (data : " + str(line) + " ct : " + str(ct))
+		print("CURRENT LOCAL : " + str(local_skyline))
+		transformed_data = Prepare_Data(line, ct)
+		is_skyline = Insert_Local_Skyline(transformed_data, current_bit)
+		if(is_skyline == True):
+			print(">>x Local inserted")
+			Insert_Candidate_Skyline(transformed_data, current_bit)
+			if(len(candidate_skyline) > t):
+				Update_Global_Skyline()
+				candidate_skyline.clear()
+	fp.close()
+	Update_Global_Skyline()
+
+	print("FINAL")
+	print("GLOBAL F : " + str(global_skyline))
+
+	ddr_ct = []
+	for g in range(0, len(global_skyline)):
+		print(global_skyline[g])
+		projected_value = []
+		for i in range(1, len(global_skyline[g]) - 2):
+			if(global_skyline[g][i] == 'null'):
+				bottom = 'null'
+				top = 'null'
+			else: 
+				bottom = ct[i-1] - global_skyline[g][i]
+				top = ct[i-1] + global_skyline[g][i]
+			min_max_value = [bottom, top]
+			projected_value.append(min_max_value)
+		ddr_ct.append(projected_value)
+	print("DDR CT : " + str(ddr_ct))
+	print("SAFE : " + str(safe_region))
+	return ddr_ct
+
+
 
 
 def Prepare_Data(line, customer):
@@ -457,7 +504,6 @@ def Prepare_Data(line, customer):
 			data.append(float(current_spec[i]))
 			transformed_data.append(float(difference))
 	if current_bit not in node:
-		print("44444 CURRENT BIT NOT IN NODE")
 		node[current_bit] = []
 		node[current_bit].append(data)
 		local_skyline[current_bit] = []
@@ -467,6 +513,10 @@ def Prepare_Data(line, customer):
 	else:
 		node[current_bit].append(data)
 	return transformed_data
+
+
+def Check_Why_Not_And_Query_Point_Intersect():
+	pass
 
 
 #product_specs = np.loadtxt('product_specs.txt', skiprows=1, unpack=True)
@@ -479,7 +529,6 @@ for list_user in fu:
 	list_customer.append(temp)
 
 
-#for x in range(0, len(user_preference[0])):
 for x in range(0, len(list_customer)):
 	fp = open(product_list)
 	node.clear()
@@ -498,37 +547,7 @@ for x in range(0, len(list_customer)):
 		print("")
 		print("")
 		current_bit = ""
-
 		transformed_data = Prepare_Data(line, list_customer[x])
-		# print("CURRENT BIT THIS : " + str(current_bit))
-
-		# current_spec = line.split()
-		# data = []
-		# transformed_data = []
-		# transformed_data.append(current_spec[0])
-		# data.append(current_spec[0])
-		# data_length = len(current_spec)
-		# for i in range(1, data_length):
-		# 	if(current_spec[i] == "null"):
-		# 		current_bit += "0"
-		# 		data.append(current_spec[i])
-		# 		transformed_data.append(current_spec[i])
-		# 	else:
-		# 		current_bit += "1"
-		# 		difference = abs(float(current_spec[i]) - list_customer[x][i-1])
-		# 		data.append(float(current_spec[i]))
-		# 		transformed_data.append(float(difference))
-		# if current_bit not in node:
-		# 	print("44444 CURRENT BIT NOT IN NODE")
-		# 	node[current_bit] = []
-		# 	node[current_bit].append(data)
-		# 	local_skyline[current_bit] = []
-		# 	shadow_skyline[current_bit] = []
-		# 	virtual_point[current_bit] = []
-		# 	n_updated_flag[current_bit] = False
-		# else:
-		# 	node[current_bit].append(data)
-
 		is_skyline = Insert_Local_Skyline(transformed_data, current_bit)
 		if is_skyline == True:
 			print(">>> Local inserted")
@@ -555,9 +574,11 @@ for x in range(0, len(list_customer)):
 	customer_index += 1
 
 Generate_Query_Point()
-Get_RSL()
+Get_Safe_Region_Q()
 
 Generate_Ct()
-Get_DDR_Ct(ct)
+ddr_ct = Get_DDR_Ct(ct)
+
+Check_Why_Not_And_Query_Point_Intersect()
 
 fu.close()

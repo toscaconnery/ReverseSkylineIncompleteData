@@ -457,7 +457,6 @@ def Prepare_Data(line, customer):
 			data.append(float(current_spec[i]))
 			transformed_data.append(float(difference))
 	if current_bit not in node:
-		print("44444 CURRENT BIT NOT IN NODE")
 		node[current_bit] = []
 		node[current_bit].append(data)
 		local_skyline[current_bit] = []
