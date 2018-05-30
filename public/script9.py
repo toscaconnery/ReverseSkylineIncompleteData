@@ -24,6 +24,7 @@ query_point = []
 list_customer = []
 ct = []
 product_list = "random_specs.txt"
+intersection = []
 
 def Insert_Local_Skyline(current_specs, current_bit):
 	print("Insert_Local_Skyline : " + str(current_specs))
@@ -515,8 +516,51 @@ def Prepare_Data(line, customer):
 	return transformed_data
 
 
-def Check_Why_Not_And_Query_Point_Intersect():
-	pass
+def Check_Why_Not_And_Query_Point_Intersect(safe_region, ddr_ct):
+	global intersection
+	print("RUNNING CHECKING_INTERSECTION")
+	print("SAFE : " + str(safe_region))
+	print("DDR  : " + str(ddr_ct))
+	#intersection = []
+	for safe_index in range(0, len(safe_region)):
+		for ddr_index in range(0, len(ddr_ct)):
+			intersect_data = []
+			intersect_status = True
+			for i in range(0, len(safe_region[safe_index])):
+				#bottom
+				if(safe_region[safe_index][i][0] == 'null' and ddr_ct[ddr_index][i][0] == 'null'):
+					bottom = 'null'
+				elif(safe_region[safe_index][i][0] != 'null' and ddr_ct[ddr_index][i][0] != 'null'):
+					bottom = max(safe_region[safe_index][i][0], ddr_ct[ddr_index][i][0])
+				elif(safe_region[safe_index][i][0] == 'null'):
+					bottom = ddr_ct[ddr_index][i][0]
+				elif(ddr_ct[ddr_index][i][0] == 'null'):
+					bottom = safe_region[safe_index][i][0]
+
+				#top
+				if(safe_region[safe_index][i][1] == 'null' and ddr_ct[ddr_index][i][1] == 'null'):
+					top = 'null'
+				elif(safe_region[safe_index][i][1] != 'null' and ddr_ct[ddr_index][i][1] != 'null'):
+					top = min(safe_region[safe_index][i][1], ddr_ct[ddr_index][i][1])
+				elif(safe_region[safe_index][i][1] == 'null'):
+					top = ddr_ct[ddr_index][i][1]
+				elif(ddr_ct[ddr_index][i][1] == 'null'):
+					top = safe_region[safe_index][i][1]
+
+				min_max_value = [bottom, top]
+				intersect_data.append(min_max_value)
+
+				if(bottom != 'null' and top != 'null'):
+					if(bottom > top):
+						intersect_status = False
+
+			if(intersect_status == True):
+				intersection.append(intersect_data)
+	if(len(intersection) > 0):
+		return True
+	else:
+		return False
+
 
 
 #product_specs = np.loadtxt('product_specs.txt', skiprows=1, unpack=True)
@@ -578,7 +622,8 @@ Get_Safe_Region_Q()
 
 Generate_Ct()
 ddr_ct = Get_DDR_Ct(ct)
+intersection_status = Check_Why_Not_And_Query_Point_Intersect(safe_region, ddr_ct)
 
-Check_Why_Not_And_Query_Point_Intersect()
+print("HASIL INTERSECTION = " + str(intersection_status))
 
 fu.close()
