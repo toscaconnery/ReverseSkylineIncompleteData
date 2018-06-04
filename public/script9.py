@@ -157,6 +157,7 @@ def Insert_Virtual_Point(current_specs, current_bit):
 	global local_skyline
 	global virtual_point
 	global shadow_skyline
+	#MEMBANDINGKAN DENGAN LOCAL SKYLINE
 	#Move all dominated local_skyline N to shadow_skyline
 	for i in range(0, len(local_skyline[current_bit])):
 		dominating_local = False
@@ -169,7 +170,6 @@ def Insert_Virtual_Point(current_specs, current_bit):
 					dominated_by_local = True
 		if(dominating_local == True and dominated_by_local == False):
 			local_skyline[current_bit][i][-1] = 'delete'
-
 	for i in reversed(local_skyline[current_bit]):
 		if (i[-1] == 'delete'):
 			print(">>> Local " + str(i) + " moved to shadow")
@@ -177,6 +177,7 @@ def Insert_Virtual_Point(current_specs, current_bit):
 			local_skyline[current_bit].remove(i)
 			shadow_skyline[current_bit][-1][-1] = 'ok'
 	
+	#MEMBANDINGKAN DENGAN VIRTUAL POINT
 	#Remove all dominated virtual_point that has same bit
 	for i in range(0, len(virtual_point[current_bit])):
 		dominating_virtual = False
@@ -212,9 +213,6 @@ def Update_Global_Skyline():
 	global candidate_skyline
 	global shadow_skyline
 	global data_length
-	print("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
-	print("GLOBAL    DATA : " + str(global_skyline))
-	print("CANDIDATE DATA : " + str(candidate_skyline))
 	for c in range(0, len(candidate_skyline)):
 		for g in range(0, len(global_skyline)):
 			dominating_global = False
@@ -561,6 +559,11 @@ def Check_Why_Not_And_Query_Point_Intersect(safe_region, ddr_ct):
 	else:
 		return False
 
+def Move_Query_Point():
+	pass
+
+def Move_Why_Not_And_Query_Point():
+	pass
 
 
 #product_specs = np.loadtxt('product_specs.txt', skiprows=1, unpack=True)
@@ -623,7 +626,11 @@ Get_Safe_Region_Q()
 Generate_Ct()
 ddr_ct = Get_DDR_Ct(ct)
 intersection_status = Check_Why_Not_And_Query_Point_Intersect(safe_region, ddr_ct)
+if(intersection_status == True):
+	Move_Query_Point()
+else:
+	Move_Why_Not_And_Query_Point()
 
-print("HASIL INTERSECTION = " + str(intersection_status))
+print("INTERSECTION = " + str(intersection_status))
 
 fu.close()
