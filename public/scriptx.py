@@ -294,11 +294,6 @@ def Update_Global_Skyline():
 
 def Generate_Query_Point(): #NEW
 	global query_point
-	# query_point.append("QP")
-	# query_point.append(6)
-	# query_point.append(2)
-	# query_point.append(1)
-	# query_point.append(3)
 	query_point = "QP 6 2 1 3"
 
 def Generate_Ct():
@@ -309,7 +304,56 @@ def Generate_Ct():
 	ct.append(2)
 
 
+def Calculate_RSL_Q(customer_skyline, query_point):
+	### - MENGHAPUS SEMUA SKYLINE DARI 'customer_skyline' YANG BUKAN RSL DARI Q, SEHINGGA HANYA TERSISA RSL Q
+	### - PASTIKAN NILAI YANG DIPROSES ADALAH HASIL TRANSFORMASI DARI ASLINYA TERHADAP DATA POINT KONSUMEN
+	print("AA")
+	print("AA")
+	print("AA")
+	print("MASUK CALCULATE RSL")
+	print("custmr skyli : " + str(customer_skyline))
+	print("query_point  : " + str(query_point))
+
+	for dict_index in customer_skyline:
+		for y in customer_skyline[dict_index]:
+			print(y)
+		print("END END END")
+
+		transformed_query = []
+		for q in range(0, len(customer_skyline[dict_index][-2])):
+			transformed_value = abs(float(query_point[q+1]) - customer_skyline[dict_index][-2][q])
+			transformed_query.append(transformed_value)
+		for data_index in range(0, len(customer_skyline[dict_index]) - 2):
+			dominating_q = False
+			dominating_customer = False
+			for i in range(1, len(customer_skyline[dict_index][-2])):
+				if(customer_skyline[dict_index][data_index][i] != 'null'):
+					if(customer_skyline[dict_index][data_index][i] < transformed_query[i]):
+						dominating_q = True
+					elif(customer_skyline[dict_index][data_index][i] > transformed_query[i]):
+						dominating_customer = True
+			if(dominating_q == True and dominating_customer == False):
+				customer_skyline[dict_index][-1] = 'delete'
+			elif(dominating_q == False and dominating_customer == True):
+				customer_skyline[dict_index][data_index][-1] = 'delete'
+		print("CCCCCCCCC - start")
+		print(customer_skyline[dict_index])
+		print("CCCCCCCCC - end")
+		if(customer_skyline[dict_index][-1] == 'ok'):
+			for i in range(len(customer_skyline[dict_index]) - 3, -1, -1):
+				if(customer_skyline[dict_index][i][-1] == 'delete'):
+					customer_skyline[dict_index].remove(customer_skyline[dict_index][i])
+		print("CCCCCCCCCFF - start")
+		print(customer_skyline[dict_index])
+		print("CCCCCCCCCFF - end")
+		print("loop again")
+	return customer_skyline
+
+
+
+
 def Generate_Safe_Region_Q():
+	### - SEMUA CUSTOMER SKYLINE HANYA YANG JADI RSL DARI Q, (PANGGIL FUNGSI GET RSL Q TERLEBIH DAHULU)
 	#This function calculate all safe region areas from every DDR Prime of customer data
 	print("")
 	print("")
@@ -339,8 +383,13 @@ def Generate_Safe_Region_Q():
 		idx_hlpr += 1
 		print(str(idx_hlpr) + ". " +  str(text))
 	#END OF TESTING LINE
-	###PERULANGAN UNTUK SETIAP SKYLINE DARI PENGGUNA
+
 	query_point = query_point.split()
+	Calculate_RSL_Q(customer_skyline, query_point)
+	print("RSL sudah tersaring disini")
+
+
+	###PERULANGAN UNTUK SETIAP SKYLINE DARI PENGGUNA
 	for dict_index in customer_skyline:		#c is dictionary index
 		###MENTRANSFORMASIKAN QUERY POINT TERHADAP DATA POINT DARI SKYLINE
 		transformed_query = []
@@ -350,29 +399,33 @@ def Generate_Safe_Region_Q():
 			print("X:" + str(query_point[q+1]) + " VS Y:" + str(customer_skyline[dict_index][-2][q]))
 			transformed_value = abs(float(query_point[q+1]) - customer_skyline[dict_index][-2][q])
 			transformed_query.append(transformed_value)
-		q_status = True
-		print("HASIL TRANSFORMED QUERY : " + str(transformed_query))
+
+		###?????? BUTUH DI TRANSFORMASIKAN ?
+
+
+		#q_status = True
+		#print("HASIL TRANSFORMED QUERY : " + str(transformed_query))
 		###PERULANGAN UNTUK TIAP DATA DALAM SKYLINE
-		for data_index in range(0, len(customer_skyline[dict_index]) - 2):
-			print("Masuk")
-			dominating_q = False
-			dominating_customer = False
-			print("Membandingkan : 	Q' " + str(transformed_query) + " & CS " + str(customer_skyline[dict_index][data_index]))
-			for i in range(1, len(customer_skyline[dict_index][data_index]) - 2):
-				if(transformed_query[i - 1] != 'null' and customer_skyline[dict_index][data_index][i] != 'null'):
-					if(transformed_query[i - 1] < customer_skyline[dict_index][data_index][i]):
-						dominating_customer = True
-					elif(transformed_query[i - 1] > customer_skyline[dict_index][data_index][i]):
-						dominating_q = True
-			if(dominating_q == True and dominating_customer == False): #query_point dominated
-				#tell that q is dominated
-				# q_status = False
-				#hapus customer dari daftar RSL
-				customer_skyline[dict_index][-1] = 'not rsl'
-				#q tidak perlu dibandingkan dengan customer, proses dilanjutkan untuk user berikutnya ####
+		# for data_index in range(0, len(customer_skyline[dict_index]) - 2):
+		# 	print("Masuk")
+		# 	dominating_q = False
+		# 	dominating_customer = False
+		# 	print("Membandingkan : 	Q' " + str(transformed_query) + " & CS " + str(customer_skyline[dict_index][data_index]))
+		# 	for i in range(1, len(customer_skyline[dict_index][data_index]) - 2):
+		# 		if(transformed_query[i - 1] != 'null' and customer_skyline[dict_index][data_index][i] != 'null'):
+		# 			if(transformed_query[i - 1] < customer_skyline[dict_index][data_index][i]):
+		# 				dominating_customer = True
+		# 			elif(transformed_query[i - 1] > customer_skyline[dict_index][data_index][i]):
+		# 				dominating_q = True
+		# 	if(dominating_q == True and dominating_customer == False): #query_point dominated
+		# 		#tell that q is dominated
+		# 		# q_status = False
+		# 		#hapus customer dari daftar RSL
+		# 		customer_skyline[dict_index][-1] = 'not rsl'
+		# 		#q tidak perlu dibandingkan dengan customer, proses dilanjutkan untuk user berikutnya ####
 				
-			elif(dominating_q == False and dominating_customer == True): #query_point_not dominating customer skyline
-				customer_skyline[dict_index][data_index][-1] = 'delete'
+		# 	elif(dominating_q == False and dominating_customer == True): #query_point_not dominating customer skyline
+		# 		customer_skyline[dict_index][data_index][-1] = 'delete'
 		if(customer_skyline[dict_index][-1] == 'ok'):
 			#data yang statusnya 'not rsl' tidak perlu dihapus demi efisiensi waktu, cukup cari safe region dari data yang statusnya 'ok'
 			if(len(safe_region) == 0):
@@ -444,6 +497,9 @@ def Generate_Safe_Region_Q():
 						if(intersect_status == True):
 							new_safe_region.append(intersect_data)
 				safe_region = list(new_safe_region)
+
+
+
 
 def Generate_DDR_Prime_Ct(ct):
 	#This function will check if query_point is included to ct's skyline
