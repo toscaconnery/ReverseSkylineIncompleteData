@@ -285,12 +285,21 @@ def Update_Global_Skyline():
 	print("===============================================================================================")
 
 
-def Generate_Query_Point():
+# def Generate_Query_Point(): #OLD
+# 	global query_point
+# 	query_point.append(6)
+# 	query_point.append(2)
+# 	query_point.append(1)
+# 	query_point.append(3)
+
+def Generate_Query_Point(): #NEW
 	global query_point
-	query_point.append(6)
-	query_point.append(2)
-	query_point.append(1)
-	query_point.append(3)
+	# query_point.append("QP")
+	# query_point.append(6)
+	# query_point.append(2)
+	# query_point.append(1)
+	# query_point.append(3)
+	query_point = "QP 6 2 1 3"
 
 def Generate_Ct():
 	global ct
@@ -413,10 +422,10 @@ def Get_Safe_Region_Q():
 							new_safe_region.append(intersect_data)
 				safe_region = list(new_safe_region)
 
-def Get_DDR_Ct(ct):
+def Generate_DDR_Prime_Ct(ct):
 	#This function will check if query_point is included to ct's skyline
 	#It will return Ct DDR Prime and status of query point
-	print("RUNNING GET_DDR_CT()")
+	print("RUNNING Generate_DDR_Prime_CT()")
 	global product_list
 	global node
 	global local_skyline
@@ -425,6 +434,7 @@ def Get_DDR_Ct(ct):
 	global shadow_skyline
 	global virtual_point
 	global current_bit
+	global query_point
 	#global safe_region 		#
 
 	print("PRODUK : " + str(product_list))
@@ -453,36 +463,58 @@ def Get_DDR_Ct(ct):
 	fp.close()
 
 	#check if the QUERY POINT is part of DSL(ct)
-
-	q_is_local_skyline = Insert_Local_Skyline()
-
+	Generate_Query_Point()	#The query point exist from here
+	current_bit = ""
+	transformed_query_point = Prepare_Data(query_point, ct)
+	q_is_local_skyline = Insert_Local_Skyline(transformed_query_point, current_bit)
+	if(q_is_local_skyline == True):
+		print(">>x Query Point inserted as Local")
+		Insert_Candidate_Skyline(transformed_query_point, current_bit)
 	Update_Global_Skyline()
+	candidate_skyline.clear()
 
-	print("FINAL")
-	print("GLOBAL F : " + str(global_skyline))
+	q_is_dsl = False
+	for i in range(0, len(global_skyline)):
+		if(global_skyline[i][0] == "QP"):
+			q_is_dsl = True
+	if(q_is_dsl == True):
+		#HENTIKAN PROGRAM
+		print("Q is already part of DSL(ct), modification is not necessary")
+	else:
+		#create ddr prime of ct
+		#ANGGAPLAH INI BENAR
+		#HARUS DIREVISI
+		#INI MASIH SALAH
+		ddr_prime_ct = []
+		for g in range(0, len(global_skyline)):
+			print(global_skyline[g])
+			projected_value = []
+			for i in range(1, len(global_skyline[g]) - 2):
+				if(global_skyline[g][i] == 'null'):
+					bottom = 'null'
+					top = 'null'
+				else: 
+					bottom = ct[i-1] - global_skyline[g][i]
+					top = ct[i-1] + global_skyline[g][i]
+				min_max_value = [bottom, top]
+				projected_value.append(min_max_value)
+			ddr_ct.append(projected_value)
+		#BATAS AKHIR KESALAHAN
+		# for g in range(0, len(global_skyline)):
+		# 	print(global_skyline[g])
+		
 
-	ddr_ct = []
-	for g in range(0, len(global_skyline)):
-		print(global_skyline[g])
-		projected_value = []
-		for i in range(1, len(global_skyline[g]) - 2):
-			if(global_skyline[g][i] == 'null'):
-				bottom = 'null'
-				top = 'null'
-			else: 
-				bottom = ct[i-1] - global_skyline[g][i]
-				top = ct[i-1] + global_skyline[g][i]
-			min_max_value = [bottom, top]
-			projected_value.append(min_max_value)
-		ddr_ct.append(projected_value)
-	print("DDR CT : " + str(ddr_ct))
+	# print("FINAL")
+	# print("GLOBAL F : " + str(global_skyline))
+
+	#print("DDR CT : " + str(ddr_ct))
 	#print("SAFE : " + str(safe_region))
-	return ddr_ct
+	return ddr_prime_ct
 
 
 
 
-def Check_DDR_SR_Intersect(safe_region, ddr_ct):
+def Check_Intersection(safe_region, ddr_ct):
 	global intersection
 	print("RUNNING CHECKING_INTERSECTION")
 	print("SAFE : " + str(safe_region))
@@ -580,6 +612,7 @@ def Prepare_Data(line, customer):
 
 
 #PREPROCESSING
+#THIS INITIAL PROGRAM WILL CALLED function Generate_All_Dynamic_Skyline
 fu = open("unlabeled_user_preference.txt")
 for list_user in fu:
 	temp = [float(x) for x in list_user.split()]
@@ -628,14 +661,28 @@ for x in range(0, len(list_customer)):
 	customer_skyline[str(customer_index)] = list(global_skyline)
 	customer_skyline[str(customer_index)].append(list(list_customer[x]))
 	customer_skyline[str(customer_index)].append("ok")
+	print("DDDDDDDDDDDDDDDDDD")
+	print("DDDDDDDDDDDDDDDDDD")
+	print("DDDDDDDDDDDDDDDDDD")
+	print("DDDDDDDDDDDDDDDDDD")
+	print("DDDDDDDDDDDDDDDDDD")
+	print("DDDDDDDDDDDDDDDDDD")
+	print(customer_skyline[str(customer_index)])
+	print("DDDDDDDDDDDDDDDDDD")
+	print("DDDDDDDDDDDDDDDDDD")
+	print("DDDDDDDDDDDDDDDDDD")
+	print("DDDDDDDDDDDDDDDDDD")
+	print("DDDDDDDDDDDDDDDDDD")
+	print("DDDDDDDDDDDDDDDDDD")
 	customer_index += 1
 
-Generate_Query_Point()		#Dihapus jika di fungsi Get_DDR_Ct() telah berhasil digenerate
-Get_Safe_Region_Q()
+#Generate_Query_Point()		#Dihapus jika di fungsi Generate_DDR_Prime_Ct() telah berhasil digenerate
+#Get_Safe_Region_Q()
 
 Generate_Ct()
-ddr_ct = Get_DDR_Ct(ct)
-intersection_status = Check_DDR_SR_Intersect(safe_region, ddr_ct)
+ddr_prime_ct = Generate_DDR_Prime_Ct(ct)
+
+intersection_status = Check_Intersection(safe_region, ddr_ct)
 if(intersection_status == True):
 	Move_Query_Point()
 else:
