@@ -330,23 +330,34 @@ def Generate_Safe_Region_Q():
 	global customer_skyline
 	global query_point
 	global safe_region
+	#TEsTING LINE
 	print("ALL CUSTOMER SKYLINE : " + str(customer_skyline))
-	# helper = 1
+	print("QUERY POINT : " + str(query_point))
+	print("CUSTOMER_SKYLINE[0] : " + str(customer_skyline["0"]))
+	idx_hlpr = 0
+	for text in customer_skyline["0"]:
+		idx_hlpr += 1
+		print(str(idx_hlpr) + ". " +  str(text))
+	#END OF TESTING LINE
+	###PERULANGAN UNTUK SETIAP SKYLINE DARI PENGGUNA
+	query_point = query_point.split()
 	for dict_index in customer_skyline:		#c is dictionary index
-		print("")
-		print("")
-		# print("CUSTOMER SKYLINE INDEX " + str(helper))
-		# helper += 1
-		#mentransformasikan query point untuk kemudian dibandingkan dengan skyline dari customer
+		###MENTRANSFORMASIKAN QUERY POINT TERHADAP DATA POINT DARI SKYLINE
 		transformed_query = []
-		for q in range(0, len(query_point)):
-			transformed_value = abs(query_point[q] - customer_skyline[dict_index][-2][q])
+		print("QUERY POINT : " + str(query_point))
+		print("CUSTO SKYLI : " + str(customer_skyline[dict_index][-2]))
+		for q in range(0, len(customer_skyline[dict_index][-2])):
+			print("X:" + str(query_point[q+1]) + " VS Y:" + str(customer_skyline[dict_index][-2][q]))
+			transformed_value = abs(float(query_point[q+1]) - customer_skyline[dict_index][-2][q])
 			transformed_query.append(transformed_value)
 		q_status = True
+		print("HASIL TRANSFORMED QUERY : " + str(transformed_query))
+		###PERULANGAN UNTUK TIAP DATA DALAM SKYLINE
 		for data_index in range(0, len(customer_skyline[dict_index]) - 2):
-			#After this, looping for all dimension in data
+			print("Masuk")
 			dominating_q = False
 			dominating_customer = False
+			print("Membandingkan : 	Q' " + str(transformed_query) + " & CS " + str(customer_skyline[dict_index][data_index]))
 			for i in range(1, len(customer_skyline[dict_index][data_index]) - 2):
 				if(transformed_query[i - 1] != 'null' and customer_skyline[dict_index][data_index][i] != 'null'):
 					if(transformed_query[i - 1] < customer_skyline[dict_index][data_index][i]):
@@ -476,6 +487,7 @@ def Generate_DDR_Prime_Ct(ct):
 
 	#check if the QUERY POINT is part of DSL(ct)
 	Generate_Query_Point()	#The query point exist from here
+	print("QUERY POINT EXIST : " + str(query_point))
 	current_bit = ""
 	transformed_query_point = Prepare_Data(query_point, ct)
 	q_is_local_skyline = Insert_Local_Skyline(transformed_query_point, current_bit)
@@ -590,6 +602,7 @@ def Prepare_Data(line, customer):
 	global n_updated_flag
 	global data_length
 
+	print("Sebelum error : line = " + str(line))
 	current_spec = line.split()
 	data = []
 	transformed_data = []
@@ -693,6 +706,8 @@ for x in range(0, len(list_customer)):
 
 Generate_Ct()
 ddr_prime_ct = Generate_DDR_Prime_Ct(ct)
+
+safe_region = Generate_Safe_Region_Q()
 
 intersection_status = Check_Intersection(safe_region, ddr_prime_ct)
 if(intersection_status == True):
