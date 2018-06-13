@@ -309,12 +309,24 @@ def Generate_Ct():
 	ct.append(2)
 
 
-def Get_Safe_Region_Q():
+def Generate_Safe_Region_Q():
 	#This function calculate all safe region areas from every DDR Prime of customer data
 	print("")
 	print("")
 	print("")
-	print("RUNNING GET_SAFE_REGION_Q()")
+	print("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	print("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	print("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	print("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	print("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	print("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	print("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	print("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	print("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	print("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	print("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	print("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	print("RUNNING GENERATE_SAFE_REGION_Q()")
 	global customer_skyline
 	global query_point
 	global safe_region
@@ -498,7 +510,7 @@ def Generate_DDR_Prime_Ct(ct):
 					top = ct[i-1] + global_skyline[g][i]
 				min_max_value = [bottom, top]
 				projected_value.append(min_max_value)
-			ddr_ct.append(projected_value)
+			ddr_prime_ct.append(projected_value)
 		#BATAS AKHIR KESALAHAN
 		# for g in range(0, len(global_skyline)):
 		# 	print(global_skyline[g])
@@ -677,12 +689,12 @@ for x in range(0, len(list_customer)):
 	customer_index += 1
 
 #Generate_Query_Point()		#Dihapus jika di fungsi Generate_DDR_Prime_Ct() telah berhasil digenerate
-#Get_Safe_Region_Q()
+#Generate_Safe_Region_Q()
 
 Generate_Ct()
 ddr_prime_ct = Generate_DDR_Prime_Ct(ct)
 
-intersection_status = Check_Intersection(safe_region, ddr_ct)
+intersection_status = Check_Intersection(safe_region, ddr_prime_ct)
 if(intersection_status == True):
 	Move_Query_Point()
 else:
