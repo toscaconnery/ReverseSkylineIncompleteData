@@ -550,8 +550,8 @@ def Generate_DDR_Prime_Ct(ct):
 				else: 
 					bottom = ct[i-1] - global_skyline[g][i]
 					top = ct[i-1] + global_skyline[g][i]
-				min_max_value = [bottom, top]
-				projected_value.append(min_max_value)
+				max_min_value = [top, bottom]
+				projected_value.append(max_min_value)
 			ddr_prime_ct.append(projected_value)
 		#BATAS AKHIR KESALAHAN
 		# for g in range(0, len(global_skyline)):
@@ -570,6 +570,9 @@ def Generate_DDR_Prime_Ct(ct):
 
 def Check_Intersection(safe_region, ddr_ct):
 	global intersection
+	print("")
+	print("")
+	print("yyyyyyyyyyyy")
 	print("RUNNING CHECKING_INTERSECTION")
 	print("SAFE : " + str(safe_region))
 	print("DDR  : " + str(ddr_ct))
@@ -579,35 +582,36 @@ def Check_Intersection(safe_region, ddr_ct):
 			intersect_data = []
 			intersect_status = True
 			for i in range(0, len(safe_region[safe_index])):
-				#bottom
-				if(safe_region[safe_index][i][0] == 'null' and ddr_ct[ddr_index][i][0] == 'null'):
-					bottom = 'null'
-				elif(safe_region[safe_index][i][0] != 'null' and ddr_ct[ddr_index][i][0] != 'null'):
-					bottom = max(safe_region[safe_index][i][0], ddr_ct[ddr_index][i][0])
-				elif(safe_region[safe_index][i][0] == 'null'):
-					bottom = ddr_ct[ddr_index][i][0]
-				elif(ddr_ct[ddr_index][i][0] == 'null'):
-					bottom = safe_region[safe_index][i][0]
-
 				#top
-				if(safe_region[safe_index][i][1] == 'null' and ddr_ct[ddr_index][i][1] == 'null'):
+				if(safe_region[safe_index][i][0] == 'null' and ddr_ct[ddr_index][i][0] == 'null'):
 					top = 'null'
-				elif(safe_region[safe_index][i][1] != 'null' and ddr_ct[ddr_index][i][1] != 'null'):
-					top = min(safe_region[safe_index][i][1], ddr_ct[ddr_index][i][1])
+				elif(safe_region[safe_index][i][0] == 'null'):
+					top = ddr_ct[ddr_index][i][0]
+				elif(ddr_ct[ddr_index][i][0] == 'null'):
+					top = safe_region[safe_index][i][0]
+				else:
+					top = min(safe_region[safe_index][i][0], ddr_ct[ddr_index][i][0])
+
+				#bottom
+				if(safe_region[safe_index][i][1] == 'null' and ddr_ct[ddr_index][i][1] == 'null'):
+					bottom = 'null'
 				elif(safe_region[safe_index][i][1] == 'null'):
-					top = ddr_ct[ddr_index][i][1]
+					bottom = ddr_ct[ddr_index][i][1]
 				elif(ddr_ct[ddr_index][i][1] == 'null'):
-					top = safe_region[safe_index][i][1]
+					bottom = safe_region[safe_index][i][1]
+				else:
+					bottom = max(safe_region[safe_index][i][1], ddr_ct[ddr_index][i][1])
 
-				min_max_value = [bottom, top]
-				intersect_data.append(min_max_value)
+				max_min_value = [top, bottom]
+				intersect_data.append(max_min_value)
 
-				if(bottom != 'null' and top != 'null'):
+				if(top != 'null' and bottom != 'null'):
 					if(bottom > top):
 						intersect_status = False
 
 			if(intersect_status == True):
 				intersection.append(intersect_data)
+	print("INTERSECTION : " + str(intersection))
 	if(len(intersection) > 0):
 		return True
 	else:
@@ -738,7 +742,6 @@ Generate_Ct()
 ddr_prime_ct = Generate_DDR_Prime_Ct(ct)
 
 safe_region = Generate_Safe_Region_Q()
-print("INI HASIL SAFE REGION : " + str(safe_region))
 
 intersection_status = Check_Intersection(safe_region, ddr_prime_ct)
 if(intersection_status == True):
