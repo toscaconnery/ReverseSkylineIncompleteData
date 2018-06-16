@@ -576,7 +576,7 @@ def Check_Intersection(safe_region, ddr_ct):
 	print("RUNNING CHECKING_INTERSECTION")
 	print("SAFE : " + str(safe_region))
 	print("DDR  : " + str(ddr_ct))
-	#intersection = []
+	intersection = []
 	for safe_index in range(0, len(safe_region)):
 		for ddr_index in range(0, len(ddr_ct)):
 			intersect_data = []
@@ -618,7 +618,34 @@ def Check_Intersection(safe_region, ddr_ct):
 		return False
 
 def Move_Query_Point():
-	pass
+	global intersection
+	global query_point
+	print("RUNNING MOVE QUERY POINT")
+	print("QUERY POINT  : " +  str(query_point))
+	print("intersection : " + str(intersection))
+	print("ada " + str(len(intersection)) + " buah data")
+	distance_value = []
+	modified_value = []
+	for data_index in range(0, len(intersection)):
+		print(str(data_index) + " " + str(intersection[data_index]))
+		nearest_distance = []
+		nearest_point = []
+		for i in range(0, len(intersection[data_index])):
+			a = abs(float(query_point[i+1]) - intersection[data_index][i][0])
+			b = abs(float(query_point[i+1]) - intersection[data_index][i][1])
+			minimal_distance = min(a,b)
+			if(b < a):
+				nearest_point.append(intersection[data_index][i][1])
+				nearest_distance = b
+			else:
+				nearest_point.append(intersection[data_index][i][0])
+				nearest_distance = a
+		distance_value.append(nearest_distance)
+		modified_value.append(nearest_point)
+	#done, tinggal return kedua nilai ini untuk di analisa
+	#atau, langsung olah disini, cari yang mana yang paling efisien
+
+
 
 def Move_Why_Not_And_Query_Point():
 	pass
