@@ -614,6 +614,8 @@ def Move_Why_Not_And_Query_Point():
 	global query_point
 	global ct
 	global product_list
+	global ct_cost
+	global q_cost
 	print("RUNNING MOVE WHY-NOT AND QUERY POINT")
 	#print("query_point" + str(query_point))
 	print("CT : " + str(ct))
@@ -629,25 +631,30 @@ def Move_Why_Not_And_Query_Point():
 	print("jumlah safe region = " + str(len(safe_region)))
 	for data_index in range(0, len(safe_region)):
 		nearest = []
+		cost = 0
 		for i in range(0, len(safe_region[data_index])):
-			if(abs(safe_region[data_index][i][0] - float(ct[i])) < abs(safe_region[data_index][i][1] - float(ct[i]))):
+			top_diff = abs(safe_region[data_index][i][0] - float(ct[i]))
+			bottom_diff = abs(safe_region[data_index][i][1] - float(ct[i]))
+			if(top_diff < bottom_diff):
 				nearest.append(safe_region[data_index][i][0])
-			elif(abs(safe_region[data_index][i][0] - float(ct[i])) > abs(safe_region[data_index][i][1] - float(ct[i]))):
+				cost += (top_diff * q_cost[i])
+			elif(top_diff > bottom_diff):
 				nearest.append(safe_region[data_index][i][1])
+				cost += (bottom_diff * q_cost[i])
 			else:	#jika jarak top dan bottom saama, pilih yang top karena data ditransformasikan ke atas
 				nearest.append(safe_region[data_index][i][0])
+		nearest.append(cost)
 		safe_edge.append(nearest)
 
 	
 	#Transform all point, ct is center, SEKALIAN : #Remove all data point that dominated by each edge of SR(q)
 	transformed_space = []
+	print("SAFE_EDGE ADA " + str(len(safe_edge)) + " BUAH")
 	for data_index in range(0, len(safe_edge)):
 		print("START")
-		print("edge : " + str(safe_edge))
 		fp = open(product_list)
 		for line in fp:
 			product = line.split()
-			print("Hx : " + str(product[1]))
 			greater = False		#harus dibawah safe edge
 			smaller = False
 			transformed_data = []
@@ -662,18 +669,22 @@ def Move_Why_Not_And_Query_Point():
 				else:
 					transformed_value = 'null'
 					transformed_data.append(transformed_value)
+			transformed_data.append(safe_edge[data_index][-1])
 			if(greater == False and smaller == True):
 				transformed_space.append(transformed_data)
 		fp.close()
 	print("HASIL TS : " + str(transformed_space))
 
 	#Find frontier
+	#BANDINGKAN SEMUA DATA HASIL SEBELUMNYA
 	for data_index in range(0, len(transformed_space)):
-		#!!!!! data yang digunakan untuk menentukan cost perpindahan query point hilang, harusnya disisipkan di ujung dari tiap data ini
 		#BRUTEFORCE, data disini lebih sedikit, kecuali datanya sama rata
 		greater = False
 		smaller = False
-		for i in range(0, len(transformed_space[data_index]))
+		for data_index_2 in range(0, len(transformed_space)):
+			for i in range(0, len(transformed_space[data_index])):
+				#bandingkan
+
 
 
 
