@@ -275,7 +275,9 @@ def Update_Global_Skyline():
 
 def Generate_Query_Point(): #NEW
 	global query_point
-	query_point = "QP 6 2 1 3"
+	#query_point = "QP 6 2 1 3"		#SR(q) DAN DDR(ct) berpotongan
+	#query_point = "QP 7 5 7 8"		#SR(q) DAN DDR(ct) tidak berpotongan -> KARENA TIDAK ADA SR
+	query_point = "QP 15 15 15 15"
 
 def Generate_Ct():
 	global ct
@@ -283,6 +285,10 @@ def Generate_Ct():
 	ct.append(2)
 	ct.append(2)
 	ct.append(2)
+	# ct.append(2)
+	# ct.append(2)
+	# ct.append(2)
+	# ct.append(2)
 
 def Generate_Cost():
 	global ct_cost
@@ -341,6 +347,7 @@ def Generate_Safe_Region_Q():
 	###PERULANGAN UNTUK SETIAP SKYLINE DARI PENGGUNA
 	for dict_index in customer_skyline:		#c is dictionary index
 		if(customer_skyline[dict_index][-1] == 'ok'):
+			print("ADA RSL        ADA RSL        ADA RSL        ADA RSL        ADA RSL        ADA RSL")
 			#AAAA -> AT THIS PART, THE CUSTOMER SKYLINE SHOULD BE SORTED BY I'TH DIMENSIONS.
 			#SORTING : 
 
@@ -410,12 +417,14 @@ def Generate_Safe_Region_Q():
 						if(intersect_status == True):
 							new_safe_region.append(intersect_data)
 				safe_region = list(new_safe_region)
+	print("PRINTED INSIDE SAFE REGION FUNCTION : " + str(safe_region))
 	return safe_region
 
 
 
 
 def Generate_DDR_Prime_Ct(ct):
+	print("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 	#This function will check if query_point is included to ct's skyline
 	#It will return Ct DDR Prime and status of query point
 	global product_list
@@ -447,6 +456,7 @@ def Generate_DDR_Prime_Ct(ct):
 			if(len(candidate_skyline) > t):
 				Update_Global_Skyline()
 				candidate_skyline.clear()
+	Update_Global_Skyline()
 	fp.close()
 
 	#check if the QUERY POINT is part of DSL(ct)
@@ -468,6 +478,7 @@ def Generate_DDR_Prime_Ct(ct):
 	if(q_is_dsl == True):
 		#HENTIKAN PROGRAM
 		print("Q is already part of DSL(ct), modification is not necessary")
+		exit()
 	else:
 		#create ddr prime of ct
 		#ANGGAPLAH INI BENAR
@@ -495,46 +506,44 @@ def Generate_DDR_Prime_Ct(ct):
 	# print("FINAL")
 	# print("GLOBAL F : " + str(global_skyline))
 
-	#print("DDR CT : " + str(ddr_ct))
 	#print("SAFE : " + str(safe_region))
 	return ddr_prime_ct
 
 
 
 
-def Check_Intersection(safe_region, ddr_ct):
+def Check_Intersection(safe_region, ddr_prime_ct):
 	global intersection
 	print("")
 	print("")
-	print("yyyyyyyyyyyy")
 	print("RUNNING CHECKING_INTERSECTION")
 	print("SAFE : " + str(safe_region))
-	print("DDR  : " + str(ddr_ct))
+	print("DDR  : " + str(ddr_prime_ct))
 	intersection = []
 	for safe_index in range(0, len(safe_region)):
-		for ddr_index in range(0, len(ddr_ct)):
+		for ddr_index in range(0, len(ddr_prime_ct)):
 			intersect_data = []
 			intersect_status = True
 			for i in range(0, len(safe_region[safe_index])):
 				#top
-				if(safe_region[safe_index][i][0] == 'null' and ddr_ct[ddr_index][i][0] == 'null'):
+				if(safe_region[safe_index][i][0] == 'null' and ddr_prime_ct[ddr_index][i][0] == 'null'):
 					top = 'null'
 				elif(safe_region[safe_index][i][0] == 'null'):
-					top = ddr_ct[ddr_index][i][0]
-				elif(ddr_ct[ddr_index][i][0] == 'null'):
+					top = ddr_prime_ct[ddr_index][i][0]
+				elif(ddr_prime_ct[ddr_index][i][0] == 'null'):
 					top = safe_region[safe_index][i][0]
 				else:
-					top = min(safe_region[safe_index][i][0], ddr_ct[ddr_index][i][0])
+					top = min(safe_region[safe_index][i][0], ddr_prime_ct[ddr_index][i][0])
 
 				#bottom
-				if(safe_region[safe_index][i][1] == 'null' and ddr_ct[ddr_index][i][1] == 'null'):
+				if(safe_region[safe_index][i][1] == 'null' and ddr_prime_ct[ddr_index][i][1] == 'null'):
 					bottom = 'null'
 				elif(safe_region[safe_index][i][1] == 'null'):
-					bottom = ddr_ct[ddr_index][i][1]
-				elif(ddr_ct[ddr_index][i][1] == 'null'):
+					bottom = ddr_prime_ct[ddr_index][i][1]
+				elif(ddr_prime_ct[ddr_index][i][1] == 'null'):
 					bottom = safe_region[safe_index][i][1]
 				else:
-					bottom = max(safe_region[safe_index][i][1], ddr_ct[ddr_index][i][1])
+					bottom = max(safe_region[safe_index][i][1], ddr_prime_ct[ddr_index][i][1])
 
 				max_min_value = [top, bottom]
 				intersect_data.append(max_min_value)
@@ -575,8 +584,8 @@ def Move_Query_Point():
 			else:
 				nearest_point.append(intersection[data_index][i][0])
 				nearest_distance.append(a)
-			print("NEAREST POINT    : " + str(nearest_point))
-			print("NEAREST DISTANCE : " + str(nearest_distance))
+			# print("NEAREST POINT    : " + str(nearest_point))
+			# print("NEAREST DISTANCE : " + str(nearest_distance))
 		distance_value.append(nearest_distance)
 		modified_value.append(nearest_point)
 	#done, tinggal return kedua nilai ini untuk di analisa
@@ -601,7 +610,98 @@ def Move_Query_Point():
 	return recommendation
 
 def Move_Why_Not_And_Query_Point():
+	global safe_region
+	global query_point
+	global ct
+	global product_list
+	print("RUNNING MOVE WHY-NOT AND QUERY POINT")
+	#print("query_point" + str(query_point))
+	print("CT : " + str(ct))
+
+	#Find edge of SR(q)
+	#Transform all point, ct is center
+	#Remove all data point that dominated by each edge of SR(q)
+	#Find frontier
+	#Find cheapest modification
+
+	#Find edge of SR(q)
+	safe_edge = []
+	print("jumlah safe region = " + str(len(safe_region)))
+	for data_index in range(0, len(safe_region)):
+		nearest = []
+		for i in range(0, len(safe_region[data_index])):
+			if(abs(safe_region[data_index][i][0] - float(ct[i])) < abs(safe_region[data_index][i][1] - float(ct[i]))):
+				nearest.append(safe_region[data_index][i][0])
+			elif(abs(safe_region[data_index][i][0] - float(ct[i])) > abs(safe_region[data_index][i][1] - float(ct[i]))):
+				nearest.append(safe_region[data_index][i][1])
+			else:	#jika jarak top dan bottom saama, pilih yang top karena data ditransformasikan ke atas
+				nearest.append(safe_region[data_index][i][0])
+		safe_edge.append(nearest)
+
 	
+	#Transform all point, ct is center, SEKALIAN : #Remove all data point that dominated by each edge of SR(q)
+	transformed_space = []
+	for data_index in range(0, len(safe_edge)):
+		print("START")
+		print("edge : " + str(safe_edge))
+		fp = open(product_list)
+		for line in fp:
+			product = line.split()
+			print("Hx : " + str(product[1]))
+			greater = False		#harus dibawah safe edge
+			smaller = False
+			transformed_data = []
+			for i in range(0, len(product) - 1):
+				if(product[i+1] != 'null'):
+					transformed_value = float(ct[i]) + abs(float(ct[i]) - float(product[i+1]))
+					transformed_data.append(transformed_value)
+					if(transformed_value > safe_edge[data_index][i]):
+						greater = True
+					elif(transformed_value < safe_edge[data_index][i]):
+						smaller = True
+				else:
+					transformed_value = 'null'
+					transformed_data.append(transformed_value)
+			if(greater == False and smaller == True):
+				transformed_space.append(transformed_data)
+		fp.close()
+	print("HASIL TS : " + str(transformed_space))
+
+	#Find frontier
+	for data_index in range(0, len(transformed_space)):
+		#!!!!! data yang digunakan untuk menentukan cost perpindahan query point hilang, harusnya disisipkan di ujung dari tiap data ini
+		#BRUTEFORCE, data disini lebih sedikit, kecuali datanya sama rata
+		greater = False
+		smaller = False
+		for i in range(0, len(transformed_space[data_index]))
+
+
+
+	# transformed_space = []
+	# fp = open(product_list)
+	# node.clear()
+	# local_skyline.clear()
+	# candidate_skyline.clear()
+	# global_skyline.clear()
+	# shadow_skyline.clear()
+	# virtual_point.clear()
+	# for line in fp:
+	# 	current_bit = ""
+	# 	transformed_data = Prepare_Data(line, list_customer[x])
+	# 	is_skyline = Insert_Local_Skyline(transformed_data, current_bit)
+	# 	if is_skyline == True:
+	# 		Insert_Candidate_Skyline(transformed_data, current_bit)
+	# 		if(len(candidate_skyline) > t):
+	# 			Update_Global_Skyline()
+	# 			candidate_skyline.clear()
+	# fp.close()
+	#Update_Global_Skyline()
+
+	# fp = open(product_list)
+	# number_of_preference += 1
+	# for line in fp:
+	# 	print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAa")
+	# 	print(line)
 
 	return True
 
@@ -653,7 +753,7 @@ def Prepare_Data(line, customer):
 
 #PREPROCESSING
 #THIS INITIAL PROGRAM WILL CALLED function Generate_All_Dynamic_Skyline
-fu = open("unlabeled_user_preference.txt")
+fu = open("unlabeled_user_preference2.txt")
 for list_user in fu:
 	temp = [float(x) for x in list_user.split()]
 	list_customer.append(temp)
@@ -703,6 +803,7 @@ intersection_status = Check_Intersection(safe_region, ddr_prime_ct)
 if(intersection_status == True):
 	recommendation = Move_Query_Point()
 else:
+	print("RRRRRRRRRRRRRRRRRR Processing")
 	recommendation =  Move_Why_Not_And_Query_Point()
 
 print("INTERSECTION = " + str(intersection_status))
