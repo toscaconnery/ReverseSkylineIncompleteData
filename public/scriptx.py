@@ -601,7 +601,7 @@ def Move_Query_Point():
 		print("HEHE : " + str(distance_value[data_index]))
 		total_cost = 0
 		for i in range(0, len(distance_value[data_index])):
-			total_cost += (distance_value[data_index][i] * ct_cost[i])
+			total_cost += (distance_value[data_index][i] * q_cost[i])
 		if(total_cost < current_cost):
 			cheapest_index = data_index
 	print("TERMURAH : " + str(distance_value[cheapest_index]))
@@ -616,6 +616,9 @@ def Move_Why_Not_And_Query_Point():
 	global product_list
 	global ct_cost
 	global q_cost
+	print("")
+	print("")
+	print("")
 	print("RUNNING MOVE WHY-NOT AND QUERY POINT")
 	#print("query_point" + str(query_point))
 	print("CT : " + str(ct))
@@ -628,7 +631,7 @@ def Move_Why_Not_And_Query_Point():
 
 	#Find edge of SR(q)
 	safe_edge = []
-	print("jumlah safe region = " + str(len(safe_region)))
+	print("#Jumlah safe region : " + str(len(safe_region)))
 	for data_index in range(0, len(safe_region)):
 		nearest = []
 		cost = 0
@@ -649,9 +652,10 @@ def Move_Why_Not_And_Query_Point():
 	
 	#Transform all point, ct is center, SEKALIAN : #Remove all data point that dominated by each edge of SR(q)
 	transformed_space = []
-	print("SAFE_EDGE ADA " + str(len(safe_edge)) + " BUAH")
+	print("#Jumlah safe edge   : " + str(len(safe_edge)) + " BUAH")
+	print("SE : " + str(safe_edge))
+	print(">> transforming all point, all point above safe point will be deleted")
 	for data_index in range(0, len(safe_edge)):
-		print("START")
 		fp = open(product_list)
 		for line in fp:
 			product = line.split()
@@ -669,7 +673,7 @@ def Move_Why_Not_And_Query_Point():
 				else:
 					transformed_value = 'null'
 					transformed_data.append(transformed_value)
-			transformed_data.append(safe_edge[data_index][-1])
+			transformed_data.append(data_index)
 			if(greater == False and smaller == True):
 				transformed_space.append(transformed_data)
 		fp.close()
@@ -677,44 +681,63 @@ def Move_Why_Not_And_Query_Point():
 
 	#Find frontier
 	#BANDINGKAN SEMUA DATA HASIL SEBELUMNYA
-	for data_index in range(0, len(transformed_space)):
+	print("")
+	print("")
+	print("Transformed space : " + str(transformed_space))
+	frontier = list(transformed_space)
+	for data_index in range(0, len(frontier)):
 		#BRUTEFORCE, data disini lebih sedikit, kecuali datanya sama rata
-		greater = False
-		smaller = False
-		for data_index_2 in range(0, len(transformed_space)):
-			for i in range(0, len(transformed_space[data_index])):
+		for data_index_2 in range(0, len(frontier)):
+			greater = False
+			smaller = False
+			print("GG : " + str(frontier[data_index_2]))
+			for i in range(0, len(frontier[data_index])-1):
 				#bandingkan
+				if(frontier[data_index][i] != 'null' and frontier[data_index_2][i] != 'null'):
+					if(frontier[data_index][i] > frontier[data_index_2][i]):
+						greater = True
+					elif(frontier[data_index][i] < frontier[data_index_2][i]):
+						smaller = True
+			if(greater == True and smaller == False):
+				frontier[data_index_2][-1] = 'delete'
+	eliminated = 0
+	for data_index in range(0, len(frontier)):
+		if(frontier[data_index][-1] == 'delete'):
+			eliminated += 1
+	print("[i] eliminated       : " + str(eliminated))
+	print("[i] numb of frontier : " + str(len(frontier)))
+	if(eliminated == len(frontier)):
+		frontier = list(transformed_space)
+		print("XXXXX mengembalikan nilai, tidak ada skyline")
+	print("final : " + str(transformed_space))
+	print("edge  : " + str(safe_edge))
 
-
-
-
-	# transformed_space = []
-	# fp = open(product_list)
-	# node.clear()
-	# local_skyline.clear()
-	# candidate_skyline.clear()
-	# global_skyline.clear()
-	# shadow_skyline.clear()
-	# virtual_point.clear()
-	# for line in fp:
-	# 	current_bit = ""
-	# 	transformed_data = Prepare_Data(line, list_customer[x])
-	# 	is_skyline = Insert_Local_Skyline(transformed_data, current_bit)
-	# 	if is_skyline == True:
-	# 		Insert_Candidate_Skyline(transformed_data, current_bit)
-	# 		if(len(candidate_skyline) > t):
-	# 			Update_Global_Skyline()
-	# 			candidate_skyline.clear()
-	# fp.close()
-	#Update_Global_Skyline()
-
-	# fp = open(product_list)
-	# number_of_preference += 1
-	# for line in fp:
-	# 	print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAa")
-	# 	print(line)
-
-	return True
+	#dapatkan titik yang lebih dekat ke edge of safe point, setengah dari jarak (edge of safe point[i] - frontier[i])
+	cheapest_index = None
+	current_cost = 9999999999
+	for data_index in range(0, len(frontier)):
+		if(frontier[data_index][-1] != 'delete'):
+			print("masuk")
+			total_cost = safe_edge[frontier[data_index][-1]][-1]
+			safe_index = frontier[data_index][-1]
+			for i in range(0, len(frontier[data_index])-1):
+				if(frontier[data_index][i] != 'null'):
+					origin_point = frontier[data_index][i]
+					print("safe_edge[safe_index][i] : " + str(safe_edge[safe_index][i]))
+					print("frontier[data_index][i]  : " + str(frontier[data_index][i]))
+					frontier[data_index][i] += ((safe_edge[safe_index][i] - frontier[data_index][i]) * 0.5)
+					difference = abs(origin_point - frontier[data_index][i])
+					total_cost += difference * q_cost[i]
+			print("TOTAL_COST   : " + str(total_cost))
+			print("CURRENT_COST : " + str(current_cost))
+			if(total_cost < current_cost):
+				cheapest_index = data_index
+				current_cost = total_cost
+	print("aha")
+	print('CHEAAP  ' + str(cheapest_index))
+	print(frontier[cheapest_index])
+	recommendation = list(frontier[cheapest_index][:-1])
+	return recommendation
 
 
 
@@ -818,5 +841,7 @@ else:
 	recommendation =  Move_Why_Not_And_Query_Point()
 
 print("INTERSECTION = " + str(intersection_status))
+
+print("RECOMMENDATION : " + str(recommendation))
 
 fu.close()
