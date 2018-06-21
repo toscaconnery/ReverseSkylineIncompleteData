@@ -17,6 +17,10 @@ Route::get('/', function () {
 
 Route::get('/testpython', 'TestController@testPython');
 
+Route::get('/testOutput', 'TestController@testOutput');
+
 Route::get('/main', 'SkylineController@main');
 
 Route::get('/index', 'SkylineController@index');
+
+Route::get('/runbasic', 'SkylineController@runbasic');

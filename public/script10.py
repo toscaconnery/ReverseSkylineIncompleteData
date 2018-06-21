@@ -90,6 +90,7 @@ def Insert_Local_Skyline(current_specs, current_bit):
 				shadow_skyline[current_bit][i][-1] = 'delete'
 		for i in sorted(shadow_skyline[current_bit], reverse=True):
 			if (i[-1] == 'delete'):
+				print(">>> Shadow " + str(i) + " removed")
 				shadow_skyline[current_bit].remove(i)
 		return True
 	elif(dominated == 1):
@@ -346,6 +347,7 @@ def Generate_Safe_Region_Q():
 	###PERULANGAN UNTUK SETIAP SKYLINE DARI PENGGUNA
 	for dict_index in customer_skyline:		#c is dictionary index
 		if(customer_skyline[dict_index][-1] == 'ok'):
+			print("ADA RSL        ADA RSL        ADA RSL        ADA RSL        ADA RSL        ADA RSL")
 			#AAAA -> AT THIS PART, THE CUSTOMER SKYLINE SHOULD BE SORTED BY I'TH DIMENSIONS.
 			#SORTING : 
 
@@ -373,6 +375,7 @@ def Generate_Safe_Region_Q():
 					data.append(max_min_value)
 				ddr_prime.append(data)
 
+			print("DDR : " + str(ddr_prime))
 			##NEED ADJUSTMENT AT THE END AND BEGINNING OF THE DATA ON DDR PRIME
 
 			if(len(safe_region) == 0):
@@ -414,12 +417,14 @@ def Generate_Safe_Region_Q():
 						if(intersect_status == True):
 							new_safe_region.append(intersect_data)
 				safe_region = list(new_safe_region)
+	print("PRINTED INSIDE SAFE REGION FUNCTION : " + str(safe_region))
 	return safe_region
 
 
 
 
 def Generate_DDR_Prime_Ct(ct):
+	print("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 	#This function will check if query_point is included to ct's skyline
 	#It will return Ct DDR Prime and status of query point
 	global product_list
@@ -456,10 +461,12 @@ def Generate_DDR_Prime_Ct(ct):
 
 	#check if the QUERY POINT is part of DSL(ct)
 	Generate_Query_Point()	#The query point exist from here
+	print("QUERY POINT EXIST : " + str(query_point))
 	current_bit = ""
 	transformed_query_point = Prepare_Data(query_point, ct)
 	q_is_local_skyline = Insert_Local_Skyline(transformed_query_point, current_bit)
 	if(q_is_local_skyline == True):
+		print(">>x Query Point inserted as Local")
 		Insert_Candidate_Skyline(transformed_query_point, current_bit)
 	Update_Global_Skyline()
 	candidate_skyline.clear()
@@ -470,6 +477,7 @@ def Generate_DDR_Prime_Ct(ct):
 			q_is_dsl = True
 	if(q_is_dsl == True):
 		#HENTIKAN PROGRAM
+		print("Q is already part of DSL(ct), modification is not necessary")
 		exit()
 	else:
 		#create ddr prime of ct
@@ -478,6 +486,7 @@ def Generate_DDR_Prime_Ct(ct):
 		#INI MASIH SALAH
 		ddr_prime_ct = []
 		for g in range(0, len(global_skyline)):
+			print(global_skyline[g])
 			projected_value = []
 			for i in range(1, len(global_skyline[g]) - 2):
 				if(global_skyline[g][i] == 'null'):
@@ -491,7 +500,13 @@ def Generate_DDR_Prime_Ct(ct):
 			ddr_prime_ct.append(projected_value)
 		#BATAS AKHIR KESALAHAN
 		# for g in range(0, len(global_skyline)):
+		# 	print(global_skyline[g])
+		
 
+	# print("FINAL")
+	# print("GLOBAL F : " + str(global_skyline))
+
+	#print("SAFE : " + str(safe_region))
 	return ddr_prime_ct
 
 
@@ -499,6 +514,11 @@ def Generate_DDR_Prime_Ct(ct):
 
 def Check_Intersection(safe_region, ddr_prime_ct):
 	global intersection
+	print("")
+	print("")
+	print("RUNNING CHECKING_INTERSECTION")
+	print("SAFE : " + str(safe_region))
+	print("DDR  : " + str(ddr_prime_ct))
 	intersection = []
 	for safe_index in range(0, len(safe_region)):
 		for ddr_index in range(0, len(ddr_prime_ct)):
@@ -534,6 +554,7 @@ def Check_Intersection(safe_region, ddr_prime_ct):
 
 			if(intersect_status == True):
 				intersection.append(intersect_data)
+	print("INTERSECTION : " + str(intersection))
 	if(len(intersection) > 0):
 		return True
 	else:
@@ -543,9 +564,14 @@ def Move_Query_Point():
 	global intersection
 	global query_point
 	global ct_cost
+	print("RUNNING MOVE QUERY POINT")
+	print("QUERY POINT  : " +  str(query_point))
+	print("intersection : " + str(intersection))
+	print("ada " + str(len(intersection)) + " buah data")
 	distance_value = []
 	modified_value = []
 	for data_index in range(0, len(intersection)):
+		print(str(data_index) + " " + str(intersection[data_index]))
 		nearest_distance = []
 		nearest_point = []
 		for i in range(0, len(intersection[data_index])):
@@ -558,20 +584,27 @@ def Move_Query_Point():
 			else:
 				nearest_point.append(intersection[data_index][i][0])
 				nearest_distance.append(a)
+			# print("NEAREST POINT    : " + str(nearest_point))
+			# print("NEAREST DISTANCE : " + str(nearest_distance))
 		distance_value.append(nearest_distance)
 		modified_value.append(nearest_point)
 	#done, tinggal return kedua nilai ini untuk di analisa
 	#atau, langsung olah disini, cari yang mana yang paling efisien
 
 	#Mencari yang paling efisien:
+	print("HASIL 443: ")
+	print("A : " + str(modified_value))
+	print("B : " + str(distance_value))
 	cheapest_index = None
 	current_cost = 99999999999
 	for data_index in range(0, len(distance_value)):
+		print("HEHE : " + str(distance_value[data_index]))
 		total_cost = 0
 		for i in range(0, len(distance_value[data_index])):
 			total_cost += (distance_value[data_index][i] * q_cost[i])
 		if(total_cost < current_cost):
 			cheapest_index = data_index
+	print("TERMURAH : " + str(distance_value[cheapest_index]))
 	#done, tinggal mengembalikan nilai hasil modifikasi yang paling efisien
 	recommendation = modified_value[cheapest_index]
 	return recommendation
@@ -583,6 +616,12 @@ def Move_Why_Not_And_Query_Point():
 	global product_list
 	global ct_cost
 	global q_cost
+	print("")
+	print("")
+	print("")
+	print("RUNNING MOVE WHY-NOT AND QUERY POINT")
+	#print("query_point" + str(query_point))
+	print("CT : " + str(ct))
 
 	#Find edge of SR(q)
 	#Transform all point, ct is center
@@ -592,6 +631,7 @@ def Move_Why_Not_And_Query_Point():
 
 	#Find edge of SR(q)
 	safe_edge = []
+	print("#Jumlah safe region : " + str(len(safe_region)))
 	for data_index in range(0, len(safe_region)):
 		nearest = []
 		cost = 0
@@ -612,6 +652,9 @@ def Move_Why_Not_And_Query_Point():
 	
 	#Transform all point, ct is center, SEKALIAN : #Remove all data point that dominated by each edge of SR(q)
 	transformed_space = []
+	print("#Jumlah safe edge   : " + str(len(safe_edge)) + " BUAH")
+	print("SE : " + str(safe_edge))
+	print(">> transforming all point, all point above safe point will be deleted")
 	for data_index in range(0, len(safe_edge)):
 		fp = open(product_list)
 		for line in fp:
@@ -634,15 +677,20 @@ def Move_Why_Not_And_Query_Point():
 			if(greater == False and smaller == True):
 				transformed_space.append(transformed_data)
 		fp.close()
+	print("HASIL TS : " + str(transformed_space))
 
 	#Find frontier
 	#BANDINGKAN SEMUA DATA HASIL SEBELUMNYA
+	print("")
+	print("")
+	print("Transformed space : " + str(transformed_space))
 	frontier = list(transformed_space)
 	for data_index in range(0, len(frontier)):
 		#BRUTEFORCE, data disini lebih sedikit, kecuali datanya sama rata
 		for data_index_2 in range(0, len(frontier)):
 			greater = False
 			smaller = False
+			print("GG : " + str(frontier[data_index_2]))
 			for i in range(0, len(frontier[data_index])-1):
 				#bandingkan
 				if(frontier[data_index][i] != 'null' and frontier[data_index_2][i] != 'null'):
@@ -656,26 +704,38 @@ def Move_Why_Not_And_Query_Point():
 	for data_index in range(0, len(frontier)):
 		if(frontier[data_index][-1] == 'delete'):
 			eliminated += 1
-	#jika tidak ada skyline
+	print("[i] eliminated       : " + str(eliminated))
+	print("[i] numb of frontier : " + str(len(frontier)))
 	if(eliminated == len(frontier)):
 		frontier = list(transformed_space)
+		print("XXXXX mengembalikan nilai, tidak ada skyline")
+	print("final : " + str(transformed_space))
+	print("edge  : " + str(safe_edge))
 
 	#dapatkan titik yang lebih dekat ke edge of safe point, setengah dari jarak (edge of safe point[i] - frontier[i])
 	cheapest_index = None
 	current_cost = 9999999999
 	for data_index in range(0, len(frontier)):
 		if(frontier[data_index][-1] != 'delete'):
+			print("masuk")
 			total_cost = safe_edge[frontier[data_index][-1]][-1]
 			safe_index = frontier[data_index][-1]
 			for i in range(0, len(frontier[data_index])-1):
 				if(frontier[data_index][i] != 'null'):
 					origin_point = frontier[data_index][i]
+					print("safe_edge[safe_index][i] : " + str(safe_edge[safe_index][i]))
+					print("frontier[data_index][i]  : " + str(frontier[data_index][i]))
 					frontier[data_index][i] += ((safe_edge[safe_index][i] - frontier[data_index][i]) * 0.5)
 					difference = abs(origin_point - frontier[data_index][i])
 					total_cost += difference * q_cost[i]
+			print("TOTAL_COST   : " + str(total_cost))
+			print("CURRENT_COST : " + str(current_cost))
 			if(total_cost < current_cost):
 				cheapest_index = data_index
 				current_cost = total_cost
+	print("aha")
+	print('CHEAAP  ' + str(cheapest_index))
+	print(frontier[cheapest_index])
 	recommendation = list(frontier[cheapest_index][:-1])
 	return recommendation
 
@@ -777,6 +837,11 @@ intersection_status = Check_Intersection(safe_region, ddr_prime_ct)
 if(intersection_status == True):
 	recommendation = Move_Query_Point()
 else:
+	print("RRRRRRRRRRRRRRRRRR Processing")
 	recommendation =  Move_Why_Not_And_Query_Point()
-print(recommendation)
+
+print("INTERSECTION = " + str(intersection_status))
+
+print("RECOMMENDATION : " + str(recommendation))
+
 fu.close()

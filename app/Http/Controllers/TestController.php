@@ -20,4 +20,20 @@ class TestController extends Controller
     	echo $process->getOutput();
     	dd("bisa");
     }
+
+
+    public function testOutput() {
+        $process = new Process("py testoutput.py");
+        $process->run();
+
+        if(!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        #echo $process->getOutput();
+        $hasil = $process->getOutput();
+
+        #dd("done this");
+        return view('testingOutput', compact('hasil'));
+    }
 }

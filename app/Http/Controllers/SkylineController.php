@@ -22,4 +22,19 @@ class SkylineController extends Controller
     public function index() {
     	return view('index');
     }
+
+    public function runbasic() {
+        $process = new Process("py scriptx.py");
+        $process->run();
+
+        if(!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        #echo $process->getOutput();
+        $hasil = $process->getOutput();
+
+        #dd("done this");
+        return view('DirectResult', compact('hasil'));
+    }
 }
