@@ -431,6 +431,7 @@ def Generate_DDR_Prime_Ct(ct):
 	global virtual_point
 	global current_bit
 	global query_point
+	global t
 	#global safe_region 		#
 
 	fp = open(product_list)
@@ -452,6 +453,7 @@ def Generate_DDR_Prime_Ct(ct):
 				Update_Global_Skyline()
 				candidate_skyline.clear()
 	Update_Global_Skyline()
+	candidate_skyline.clear()
 	fp.close()
 
 	#check if the QUERY POINT is part of DSL(ct)
@@ -461,8 +463,8 @@ def Generate_DDR_Prime_Ct(ct):
 	q_is_local_skyline = Insert_Local_Skyline(transformed_query_point, current_bit)
 	if(q_is_local_skyline == True):
 		Insert_Candidate_Skyline(transformed_query_point, current_bit)
-	Update_Global_Skyline()
-	candidate_skyline.clear()
+		Update_Global_Skyline()
+		candidate_skyline.clear()
 
 	q_is_dsl = False
 	for i in range(0, len(global_skyline)):
@@ -470,27 +472,37 @@ def Generate_DDR_Prime_Ct(ct):
 			q_is_dsl = True
 	if(q_is_dsl == True):
 		#HENTIKAN PROGRAM
+		print("Tidak perlu dilakukan penyesuaian")
 		exit()
 	else:
 		#create ddr prime of ct
 		#ANGGAPLAH INI BENAR
 		#HARUS DIREVISI
 		#INI MASIH SALAH
+
+		sorted_data = list(sorted(global_skyline, key=lambda newlist: newlist[1]))
+		print("SORTED " + str(sorted_data))
+		print("CT val : " + str(ct_cost))
+
 		ddr_prime_ct = []
-		for g in range(0, len(global_skyline)):
-			projected_value = []
-			for i in range(1, len(global_skyline[g]) - 2):
-				if(global_skyline[g][i] == 'null'):
-					bottom = 'null'
+		for data_index in range(0, len(sorted_data)-1):
+			data = []
+			for i in range(0, len(ct)):
+				if(sorted_data[data_index][i+1] == 'null' and sorted_data[data_index+1][i+1] == 'null'):
 					top = 'null'
-				else: 
-					bottom = ct[i-1] - global_skyline[g][i]
-					top = ct[i-1] + global_skyline[g][i]
+					bottom = 'null'
+				elif(sorted_data[data_index][i+1] == 'null'):
+					top = ct[i] + sorted_data[data_index+1][i+1]
+					bottom = ct[i] - sorted_data[data_index+1][i+1]
+				elif(sorted_data[data_index+1][i+1] == 'null'):
+					top = ct[i] + sorted_data[data_index][i+1]
+					bottom = ct[i] - sorted_data[data_index][i+1]
+				else:
+					top = max((ct[i] + sorted_data[data_index][i+1]), (ct[i] + sorted_data[data_index+1][i+1]))
+					bottom = min((ct[i] - sorted_data[data_index][i+1]), (ct[i] - sorted_data[data_index+1][i+1]))
 				max_min_value = [top, bottom]
-				projected_value.append(max_min_value)
-			ddr_prime_ct.append(projected_value)
-		#BATAS AKHIR KESALAHAN
-		# for g in range(0, len(global_skyline)):
+				data.append(max_min_value)
+			ddr_prime_ct.append(data)
 
 	return ddr_prime_ct
 
