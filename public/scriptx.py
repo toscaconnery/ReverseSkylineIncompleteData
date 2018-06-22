@@ -276,18 +276,23 @@ def Generate_Query_Point(): #NEW
 	global query_point
 	#query_point = "QP 6 2 1 3"		#SR(q) DAN DDR(ct) berpotongan
 	#query_point = "QP 7 5 7 8"		#SR(q) DAN DDR(ct) tidak berpotongan -> KARENA TIDAK ADA SR
-	query_point = "QP 15 15 15 15"
+	#query_point = "QP 15 15 15 15"	#base
+	query_point = "QP 4 6 8 4"
 
 def Generate_Ct():
 	global ct
-	ct.append(2)
-	ct.append(2)
-	ct.append(2)
-	ct.append(2)
 	# ct.append(2)
 	# ct.append(2)
 	# ct.append(2)
 	# ct.append(2)
+	# ct.append(2)
+	# ct.append(2)
+	# ct.append(2)
+	# ct.append(2)
+	ct.append('2')
+	ct.append(5)
+	ct.append(8)
+	ct.append('2')
 
 def Generate_Cost():
 	global ct_cost
@@ -473,16 +478,11 @@ def Generate_DDR_Prime_Ct(ct):
 	if(q_is_dsl == True):
 		#HENTIKAN PROGRAM
 		print("Tidak perlu dilakukan penyesuaian")
+		change_status = 0
 		exit()
 	else:
 		#create ddr prime of ct
-		#ANGGAPLAH INI BENAR
-		#HARUS DIREVISI
-		#INI MASIH SALAH
-
 		sorted_data = list(sorted(global_skyline, key=lambda newlist: newlist[1]))
-		print("SORTED " + str(sorted_data))
-		print("CT val : " + str(ct_cost))
 
 		ddr_prime_ct = []
 		for data_index in range(0, len(sorted_data)-1):
@@ -621,7 +621,7 @@ def Move_Why_Not_And_Query_Point():
 		nearest.append(cost)
 		safe_edge.append(nearest)
 
-	
+	print("SAFE EDGE         : " + str(safe_edge))
 	#Transform all point, ct is center, SEKALIAN : #Remove all data point that dominated by each edge of SR(q)
 	transformed_space = []
 	for data_index in range(0, len(safe_edge)):
@@ -646,6 +646,8 @@ def Move_Why_Not_And_Query_Point():
 			if(greater == False and smaller == True):
 				transformed_space.append(transformed_data)
 		fp.close()
+
+	print("TRANSFORMED SPACE : " + str(transformed_space))
 
 	#Find frontier
 	#BANDINGKAN SEMUA DATA HASIL SEBELUMNYA
@@ -689,6 +691,12 @@ def Move_Why_Not_And_Query_Point():
 				cheapest_index = data_index
 				current_cost = total_cost
 	recommendation = list(frontier[cheapest_index][:-1])
+	print(frontier)
+	print("///PERUBAHAN///")
+	print("Q  : " + str(safe_edge[frontier[cheapest_index][-1]]))
+	print("CT : " + str(recommendation))
+
+
 	return recommendation
 
 
@@ -732,14 +740,10 @@ def Prepare_Data(line, customer):
 	return transformed_data
 
 
-#product_specs = np.loadtxt('product_specs.txt', skiprows=1, unpack=True)
-#user_preference = np.loadtxt('user_preference.txt', skiprows=1, unpack=True)
-#current_product = np.loadtxt('current_product.txt', skiprows=1, unpack=True)
-
-
 #PREPROCESSING
 #THIS INITIAL PROGRAM WILL CALLED function Generate_All_Dynamic_Skyline
-fu = open("unlabeled_user_preference2.txt")
+user_preference = "unlabeled_user_preference2.txt"
+fu = open(user_preference)
 for list_user in fu:
 	temp = [float(x) for x in list_user.split()]
 	list_customer.append(temp)
@@ -788,7 +792,13 @@ Generate_Cost()
 intersection_status = Check_Intersection(safe_region, ddr_prime_ct)
 if(intersection_status == True):
 	recommendation = Move_Query_Point()
+	change_status = 1
+	print("Need to move query point : ")
+	print(recommendation)
 else:
 	recommendation =  Move_Why_Not_And_Query_Point()
-print(recommendation)
+	change_status = 2
+	print("Need to move why-not point : ")
+	print(recommendation)
+#print(recommendation)
 fu.close()

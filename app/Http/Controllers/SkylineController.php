@@ -33,7 +33,6 @@ class SkylineController extends Controller
 
         #echo $process->getOutput();
         $hasil = $process->getOutput();
-
         #dd("done this");
         return view('DirectResult', compact('hasil'));
     }
