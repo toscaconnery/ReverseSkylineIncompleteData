@@ -28,35 +28,35 @@ intersection = []
 ct_cost = []
 q_cost = []
 
-def Insert_Local_Skyline(current_specs, current_bit):
+def Insert_Local_Skyline(current_specs, bitmap):
 	global local_skyline
 	global shadow_skyline
 	global virtual_point
 
-	for i in range(0, len(local_skyline[current_bit])):	#pengulangan sebanyak data yang ada didalam local_skyline, untuk dibandingkan satu persatu dengan data baru
+	for i in range(0, len(local_skyline[bitmap])):	#pengulangan sebanyak data yang ada didalam local_skyline, untuk dibandingkan satu persatu dengan data baru
 		dominating_local = False
 		dominated_by_local = False
 		for j in range(1, len(current_specs)):
-			if(current_specs[j] != 'null' and local_skyline[current_bit][i][j] != 'null'):
-				if(current_specs[j] < local_skyline[current_bit][i][j]):
+			if(current_specs[j] != 'null' and local_skyline[bitmap][i][j] != 'null'):
+				if(current_specs[j] < local_skyline[bitmap][i][j]):
 					dominating_local = True
-				elif(current_specs[j] > local_skyline[current_bit][i][j]):
+				elif(current_specs[j] > local_skyline[bitmap][i][j]):
 					dominated_by_local = True
 		if(dominating_local == True and dominated_by_local == False):
-			local_skyline[current_bit][i][-1] = 'delete'
+			local_skyline[bitmap][i][-1] = 'delete'
 		elif(dominating_local == False and dominated_by_local == True):
 			for k in range(0, i+1):
-				local_skyline[current_bit][k][-1] = 'ok'
+				local_skyline[bitmap][k][-1] = 'ok'
 			return False
 	dominated = 0
-	for i in range(0, len(virtual_point[current_bit])):
+	for i in range(0, len(virtual_point[bitmap])):
 		dominating_virtual = False
 		dominated_by_virtual = False
 		for j in range(1, len(current_specs)):
-			if(current_specs[j] != 'null' and virtual_point[current_bit][i][j] != 'null'):
-				if(current_specs[j] < virtual_point[current_bit][i][j]):
+			if(current_specs[j] != 'null' and virtual_point[bitmap][i][j] != 'null'):
+				if(current_specs[j] < virtual_point[bitmap][i][j]):
 					dominating_virtual = True
-				elif(current_specs[j] > virtual_point[current_bit][i][j]):
+				elif(current_specs[j] > virtual_point[bitmap][i][j]):
 					dominated_by_virtual = True
 		if(dominating_virtual == False and dominated_by_virtual == True):
 			dominated = 1
@@ -73,48 +73,48 @@ def Insert_Local_Skyline(current_specs, current_bit):
 	if(dominated == 0):
 		content = list(current_specs)
 		content.append('ok')
-		local_skyline[current_bit].append(content)
-		for i in sorted(local_skyline[current_bit], reverse=True):
+		local_skyline[bitmap].append(content)
+		for i in sorted(local_skyline[bitmap], reverse=True):
 			if (i[-1] == 'delete'):
-				local_skyline[current_bit].remove(i)
-		for i in range(0, len(shadow_skyline[current_bit])):
+				local_skyline[bitmap].remove(i)
+		for i in range(0, len(shadow_skyline[bitmap])):
 			dominating_shadow = False
 			dominated_by_shadow = False
 			for j in range(1, len(current_specs)):
-				if(current_specs[j] != 'null' and shadow_skyline[current_bit][i][j] != 'null'):
-					if(current_specs[j] < shadow_skyline[current_bit][i][j]):
+				if(current_specs[j] != 'null' and shadow_skyline[bitmap][i][j] != 'null'):
+					if(current_specs[j] < shadow_skyline[bitmap][i][j]):
 						dominating_shadow = True
-					elif(current_specs[j] > shadow_skyline[current_bit][i][j]):
+					elif(current_specs[j] > shadow_skyline[bitmap][i][j]):
 						dominated_by_shadow = True
 			if(dominating_shadow == True and dominated_by_shadow == False):
-				shadow_skyline[current_bit][i][-1] = 'delete'
-		for i in sorted(shadow_skyline[current_bit], reverse=True):
+				shadow_skyline[bitmap][i][-1] = 'delete'
+		for i in sorted(shadow_skyline[bitmap], reverse=True):
 			if (i[-1] == 'delete'):
-				shadow_skyline[current_bit].remove(i)
+				shadow_skyline[bitmap].remove(i)
 		return True
 	elif(dominated == 1):
-		n_updated_flag[current_bit] = True
-		for i in range(0, len(shadow_skyline[current_bit])):
+		n_updated_flag[bitmap] = True
+		for i in range(0, len(shadow_skyline[bitmap])):
 			dominating_shadow = False
 			dominated_by_shadow = False
 			for j in range(1, len(current_specs)):
-				if(current_specs[j] != 'null' and shadow_skyline[current_bit][i][j] != 'null'):
-					if(current_specs[j] < shadow_skyline[current_bit][i][j]):
+				if(current_specs[j] != 'null' and shadow_skyline[bitmap][i][j] != 'null'):
+					if(current_specs[j] < shadow_skyline[bitmap][i][j]):
 						dominating_shadow = True
-					elif(current_specs[j] > shadow_skyline[current_bit][i][j]):
+					elif(current_specs[j] > shadow_skyline[bitmap][i][j]):
 						dominated_by_shadow = True
 			if(dominating_shadow == True and dominated_by_shadow == False):
-				shadow_skyline[current_bit][i][-1] = 'delete'
-		for i in sorted(shadow_skyline[current_bit], reverse=True):
+				shadow_skyline[bitmap][i][-1] = 'delete'
+		for i in sorted(shadow_skyline[bitmap], reverse=True):
 			if (i[-1] == 'delete'):
-				shadow_skyline[current_bit].remove(i)
+				shadow_skyline[bitmap].remove(i)
 		content = list(current_specs)
 		content.append('ok');
-		shadow_skyline[current_bit].append(content)
+		shadow_skyline[bitmap].append(content)
 	return False
 
 
-def Insert_Candidate_Skyline(current_specs, current_bit):
+def Insert_Candidate_Skyline(current_specs, bitmap):
 	global candidate_skyline
 	list_bit_inserted = []
 	dominated = 0
@@ -135,66 +135,66 @@ def Insert_Candidate_Skyline(current_specs, current_bit):
 				list_bit_inserted.append(candidate_skyline[i][-2])
 		elif(dominating_candidate == False and dominated_by_candidate == True):
 			content = list(candidate_skyline[i][:-2])
-			Insert_Virtual_Point(content, current_bit)
+			Insert_Virtual_Point(content, bitmap)
 			dominated = 1
 	candidate_skyline = [i for i in candidate_skyline if i[-1] == 'ok']
 	if(dominated == 0):
 		content = list(current_specs)
-		content.append(current_bit)
+		content.append(bitmap)
 		content.append('ok')
 		candidate_skyline.append(content)
 
 
 
-def Insert_Virtual_Point(current_specs, current_bit):
+def Insert_Virtual_Point(current_specs, bitmap):
 	global local_skyline
 	global virtual_point
 	global shadow_skyline
 	#MEMBANDINGKAN DENGAN LOCAL SKYLINE
 	#Move all dominated local_skyline N to shadow_skyline
-	for i in range(0, len(local_skyline[current_bit])):
+	for i in range(0, len(local_skyline[bitmap])):
 		dominating_local = False
 		dominated_by_local = False
 		for j in range(1, len(current_specs)):
-			if(current_specs[j] != 'null' and local_skyline[current_bit][i][j] != 'null'):
-				if(current_specs[j] < local_skyline[current_bit][i][j]):
+			if(current_specs[j] != 'null' and local_skyline[bitmap][i][j] != 'null'):
+				if(current_specs[j] < local_skyline[bitmap][i][j]):
 					dominating_local = True
-				elif(current_specs[j] > local_skyline[current_bit][i][j]):
+				elif(current_specs[j] > local_skyline[bitmap][i][j]):
 					dominated_by_local = True
 		if(dominating_local == True and dominated_by_local == False):
-			local_skyline[current_bit][i][-1] = 'delete'
-	for i in reversed(local_skyline[current_bit]):
+			local_skyline[bitmap][i][-1] = 'delete'
+	for i in reversed(local_skyline[bitmap]):
 		if (i[-1] == 'delete'):
-			shadow_skyline[current_bit].append(i)
-			local_skyline[current_bit].remove(i)
-			shadow_skyline[current_bit][-1][-1] = 'ok'
+			shadow_skyline[bitmap].append(i)
+			local_skyline[bitmap].remove(i)
+			shadow_skyline[bitmap][-1][-1] = 'ok'
 	
 	#MEMBANDINGKAN DENGAN VIRTUAL POINT
 	#Remove all dominated virtual_point that has same bit
-	for i in range(0, len(virtual_point[current_bit])):
+	for i in range(0, len(virtual_point[bitmap])):
 		dominating_virtual = False
 		dominated_by_virtual = False
 		superset_check = 0
 
 		for j in range(1, len(current_specs)):
-			if(current_specs[j] != 'null' and virtual_point[current_bit][i][j] != 'null'):
-				if(current_specs[j] < virtual_point[current_bit][i][j]):
+			if(current_specs[j] != 'null' and virtual_point[bitmap][i][j] != 'null'):
+				if(current_specs[j] < virtual_point[bitmap][i][j]):
 					dominating_virtual = True
-				elif(current_specs[j] > virtual_point[current_bit][i][j]):
+				elif(current_specs[j] > virtual_point[bitmap][i][j]):
 					dominated_by_virtual = True
 			if(current_specs[j] != 'null'):
 				superset_check += 1
-			elif(current_specs[j] == 'null' and virtual_point[current_bit][i][j] == 'null'):
+			elif(current_specs[j] == 'null' and virtual_point[bitmap][i][j] == 'null'):
 				superset_check += 1
 		if(dominating_virtual == True and dominated_by_virtual == False and superset_check == len(current_specs)):
-			virtual_point[current_bit][i][-1] = 'delete'
+			virtual_point[bitmap][i][-1] = 'delete'
 
-	for i in reversed(virtual_point[current_bit]):
+	for i in reversed(virtual_point[bitmap]):
 		if(i[-1] == 'delete'):
-			virtual_point[current_bit].remove(i)
+			virtual_point[bitmap].remove(i)
 	content = list(current_specs)
 	content.append('ok')
-	virtual_point[current_bit].append(content)
+	virtual_point[bitmap].append(content)
 
 
 def Update_Global_Skyline():
@@ -274,25 +274,21 @@ def Update_Global_Skyline():
 
 def Generate_Query_Point(): #NEW
 	global query_point
-	#query_point = "QP 6 2 1 3"		#SR(q) DAN DDR(ct) berpotongan
+	query_point = "QP 6 2 1 3"		#SR(q) DAN DDR(ct) berpotongan
 	#query_point = "QP 7 5 7 8"		#SR(q) DAN DDR(ct) tidak berpotongan -> KARENA TIDAK ADA SR
 	#query_point = "QP 15 15 15 15"	#base
-	query_point = "QP 4 6 8 4"
+	#query_point = "QP 4 6 8 4"
 
 def Generate_Ct():
 	global ct
+	ct.append(2)
+	ct.append(2)
+	ct.append(2)
+	ct.append(2)
 	# ct.append(2)
+	# ct.append(5)
+	# ct.append(8)
 	# ct.append(2)
-	# ct.append(2)
-	# ct.append(2)
-	# ct.append(2)
-	# ct.append(2)
-	# ct.append(2)
-	# ct.append(2)
-	ct.append('2')
-	ct.append(5)
-	ct.append(8)
-	ct.append('2')
 
 def Generate_Cost():
 	global ct_cost
@@ -348,7 +344,7 @@ def Generate_Safe_Region_Q():
 	Calculate_RSL_Q(customer_skyline, query_point)
 
 	safe_region = []
-	###PERULANGAN UNTUK SETIAP SKYLINE DARI PENGGUNA
+	###PERULANGAN UNTUK SETIAP SKYLINE DARI DATA KONSUMEN
 	for dict_index in customer_skyline:		#c is dictionary index
 		if(customer_skyline[dict_index][-1] == 'ok'):
 			#AAAA -> AT THIS PART, THE CUSTOMER SKYLINE SHOULD BE SORTED BY I'TH DIMENSIONS.
@@ -434,7 +430,7 @@ def Generate_DDR_Prime_Ct(ct):
 	global global_skyline
 	global shadow_skyline
 	global virtual_point
-	global current_bit
+	global bitmap
 	global query_point
 	global t
 	#global safe_region 		#
@@ -449,11 +445,11 @@ def Generate_DDR_Prime_Ct(ct):
 	virtual_point.clear()
 	node.clear()
 	for line in fp:
-		current_bit = ""
+		bitmap = ""
 		transformed_data = Prepare_Data(line, ct)
-		is_skyline = Insert_Local_Skyline(transformed_data, current_bit)
+		is_skyline = Insert_Local_Skyline(transformed_data, bitmap)
 		if(is_skyline == True):
-			Insert_Candidate_Skyline(transformed_data, current_bit)
+			Insert_Candidate_Skyline(transformed_data, bitmap)
 			if(len(candidate_skyline) > t):
 				Update_Global_Skyline()
 				candidate_skyline.clear()
@@ -463,11 +459,11 @@ def Generate_DDR_Prime_Ct(ct):
 
 	#check if the QUERY POINT is part of DSL(ct)
 	Generate_Query_Point()	#The query point exist from here
-	current_bit = ""
+	bitmap = ""
 	transformed_query_point = Prepare_Data(query_point, ct)
-	q_is_local_skyline = Insert_Local_Skyline(transformed_query_point, current_bit)
+	q_is_local_skyline = Insert_Local_Skyline(transformed_query_point, bitmap)
 	if(q_is_local_skyline == True):
-		Insert_Candidate_Skyline(transformed_query_point, current_bit)
+		Insert_Candidate_Skyline(transformed_query_point, bitmap)
 		Update_Global_Skyline()
 		candidate_skyline.clear()
 
@@ -623,8 +619,10 @@ def Move_Why_Not_And_Query_Point():
 
 	print("SAFE EDGE         : " + str(safe_edge))
 	#Transform all point, ct is center, SEKALIAN : #Remove all data point that dominated by each edge of SR(q)
+	#Cari pasangan tansformasi dan safe_edge dimana hasil transformasi tidak mendominasi safe_edge (dominasi lebih besar yg mendominasi)
 	transformed_space = []
 	for data_index in range(0, len(safe_edge)):
+		print("masuk")
 		fp = open(product_list)
 		for line in fp:
 			product = line.split()
@@ -635,15 +633,16 @@ def Move_Why_Not_And_Query_Point():
 				if(product[i+1] != 'null'):
 					transformed_value = float(ct[i]) + abs(float(ct[i]) - float(product[i+1]))
 					transformed_data.append(transformed_value)
-					if(transformed_value > safe_edge[data_index][i]):
+					if(safe_edge[data_index][i] > transformed_value):
 						greater = True
-					elif(transformed_value < safe_edge[data_index][i]):
+					elif(safe_edge[data_index][i] < transformed_value):
 						smaller = True
 				else:
 					transformed_value = 'null'
 					transformed_data.append(transformed_value)
 			transformed_data.append(data_index)
-			if(greater == False and smaller == True):
+			if(greater == True and smaller == False):
+				print("appended")
 				transformed_space.append(transformed_data)
 		fp.close()
 
@@ -652,6 +651,7 @@ def Move_Why_Not_And_Query_Point():
 	#Find frontier
 	#BANDINGKAN SEMUA DATA HASIL SEBELUMNYA
 	frontier = list(transformed_space)
+	print("frontier init : " + str(frontier))
 	for data_index in range(0, len(frontier)):
 		#BRUTEFORCE, data disini lebih sedikit, kecuali datanya sama rata
 		for data_index_2 in range(0, len(frontier)):
@@ -673,11 +673,13 @@ def Move_Why_Not_And_Query_Point():
 	#jika tidak ada skyline
 	if(eliminated == len(frontier)):
 		frontier = list(transformed_space)
+	print("frontier : " + str(frontier))
 
 	#dapatkan titik yang lebih dekat ke edge of safe point, setengah dari jarak (edge of safe point[i] - frontier[i])
 	cheapest_index = None
 	current_cost = 9999999999
 	for data_index in range(0, len(frontier)):
+		print('masuk frontier')
 		if(frontier[data_index][-1] != 'delete'):
 			total_cost = safe_edge[frontier[data_index][-1]][-1]
 			safe_index = frontier[data_index][-1]
@@ -691,18 +693,17 @@ def Move_Why_Not_And_Query_Point():
 				cheapest_index = data_index
 				current_cost = total_cost
 	recommendation = list(frontier[cheapest_index][:-1])
-	print(frontier)
 	print("///PERUBAHAN///")
+	print("frontier : " + str(frontier))
 	print("Q  : " + str(safe_edge[frontier[cheapest_index][-1]]))
 	print("CT : " + str(recommendation))
-
 
 	return recommendation
 
 
 
 def Prepare_Data(line, customer):
-	global current_bit
+	global bitmap
 	global node
 	global local_skyline
 	global candidate_skyline
@@ -720,23 +721,23 @@ def Prepare_Data(line, customer):
 	data_length = len(current_spec)
 	for i in range(1, data_length):
 		if(current_spec[i] == "null"):
-			current_bit += "0"
+			bitmap += "0"
 			data.append(current_spec[i])
 			transformed_data.append(current_spec[i])
 		else:
-			current_bit += "1"
+			bitmap += "1"
 			difference = abs(float(current_spec[i]) - customer[i-1])
 			data.append(float(current_spec[i]))
 			transformed_data.append(float(difference))
-	if current_bit not in node:
-		node[current_bit] = []
-		node[current_bit].append(data)
-		local_skyline[current_bit] = []
-		shadow_skyline[current_bit] = []
-		virtual_point[current_bit] = []
-		n_updated_flag[current_bit] = False
+	if bitmap not in node:
+		node[bitmap] = []
+		node[bitmap].append(data)
+		local_skyline[bitmap] = []
+		shadow_skyline[bitmap] = []
+		virtual_point[bitmap] = []
+		n_updated_flag[bitmap] = False
 	else:
-		node[current_bit].append(data)
+		node[bitmap].append(data)
 	return transformed_data
 
 
@@ -759,11 +760,11 @@ for x in range(0, len(list_customer)):
 	virtual_point.clear()
 	number_of_preference += 1
 	for line in fp:
-		current_bit = ""
+		bitmap = ""
 		transformed_data = Prepare_Data(line, list_customer[x])
-		is_skyline = Insert_Local_Skyline(transformed_data, current_bit)
+		is_skyline = Insert_Local_Skyline(transformed_data, bitmap)
 		if is_skyline == True:
-			Insert_Candidate_Skyline(transformed_data, current_bit)
+			Insert_Candidate_Skyline(transformed_data, bitmap)
 			if(len(candidate_skyline) > t):
 				Update_Global_Skyline()
 				candidate_skyline.clear()
@@ -791,11 +792,13 @@ Generate_Cost()
 
 intersection_status = Check_Intersection(safe_region, ddr_prime_ct)
 if(intersection_status == True):
+	print("OPTION 1")
 	recommendation = Move_Query_Point()
 	change_status = 1
 	print("Need to move query point : ")
 	print(recommendation)
 else:
+	print("OPTION 2")
 	recommendation =  Move_Why_Not_And_Query_Point()
 	change_status = 2
 	print("Need to move why-not point : ")
