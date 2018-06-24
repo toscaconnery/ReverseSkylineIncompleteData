@@ -275,7 +275,7 @@ def Update_Global_Skyline():
 
 def Generate_Query_Point(): #NEW
 	global query_point
-	query_point = "QP 6 2 1 3"		#SR(q) DAN DDR(ct) berpotongan
+	query_point = "QP 13 11 13 8"		#SR(q) DAN DDR(ct) berpotongan
 	#query_point = "QP 7 5 7 8"		#SR(q) DAN DDR(ct) tidak berpotongan -> KARENA TIDAK ADA SR
 	#query_point = "QP 15 15 15 15"	#base
 	#query_point = "QP 4 6 8 4"
@@ -621,6 +621,7 @@ def Check_Intersection(safe_region, ddr_prime_ct):
 		return False
 
 def Move_Query_Point():
+	#Output : titik baru untuk query point q
 	print("")
 	print("")
 	print("")
@@ -629,34 +630,35 @@ def Move_Query_Point():
 	print("")
 	global intersection
 	global query_point
-	global ct_cost
+	global q_cost
 	global data_length
-	distance_value = []
+	print("Intersection : " + str(intersection))
 	modified_value = []
+	distance_value = []
 	for data_index in range(0, len(intersection)):
-		nearest_distance = []
 		nearest_point = []
+		nearest_distance = []
 		for i in range(0, data_length):
-			a = abs(float(query_point[i+1]) - intersection[data_index][i][0])
-			b = abs(float(query_point[i+1]) - intersection[data_index][i][1])
+			top_diff = abs(float(query_point[i+1]) - intersection[data_index][i][0])
+			bottom_diff = abs(float(query_point[i+1]) - intersection[data_index][i][1])
 			#minimal_distance = min(a,b)
-			if(b < a):
+			if(bottom_diff < top_diff):
 				nearest_point.append(intersection[data_index][i][1])
-				nearest_distance.append(b)
+				nearest_distance.append(bottom_diff)
 			else:
 				nearest_point.append(intersection[data_index][i][0])
-				nearest_distance.append(a)
-		distance_value.append(nearest_distance)
+				nearest_distance.append(top_diff)
 		modified_value.append(nearest_point)
+		distance_value.append(nearest_distance)
 	#done, tinggal return kedua nilai ini untuk di analisa
 	#atau, langsung olah disini, cari yang mana yang paling efisien
 
 	#Mencari yang paling efisien:
 	cheapest_index = None
 	current_cost = 99999999999
-	for data_index in range(0, len(distance_value)):
+	for data_index in range(0, len(modified_value)):
 		total_cost = 0
-		for i in range(0, len(distance_value[data_index])):
+		for i in range(0, data_length):
 			total_cost += (distance_value[data_index][i] * q_cost[i])
 		if(total_cost < current_cost):
 			cheapest_index = data_index
@@ -1127,8 +1129,8 @@ Generate_Cost()
 intersection_status = Check_Intersection(safe_region, ddr_prime_ct)
 if(intersection_status == True):
 	print("OPTION 1")
-	recommendation = Move_Query_Point()
 	print("Need to move query point : ")
+	Move_Query_Point()
 else:
 	print("OPTION 2")
 	print("Need to move why-not and query point : ")
