@@ -23,7 +23,8 @@ customer_index = 0
 query_point = []
 list_customer = []
 ct = []
-product_list = "random_specs.txt"
+#product_list = "random_specs.txt"
+product_list = "T_D4_N100.txt"
 intersection = []
 ct_cost = []
 q_cost = []
@@ -225,7 +226,7 @@ def Update_Global_Skyline():
 			candidate_skyline.remove(i)
 	for g in range(0, len(global_skyline)):
 		for i in n_updated_flag:
-			if (n_updated_flag[i] == True):
+			if (n_updated_flag[i] == True and i in shadow_skyline):
 				for s in range(0, len(shadow_skyline[i])):
 					dominating_global = False
 					dominating_shadow = False
@@ -281,10 +282,10 @@ def Generate_Query_Point(): #NEW
 
 def Generate_Ct():
 	global ct
-	ct.append(2)
-	ct.append(2)
-	ct.append(2)
-	ct.append(2)
+	ct.append(float(23))
+	ct.append(float(53))
+	ct.append(float(24))
+	ct.append(float(30))
 	# ct.append(2)
 	# ct.append(5)
 	# ct.append(8)
@@ -305,25 +306,37 @@ def Generate_Cost():
 def Calculate_RSL_Q(customer_skyline, query_point):
 	### - MENGHAPUS SEMUA SKYLINE DARI 'customer_skyline' YANG BUKAN RSL DARI Q, SEHINGGA HANYA TERSISA RSL Q
 	### - PASTIKAN NILAI YANG DIPROSES ADALAH HASIL TRANSFORMASI DARI ASLINYA TERHADAP DATA POINT KONSUMEN
-
+	global data_length
+	print("")
+	print("")
+	print("")
+	print("")
+	print("")
+	print("")
+	print("CALCULATE RSL Q")
+	print("CUSTOMER SKYLINE per user : ")
+	for i in customer_skyline:
+		print(customer_skyline[i])
+	print("-------------------------------------------x")
 	for dict_index in customer_skyline:
-		transformed_query = []
-		for q in range(0, len(customer_skyline[dict_index][-2])):
+		transformed_query_point = []
+		for q in range(0, data_length):
 			transformed_value = abs(float(query_point[q+1]) - customer_skyline[dict_index][-2][q])
-			transformed_query.append(transformed_value)
+			transformed_query_point.append(transformed_value)
 		for data_index in range(0, len(customer_skyline[dict_index]) - 2):
 			dominating_q = False
 			dominating_customer = False
-			for i in range(1, len(customer_skyline[dict_index][-2])):
-				if(customer_skyline[dict_index][data_index][i] != 'null'):
-					if(customer_skyline[dict_index][data_index][i] < transformed_query[i]):
+			for i in range(0, data_length):
+				if(customer_skyline[dict_index][data_index][i+1] != 'null'):
+					if(customer_skyline[dict_index][data_index][i+1] < transformed_query_point[i]):
 						dominating_q = True
-					elif(customer_skyline[dict_index][data_index][i] > transformed_query[i]):
+					elif(customer_skyline[dict_index][data_index][i+1] > transformed_query_point[i]):
 						dominating_customer = True
 			if(dominating_q == True and dominating_customer == False):
 				customer_skyline[dict_index][-1] = 'delete'
 			elif(dominating_q == False and dominating_customer == True):
 				customer_skyline[dict_index][data_index][-1] = 'delete'
+		#deleting dominated data on customer skyline
 		if(customer_skyline[dict_index][-1] == 'ok'):
 			for i in range(len(customer_skyline[dict_index]) - 3, -1, -1):
 				if(customer_skyline[dict_index][i][-1] == 'delete'):
@@ -339,57 +352,74 @@ def Generate_Safe_Region_Q():
 	global customer_skyline
 	global query_point
 	global safe_region
+	global data_length
 
 	query_point = query_point.split()
+	print("CURRENt CUSTOMER SKYLINE : ")
+	for i in customer_skyline:
+		print(customer_skyline[i])
 	Calculate_RSL_Q(customer_skyline, query_point)
+	print("AF RSL Q CUSTOMER SKYLINE : ")
+	for i in customer_skyline:
+		print(customer_skyline[i])
 
 	safe_region = []
 	###PERULANGAN UNTUK SETIAP SKYLINE DARI DATA KONSUMEN
 	for dict_index in customer_skyline:		#c is dictionary index
+		print("")
+		print("")
+		print("CUSTOMER SKYLINE KE : " + str(dict_index))
 		if(customer_skyline[dict_index][-1] == 'ok'):
-			#AAAA -> AT THIS PART, THE CUSTOMER SKYLINE SHOULD BE SORTED BY I'TH DIMENSIONS.
-			#SORTING : 
-
-			temp = list(customer_skyline[dict_index][:-2])
-			sorted_data = list(sorted(temp, key=lambda newlist: newlist[1]))
-
+			print("Data CS : " + str(customer_skyline[dict_index]))
 			ddr_prime = []
-
-			for data_index in range(0, len(sorted_data)-1):
+			for data_index in range(0, len(customer_skyline[dict_index])-2):
 				data = []
-				for i in range(0, len(customer_skyline[dict_index][-2])):
-					if(sorted_data[data_index][i+1] == 'null' and sorted_data[data_index+1][i+1] == 'null'):
+				for i in range(0, data_length):
+					if(customer_skyline[dict_index][data_index][i+1] != 'null'):
+						# print("A : " + str(customer_skyline[dict_index][-2][i]))
+						# print("B : " + str(customer_skyline[dict_index][data_index][i+1]))
+						# print("E : " + str(customer_skyline[dict_index][data_index]))
+						difference = abs(customer_skyline[dict_index][-2][i] - customer_skyline[dict_index][data_index][i+1])
+						top = customer_skyline[dict_index][-2][i] + difference
+						bottom = customer_skyline[dict_index][-2][i] - difference
+					else:
 						top = 'null'
 						bottom = 'null'
-					elif(sorted_data[data_index][i+1] == 'null'):
-						top = customer_skyline[dict_index][-2][i] + sorted_data[data_index+1][i+1]
-						bottom = customer_skyline[dict_index][-2][i] - sorted_data[data_index+1][i+1]
-					elif(sorted_data[data_index+1][i+1] == 'null'):
-						top = customer_skyline[dict_index][-2][i] + sorted_data[data_index][i+1]
-						bottom = customer_skyline[dict_index][-2][i] - sorted_data[data_index][i+1]
-					else:
-						top = max((customer_skyline[dict_index][-2][i] + sorted_data[data_index][i+1]), (customer_skyline[dict_index][-2][i] + sorted_data[data_index+1][i+1]))
-						bottom = min((customer_skyline[dict_index][-2][i] - sorted_data[data_index][i+1]), (customer_skyline[dict_index][-2][i] - sorted_data[data_index+1][i+1]))
+					# if(sorted_data[data_index][i+1] == 'null' and sorted_data[data_index+1][i+1] == 'null'):
+					# 	top = 'null'
+					# 	bottom = 'null'
+					# elif(sorted_data[data_index][i+1] == 'null'):
+					# 	top = customer_skyline[dict_index][-2][i] + sorted_data[data_index+1][i+1]
+					# 	bottom = customer_skyline[dict_index][-2][i] - sorted_data[data_index+1][i+1]
+					# elif(sorted_data[data_index+1][i+1] == 'null'):
+					# 	top = customer_skyline[dict_index][-2][i] + sorted_data[data_index][i+1]
+					# 	bottom = customer_skyline[dict_index][-2][i] - sorted_data[data_index][i+1]
+					# else:
+					# 	top = max((customer_skyline[dict_index][-2][i] + sorted_data[data_index][i+1]), (customer_skyline[dict_index][-2][i] + sorted_data[data_index+1][i+1]))
+					# 	bottom = min((customer_skyline[dict_index][-2][i] - sorted_data[data_index][i+1]), (customer_skyline[dict_index][-2][i] - sorted_data[data_index+1][i+1]))
 					max_min_value = [top, bottom]
+					print("max_min : " + str(max_min_value))
 					data.append(max_min_value)
 				ddr_prime.append(data)
-
+			print("DDR_PRIME : " + str(ddr_prime))
 			##NEED ADJUSTMENT AT THE END AND BEGINNING OF THE DATA ON DDR PRIME
-
 			if(len(safe_region) == 0):
+				print("SAFE REGION BARU/////////")
 				safe_region = list(ddr_prime)
+				print("SR    : " + str(safe_region))
 			else:
 				#checking intersection
+				print("SAFE REGION UPDATE///////")
 				new_safe_region = []
 				for safe_index in range(0, len(safe_region)):
 					for ddr_index in range(0, len(ddr_prime)):
 						intersect_status = True
 						intersect_data = []
 						#perulangan sebanyak dimensi
-						for i in range(0, len(customer_skyline[dict_index][-2])):
+						for i in range(0, data_length):
 							#top
 							if(ddr_prime[ddr_index][i][0] == 'null' and safe_region[safe_index][i][0] == 'null'):
-									top = 'null'
+								top = 'null'
 							elif(ddr_prime[ddr_index][i][0] == 'null'):
 								top = safe_region[safe_index][i][0]
 							elif(safe_region[safe_index][i][0] == 'null'):
@@ -406,15 +436,22 @@ def Generate_Safe_Region_Q():
 								bottom = ddr_prime[ddr_index][i][1]
 							else:
 								bottom = max(ddr_prime[ddr_index][i][1], safe_region[safe_index][i][1])
-
+							# print("top    : " + str(top))
+							# print("bottom : " + str(bottom))
 							if(top != 'null' and bottom != 'null'):
 								if(bottom > top):
 									intersect_status = False
+							#print("Inst s : " + str(intersect_status))
 							max_min_value = [top, bottom]
 							intersect_data.append(max_min_value)
 						if(intersect_status == True):
 							new_safe_region.append(intersect_data)
-				safe_region = list(new_safe_region)
+				print("I/ safe_region : " + str(safe_region))
+				print("I/ new_safe_re : " + str(new_safe_region))
+				if(len(new_safe_region) > 0):
+					safe_region = list(new_safe_region)
+				print("HASIL SAFE REGION " + str(safe_region))
+	print("HASIL FINAL SAFE REGION : " + str(safe_region))
 	return safe_region
 
 
@@ -433,6 +470,7 @@ def Generate_DDR_Prime_Ct(ct):
 	global bitmap
 	global query_point
 	global t
+	global data_length
 	#global safe_region 		#
 
 	fp = open(product_list)
@@ -466,11 +504,11 @@ def Generate_DDR_Prime_Ct(ct):
 		Insert_Candidate_Skyline(transformed_query_point, bitmap)
 		Update_Global_Skyline()
 		candidate_skyline.clear()
-
 	q_is_dsl = False
 	for i in range(0, len(global_skyline)):
 		if(global_skyline[i][0] == "QP"):
 			q_is_dsl = True
+			break
 	if(q_is_dsl == True):
 		#HENTIKAN PROGRAM
 		print("Tidak perlu dilakukan penyesuaian")
@@ -478,41 +516,76 @@ def Generate_DDR_Prime_Ct(ct):
 		exit()
 	else:
 		#create ddr prime of ct
-		sorted_data = list(sorted(global_skyline, key=lambda newlist: newlist[1]))
+		#print("ADA " + str(len(global_skyline)) + " DATA DI GLOBAL")
+		#sorted_data = list(sorted(global_skyline, key=lambda newlist: newlist[1]))
 
 		ddr_prime_ct = []
-		for data_index in range(0, len(sorted_data)-1):
+		print("CT GLOBAL SKYLINE : " + str(global_skyline))
+		for data_index in range(0, len(global_skyline)):
+			#print("GLOBAL : " + str(global_skyline[data_index]))
 			data = []
-			for i in range(0, len(ct)):
-				if(sorted_data[data_index][i+1] == 'null' and sorted_data[data_index+1][i+1] == 'null'):
+			for i in range(0, data_length):
+				if(global_skyline[data_index][i+1] != 'null'):
+					difference = abs(global_skyline[data_index][i+1] - ct[i])
+					top = ct[i] + difference
+					bottom = ct[i] - difference
+				else:
 					top = 'null'
 					bottom = 'null'
-				elif(sorted_data[data_index][i+1] == 'null'):
-					top = ct[i] + sorted_data[data_index+1][i+1]
-					bottom = ct[i] - sorted_data[data_index+1][i+1]
-				elif(sorted_data[data_index+1][i+1] == 'null'):
-					top = ct[i] + sorted_data[data_index][i+1]
-					bottom = ct[i] - sorted_data[data_index][i+1]
-				else:
-					top = max((ct[i] + sorted_data[data_index][i+1]), (ct[i] + sorted_data[data_index+1][i+1]))
-					bottom = min((ct[i] - sorted_data[data_index][i+1]), (ct[i] - sorted_data[data_index+1][i+1]))
 				max_min_value = [top, bottom]
 				data.append(max_min_value)
 			ddr_prime_ct.append(data)
-
+	print("DDR PRIME CT : " + str(ddr_prime_ct))
 	return ddr_prime_ct
+
+
+# for data_index in range(0, len(sorted_data)-1):
+# 	data = []
+# 	for i in range(0, len(ct)):
+# 		if(sorted_data[data_index][i+1] == 'null' and sorted_data[data_index+1][i+1] == 'null'):
+# 			top = 'null'
+# 			bottom = 'null'
+# 		elif(sorted_data[data_index][i+1] == 'null'):
+# 			top = ct[i] + sorted_data[data_index+1][i+1]
+# 			bottom = ct[i] - sorted_data[data_index+1][i+1]
+# 		elif(sorted_data[data_index+1][i+1] == 'null'):
+# 			top = ct[i] + sorted_data[data_index][i+1]
+# 			bottom = ct[i] - sorted_data[data_index][i+1]
+# 		else:
+# 			top = max((ct[i] + sorted_data[data_index][i+1]), (ct[i] + sorted_data[data_index+1][i+1]))
+# 			bottom = min((ct[i] - sorted_data[data_index][i+1]), (ct[i] - sorted_data[data_index+1][i+1]))
+# 		max_min_value = [top, bottom]
+# 		data.append(max_min_value)
+# 	ddr_prime_ct.append(data)
+
 
 
 
 
 def Check_Intersection(safe_region, ddr_prime_ct):
 	global intersection
+	global data_length
+	print("")
+	print("")
+	print("")
+	print("")
+	print("")
+	print("")
+	print("")
+	print("RUNNING CHECK INTERSECTION")
+	print("++++++++++++++++++++++++++")
+	print("")
+	print("SAFE REGION : " + str(safe_region))
+	print("")
+	print("DDR PRIME CT : " + str(ddr_prime_ct))
+	print("")
+
 	intersection = []
 	for safe_index in range(0, len(safe_region)):
 		for ddr_index in range(0, len(ddr_prime_ct)):
 			intersect_data = []
 			intersect_status = True
-			for i in range(0, len(safe_region[safe_index])):
+			for i in range(0, data_length):
 				#top
 				if(safe_region[safe_index][i][0] == 'null' and ddr_prime_ct[ddr_index][i][0] == 'null'):
 					top = 'null'
@@ -539,7 +612,7 @@ def Check_Intersection(safe_region, ddr_prime_ct):
 				if(top != 'null' and bottom != 'null'):
 					if(bottom > top):
 						intersect_status = False
-
+			print("Intersect Status : " + str(intersect_status))
 			if(intersect_status == True):
 				intersection.append(intersect_data)
 	if(len(intersection) > 0):
@@ -548,18 +621,25 @@ def Check_Intersection(safe_region, ddr_prime_ct):
 		return False
 
 def Move_Query_Point():
+	print("")
+	print("")
+	print("")
+	print("")
+	print("RUNNING MOVE QUERY POINT")
+	print("")
 	global intersection
 	global query_point
 	global ct_cost
+	global data_length
 	distance_value = []
 	modified_value = []
 	for data_index in range(0, len(intersection)):
 		nearest_distance = []
 		nearest_point = []
-		for i in range(0, len(intersection[data_index])):
+		for i in range(0, data_length):
 			a = abs(float(query_point[i+1]) - intersection[data_index][i][0])
 			b = abs(float(query_point[i+1]) - intersection[data_index][i][1])
-			minimal_distance = min(a,b)
+			#minimal_distance = min(a,b)
 			if(b < a):
 				nearest_point.append(intersection[data_index][i][1])
 				nearest_distance.append(b)
@@ -583,6 +663,159 @@ def Move_Query_Point():
 	recommendation = modified_value[cheapest_index]
 	print(recommendation)
 
+
+
+def Move_Why_Not_Point(ct, q):		#q here is transformed q
+	global data_length
+	print("")
+	print("RUNNING MOVE WHY NOT POINT")
+	print("CT : " + str(ct))
+	print("Q  : " + str(q))
+	"""
+	A = window_query(ct, q)
+	F <- A
+	for each e1 element F do:
+		if e2 element F such e2 dominate e1 then:
+			remove e1 from F
+	M = initiate
+	for each e1 element F do
+		ul computation //new location
+		add ul to M
+	sort m based on dimension i
+	for ul, ul+1 element M do:
+		ul,l+1 = min (ul, ul+1) for all dimensions
+		if ul is the first entry in M :
+			replace ul+1 in M by ul,l+1
+		else if ul+1 is the last entry in M :
+			replace ul in M by ul,l+1
+		else :
+			replace ul and ul+1 in M by ul,l+1
+		u1i <- cti //u1 is the first entry in M
+		u|M|j <- ctj // u|M| is the last entry in M
+
+	"""
+
+	"""
+	A = window_query(ct, q)
+	"""
+	#Mencari titik yang berada diantara dua bua titik, note : q sudah ditransformasikan
+	print("q  : " + str(q))
+	print("ct : " + str(ct))
+	A = []
+	fp = open(product_list)
+	for line in fp:
+		product = line.split()
+		status_checker = 0
+		for i in range(0, len(product) - 1):
+			if(product[i+1] != 'null'):
+				product[i+1] = float(product[i+1])
+				if((product[i+1] <= q[i]) and (product[i+1] >= ct[i])):
+					status_checker += 1
+			else:
+				status_checker += 1
+		if(status_checker == len(ct)):
+			product.append('ok')
+			A.append(product)
+	print("A  : " + str(A))
+
+	"""
+	F <- A
+	for each e1 element F do:
+		if e2 element F such e2 dominate e1 then:
+			remove e1 from F
+	"""
+	F = list(A)
+	print("Fi : " + str(F))
+	for data_index in range(0, len(F)):
+		greater = False
+		smaller = False
+		for data_index_2 in range(0, len(F)):
+			for i in range(0, len(F[data_index])-1):
+				if(F[data_index][i] > F[data_index_2][i]):
+					greater = True
+				elif(F[data_index][i] < F[data_index_2][i]):
+					smaller = True
+		if(greater == True and smaller == False):
+			F[data_index_2][-1] = 'delete'
+	print("Fd : " + str(F))
+	for i in reversed(F):
+		if(i[-1] == 'delete'):
+			F.remove(i)
+	print("Fn : " + str(F))
+	
+	"""
+	M = initiate
+	for each e1 element F do
+		ul computation //new location
+		add ul to M
+	"""
+	M = []
+	for data_index in range(0, len(F)):
+		new_point = []
+		for i in range(0, len(F[data_index])-2):
+			print("fx : " +str(F[data_index][i+1]))
+			if(F[data_index][i+1] != 'null'):
+				u = F[data_index][i+1] + (abs(F[data_index][i+1] - q[i]) / 2)
+			else:
+				u = 'null'
+			new_point.append(u)
+		M.append(new_point)
+	print("M  : " + str(M))
+
+	"""
+	sort m based on dimension i
+	"""
+	sorted_data = list(sorted(M, key=lambda newlist: newlist[1]))
+	print("St : " + str(sorted_data))
+
+	"""
+	for ul, ul+1 element M do:
+		ul,l+1 = min (ul, ul+1) for all dimensions
+		if ul is the first entry in M :
+			replace ul+1 in M by ul,l+1
+		else if ul+1 is the last entry in M :
+			replace ul in M by ul,l+1
+		else :
+			replace ul and ul+1 in M by ul,l+1
+		u1i <- cti //u1 is the first entry in M
+		u|M|j <- ctj // u|M| is the last entry in M
+	"""
+	ull = []
+	for data_index in range(0, len(M)):
+		data = []
+		for i in range(0, data_length):
+			minimal = min(M[data_index][i], M[data_index+1][i])
+			data.append(minimal)
+		ull.append(data)
+	print("ULL : " + str(ull))
+
+
+
+	# fp = open(product_list)
+	# for line in fp:
+	# 	product = line.split()
+	# 	greater = False		#harus dibawah safe edge
+	# 	smaller = False
+	# 	transformed_data = []
+	# 	for i in range(0, len(product) - 1):
+	# 		if(product[i+1] != 'null'):
+	# 			transformed_value = float(ct[i]) + abs(float(ct[i]) - float(product[i+1]))
+	# 			transformed_data.append(transformed_value)
+	# 			if(safe_edge[data_index][i] > transformed_value):
+	# 				greater = True
+	# 			elif(safe_edge[data_index][i] < transformed_value):
+	# 				smaller = True
+	# 		else:
+	# 			transformed_value = 'null'
+	# 			transformed_data.append(transformed_value)
+	# 	transformed_data.append(data_index)
+	# 	if(greater == True and smaller == False):
+	# 		print("appended")
+	# 		transformed_space.append(transformed_data)
+	# fp.close()
+
+
+
 def Move_Why_Not_And_Query_Point():
 	global safe_region
 	global query_point
@@ -597,105 +830,199 @@ def Move_Why_Not_And_Query_Point():
 	#Find frontier
 	#Find cheapest modification
 
-	#Find edge of SR(q)
-	safe_edge = []
-	for data_index in range(0, len(safe_region)):
-		nearest = []
-		cost = 0
-		for i in range(0, len(safe_region[data_index])):
-			top_diff = abs(safe_region[data_index][i][0] - float(ct[i]))
-			bottom_diff = abs(safe_region[data_index][i][1] - float(ct[i]))
-			if(top_diff < bottom_diff):
-				nearest.append(safe_region[data_index][i][0])
-				cost += (top_diff * q_cost[i])
+	###Paper : 
+	"""
+	E = initiate
+	for each rec1 element SR do :
+		E = E union corner_points(rec1)
+	Q = transformed_space(E, ct)	/ct is origin
+	for each e1,e2 element Q such that e1 dominate e2:
+		remove e2
+	Mc = initiate
+	for each e1 element Q do:
+		T -> move_why_not and query point /Alg 1
+		Mc = Mc U T
+	//compute score s1 of entries e1 element Mc
+	"""
+	
+	print("")
+	print("")
+	print("")
+	print("NEW")
+	
+	"""
+	E = initiate
+	for each rec1 element SR do :
+		E = E union corner_points(rec1)
+	"""
+	E = []
+	print("SR : " + str(safe_region))
+	for safe_index in range(0, len(safe_region)):
+		print("sr : " + str(safe_region[safe_index]))
+		corner_points = []
+		for i in range(0, len(safe_region[safe_index])):
+			top_diff = abs(safe_region[safe_index][i][0] - float(ct[i]))
+			bottom_diff = abs(safe_region[safe_index][i][1] - float(ct[i]))
+			#mencari jarak terdekat ke ct sebagai corner value
+			if(top_diff <= bottom_diff):
+				corner_points.append(safe_region[safe_index][i][0])
 			elif(top_diff > bottom_diff):
-				nearest.append(safe_region[data_index][i][1])
-				cost += (bottom_diff * q_cost[i])
-			else:	#jika jarak top dan bottom saama, pilih yang top karena data ditransformasikan ke atas
-				nearest.append(safe_region[data_index][i][0])
-		nearest.append(cost)
-		safe_edge.append(nearest)
+				corner_points.append(safe_region[safe_index][i][1])
+		#E = E union corner point
+		E.append(corner_points)
+	print(ct)
+	print("E  : " + str(E))
+		
 
-	print("SAFE EDGE         : " + str(safe_edge))
-	#Transform all point, ct is center, SEKALIAN : #Remove all data point that dominated by each edge of SR(q)
-	#Cari pasangan tansformasi dan safe_edge dimana hasil transformasi tidak mendominasi safe_edge (dominasi lebih besar yg mendominasi)
-	transformed_space = []
-	for data_index in range(0, len(safe_edge)):
-		print("masuk")
-		fp = open(product_list)
-		for line in fp:
-			product = line.split()
-			greater = False		#harus dibawah safe edge
-			smaller = False
-			transformed_data = []
-			for i in range(0, len(product) - 1):
-				if(product[i+1] != 'null'):
-					transformed_value = float(ct[i]) + abs(float(ct[i]) - float(product[i+1]))
-					transformed_data.append(transformed_value)
-					if(safe_edge[data_index][i] > transformed_value):
-						greater = True
-					elif(safe_edge[data_index][i] < transformed_value):
-						smaller = True
-				else:
-					transformed_value = 'null'
-					transformed_data.append(transformed_value)
-			transformed_data.append(data_index)
+	"""
+	Q = transformed_space(E, ct)	/ct is origin
+	"""
+	Q = []
+	for data_index in range(0, len(E)):
+		data = []
+		for i in range(0, len(E[data_index])):
+			transformed_value = float(ct[i]) + abs(float(ct[i]) - E[data_index][i])
+			data.append(transformed_value)
+		data.append('ok')
+		Q.append(data)
+	print("Q  : " + str(Q))
+
+	"""
+	for each e1,e2 element Q such that e1 dominate e2:
+		remove e2
+	"""
+	for data_index in range(0, len(E)):
+		greater = False
+		smaller = False
+		for data_index_2 in range(0, len(E)):
+			for i in range(0, len(E[data_index])):
+				if(Q[data_index][i] > Q[data_index_2][i]):
+					greater = True
+				elif(Q[data_index][i] < Q[data_index_2][i]):
+					smaller = True
 			if(greater == True and smaller == False):
-				print("appended")
-				transformed_space.append(transformed_data)
-		fp.close()
+				Q[data_index_2][-1] = 'delete'
+	print("Qm : " + str(Q))
+	for i in reversed(Q):
+		if(i[-1] == 'delete'):
+			Q.remove(i)
+	print("Q- : " + str(Q))
 
-	print("TRANSFORMED SPACE : " + str(transformed_space))
 
-	#Find frontier
-	#BANDINGKAN SEMUA DATA HASIL SEBELUMNYA
-	frontier = list(transformed_space)
-	print("frontier init : " + str(frontier))
-	for data_index in range(0, len(frontier)):
-		#BRUTEFORCE, data disini lebih sedikit, kecuali datanya sama rata
-		for data_index_2 in range(0, len(frontier)):
-			greater = False
-			smaller = False
-			for i in range(0, len(frontier[data_index])-1):
-				#bandingkan
-				if(frontier[data_index][i] != 'null' and frontier[data_index_2][i] != 'null'):
-					if(frontier[data_index][i] > frontier[data_index_2][i]):
-						greater = True
-					elif(frontier[data_index][i] < frontier[data_index_2][i]):
-						smaller = True
-			if(greater == True and smaller == False):
-				frontier[data_index_2][-1] = 'delete'
-	eliminated = 0
-	for data_index in range(0, len(frontier)):
-		if(frontier[data_index][-1] == 'delete'):
-			eliminated += 1
-	#jika tidak ada skyline
-	if(eliminated == len(frontier)):
-		frontier = list(transformed_space)
-	print("frontier : " + str(frontier))
+	"""
+	Mc = initiate
+	for each e1 element Q do:
+		T -> move_why_not and query point /Alg 1
+		Mc = Mc U T
+	"""
+	Mc = []
+	for data_index in range(0, len(Q)):
+		T = Move_Why_Not_Point(ct, Q[data_index][:-1])
 
-	#dapatkan titik yang lebih dekat ke edge of safe point, setengah dari jarak (edge of safe point[i] - frontier[i])
-	cheapest_index = None
-	current_cost = 9999999999
-	for data_index in range(0, len(frontier)):
-		print('masuk frontier')
-		if(frontier[data_index][-1] != 'delete'):
-			total_cost = safe_edge[frontier[data_index][-1]][-1]
-			safe_index = frontier[data_index][-1]
-			for i in range(0, len(frontier[data_index])-1):
-				if(frontier[data_index][i] != 'null'):
-					origin_point = frontier[data_index][i]
-					frontier[data_index][i] += ((safe_edge[safe_index][i] - frontier[data_index][i]) * 0.5)
-					difference = abs(origin_point - frontier[data_index][i])
-					total_cost += difference * q_cost[i]
-			if(total_cost < current_cost):
-				cheapest_index = data_index
-				current_cost = total_cost
-	recommendation = list(frontier[cheapest_index][:-1])
-	print("///PERUBAHAN///")
-	print("frontier : " + str(frontier))
-	print("Q  : " + str(safe_edge[frontier[cheapest_index][-1]]))
-	print("CT : " + str(recommendation))
+
+
+
+	# #Find edge of SR(q)
+	# safe_edge = []
+	# for data_index in range(0, len(safe_region)):
+	# 	nearest = []
+	# 	cost = 0
+	# 	for i in range(0, len(safe_region[data_index])):
+	# 		top_diff = abs(safe_region[data_index][i][0] - float(ct[i]))
+	# 		bottom_diff = abs(safe_region[data_index][i][1] - float(ct[i]))
+	# 		if(top_diff < bottom_diff):
+	# 			nearest.append(safe_region[data_index][i][0])
+	# 			cost += (top_diff * q_cost[i])
+	# 		elif(top_diff > bottom_diff):
+	# 			nearest.append(safe_region[data_index][i][1])
+	# 			cost += (bottom_diff * q_cost[i])
+	# 		else:	#jika jarak top dan bottom saama, pilih yang top karena data ditransformasikan ke atas
+	# 			nearest.append(safe_region[data_index][i][0])
+	# 	nearest.append(cost)
+	# 	safe_edge.append(nearest)
+
+
+
+	# print("SAFE EDGE         : " + str(safe_edge))
+	# #Transform all point, ct is center, SEKALIAN : #Remove all data point that dominated by each edge of SR(q)
+	# #Cari pasangan tansformasi dan safe_edge dimana hasil transformasi tidak mendominasi safe_edge (dominasi lebih besar yg mendominasi)
+	# transformed_space = []
+	# for data_index in range(0, len(safe_edge)):
+	# 	print("masuk")
+	# 	fp = open(product_list)
+	# 	for line in fp:
+	# 		product = line.split()
+	# 		greater = False		#harus dibawah safe edge
+	# 		smaller = False
+	# 		transformed_data = []
+	# 		for i in range(0, len(product) - 1):
+	# 			if(product[i+1] != 'null'):
+	# 				transformed_value = float(ct[i]) + abs(float(ct[i]) - float(product[i+1]))
+	# 				transformed_data.append(transformed_value)
+	# 				if(safe_edge[data_index][i] > transformed_value):
+	# 					greater = True
+	# 				elif(safe_edge[data_index][i] < transformed_value):
+	# 					smaller = True
+	# 			else:
+	# 				transformed_value = 'null'
+	# 				transformed_data.append(transformed_value)
+	# 		transformed_data.append(data_index)
+	# 		if(greater == True and smaller == False):
+	# 			print("appended")
+	# 			transformed_space.append(transformed_data)
+	# 	fp.close()
+
+	# print("TRANSFORMED SPACE : " + str(transformed_space))
+
+	# #Find frontier
+	# #BANDINGKAN SEMUA DATA HASIL SEBELUMNYA
+	# frontier = list(transformed_space)
+	# print("frontier init : " + str(frontier))
+	# for data_index in range(0, len(frontier)):
+	# 	#BRUTEFORCE, data disini lebih sedikit, kecuali datanya sama rata
+	# 	for data_index_2 in range(0, len(frontier)):
+	# 		greater = False
+	# 		smaller = False
+	# 		for i in range(0, len(frontier[data_index])-1):
+	# 			#bandingkan
+	# 			if(frontier[data_index][i] != 'null' and frontier[data_index_2][i] != 'null'):
+	# 				if(frontier[data_index][i] > frontier[data_index_2][i]):
+	# 					greater = True
+	# 				elif(frontier[data_index][i] < frontier[data_index_2][i]):
+	# 					smaller = True
+	# 		if(greater == True and smaller == False):
+	# 			frontier[data_index_2][-1] = 'delete'
+	# eliminated = 0
+	# for data_index in range(0, len(frontier)):
+	# 	if(frontier[data_index][-1] == 'delete'):
+	# 		eliminated += 1
+	# #jika tidak ada skyline
+	# if(eliminated == len(frontier)):
+	# 	frontier = list(transformed_space)
+	# print("frontier : " + str(frontier))
+
+	# #dapatkan titik yang lebih dekat ke edge of safe point, setengah dari jarak (edge of safe point[i] - frontier[i])
+	# cheapest_index = None
+	# current_cost = 9999999999
+	# for data_index in range(0, len(frontier)):
+	# 	print('masuk frontier')
+	# 	if(frontier[data_index][-1] != 'delete'):
+	# 		total_cost = safe_edge[frontier[data_index][-1]][-1]
+	# 		safe_index = frontier[data_index][-1]
+	# 		for i in range(0, len(frontier[data_index])-1):
+	# 			if(frontier[data_index][i] != 'null'):
+	# 				origin_point = frontier[data_index][i]
+	# 				frontier[data_index][i] += ((safe_edge[safe_index][i] - frontier[data_index][i]) * 0.5)
+	# 				difference = abs(origin_point - frontier[data_index][i])
+	# 				total_cost += difference * q_cost[i]
+	# 		if(total_cost < current_cost):
+	# 			cheapest_index = data_index
+	# 			current_cost = total_cost
+	# recommendation = list(frontier[cheapest_index][:-1])
+	# print("///PERUBAHAN///")
+	# print("frontier : " + str(frontier))
+	# print("Q  : " + str(safe_edge[frontier[cheapest_index][-1]]))
+	# print("CT : " + str(recommendation))
 
 
 
@@ -715,8 +1042,7 @@ def Prepare_Data(line, customer):
 	transformed_data = []
 	transformed_data.append(current_spec[0])
 	data.append(current_spec[0])
-	data_length = len(current_spec)
-	for i in range(1, data_length):
+	for i in range(1, data_length+1):
 		if(current_spec[i] == "null"):
 			bitmap += "0"
 			data.append(current_spec[i])
@@ -740,12 +1066,14 @@ def Prepare_Data(line, customer):
 
 #PREPROCESSING
 #THIS INITIAL PROGRAM WILL CALLED function Generate_All_Dynamic_Skyline
+
+Generate_Ct()
+data_length = len(ct)
 user_preference = "unlabeled_user_preference2.txt"
 fu = open(user_preference)
 for list_user in fu:
 	temp = [float(x) for x in list_user.split()]
 	list_customer.append(temp)
-
 
 for x in range(0, len(list_customer)):
 	fp = open(product_list)
@@ -772,15 +1100,24 @@ for x in range(0, len(list_customer)):
 	#sisipkan nilai asli customer preference di akhir list untuk digunakan pada fungsi pembandingan q
 	# print("test : " + str(list_customer[x]))
 	# temp = list(global_skyline)
-	customer_skyline[str(customer_index)] = list(global_skyline)
-	customer_skyline[str(customer_index)].append(list(list_customer[x]))
-	customer_skyline[str(customer_index)].append("ok")
-	customer_index += 1
+	if(len(global_skyline) > 0):
+		customer_skyline[str(customer_index)] = list(global_skyline)
+		customer_skyline[str(customer_index)].append(list(list_customer[x]))
+		customer_skyline[str(customer_index)].append("ok")
+		customer_index += 1
 
 #Generate_Query_Point()		#Dihapus jika di fungsi Generate_DDR_Prime_Ct() telah berhasil digenerate
 #Generate_Safe_Region_Q()
 
-Generate_Ct()
+print("")
+print("")
+print("")
+print("")
+print("CUSTOMER SKYLINE CUSTOMER SKYLINE CUSTOMER SKYLINE CUSTOMER SKYLINE CUSTOMER SKYLINE CUSTOMER SKYLINE CUSTOMER SKYLINE CUSTOMER SKYLINE : ")
+print("per user : ")
+for i in customer_skyline:
+	print(customer_skyline[i])
+print("")
 ddr_prime_ct = Generate_DDR_Prime_Ct(ct)
 
 safe_region = Generate_Safe_Region_Q()
