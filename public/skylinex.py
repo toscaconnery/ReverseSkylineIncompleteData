@@ -24,7 +24,8 @@ query_point = []
 list_customer = []
 ct = []
 #product_list = "random_specs.txt"
-product_list = "mwq_data.txt"
+#product_list = "mwq_data.txt"
+product_list = "new_data.txt"
 intersection = []
 ct_cost = []
 q_cost = []
@@ -270,17 +271,35 @@ def update_global_skyline():
 
 def generate_query_point(): #NEW
 	global query_point
-	query_point = "QP 90 80 80 80"		#SR(q) DAN DDR(ct) berpotongan
-	#query_point = "QP 7 5 7 8"		#SR(q) DAN DDR(ct) tidak berpotongan -> KARENA TIDAK ADA SR
-	#query_point = "QP 15 15 15 15"	#base
+	#query_point = "QP 6 2 1 3"
+	#query_point = "QP 15 8 5 26"
+	query_point = "QP 90 80 80 80"
+	#query_point = "QP 45 40 44 41"
+	#query_point = "QP 7 5 7 8"
+	#query_point = "QP 15 15 15 15"
 	#query_point = "QP 4 6 8 4"
+
+	########
+	#query_point = "QP 45 40 44 41" 	#sampel yang bisa, ct : 23, 34.5, 24, 33, data : new_data.txt
+	#query_point = "QP 45 26 18 25"
+	########
 
 def generate_ct():
 	global ct
+	# ct.append(float(23))
+	# ct.append(float(53))
+	# ct.append(float(24))
+	# ct.append(float(30))
+	
+	# ct.append(float(23))
+	# ct.append(float(20))
+	# ct.append(float(24))
+	# ct.append(float(25))
+
 	ct.append(float(23))
-	ct.append(float(20))
+	ct.append(float(34.5))
 	ct.append(float(24))
-	ct.append(float(25))
+	ct.append(float(33))
 	# ct.append(2)
 	# ct.append(5)
 	# ct.append(8)
@@ -351,11 +370,11 @@ def generate_safe_region_q():
 	global jumlah_rsl
 
 	query_point = query_point.split()
-	print("CURRENt CUSTOMER SKYLINE : ")
+	print("CURRENT CUSTOMER SKYLINE : ")
 	for i in customer_skyline:
 		print(customer_skyline[i])
 	calculate_rsl_q(customer_skyline, query_point)
-	print("AF RSL Q CUSTOMER SKYLINE : ")
+	print("AFTER CALCULATING RSL Q, CUSTOMER SKYLINE : ")
 	for i in customer_skyline:
 		print(customer_skyline[i])
 
@@ -645,12 +664,14 @@ def move_query_point():
 		if(total_cost < current_cost):
 			cheapest_index = data_index
 	recommendation = modified_value[cheapest_index]
-	print(recommendation)
+	#print(recommendation)
+	print("Move query point to : " + str(recommendation))
 
 
 
 def move_why_not_point(ct, q):		#q here is transformed q
 	global data_length
+	global ct_cost
 	print("")
 	print("RUNNING MOVE WHY NOT POINT")
 	print("CT : " + str(ct))
@@ -682,7 +703,7 @@ def move_why_not_point(ct, q):		#q here is transformed q
 	"""
 	A = window_query(ct, q)
 	"""
-	#Mencari titik yang berada diantara dua bua titik, note : q sudah ditransformasikan
+	#Mencari titik yang berada diantara dua buah titik, note : q sudah ditransformasikan
 	print("q  : " + str(q))
 	print("ct : " + str(ct))
 	A = []
@@ -734,11 +755,23 @@ def move_why_not_point(ct, q):		#q here is transformed q
 		ul computation //new location
 		add ul to M
 	"""
+	# M = []
+	# for data_index in range(0, len(F)):
+	# 	new_point = []
+	# 	for i in range(0, len(F[data_index])-2):
+	# 		print("fx : " +str(F[data_index][i+1]))
+	# 		if(F[data_index][i+1] != 'null'):
+	# 			u = F[data_index][i+1] + (abs(F[data_index][i+1] - q[i]) / 2)
+	# 		else:
+	# 			u = 'null'
+	# 		new_point.append(u)
+	# 	M.append(new_point)
+	# print("M  : " + str(M))
 	M = []
 	for data_index in range(0, len(F)):
 		new_point = []
-		for i in range(0, len(F[data_index])-2):
-			print("fx : " +str(F[data_index][i+1]))
+		print("F[data_index] : " + str(F[data_index]))
+		for i in range(0, data_length):
 			if(F[data_index][i+1] != 'null'):
 				u = F[data_index][i+1] + (abs(F[data_index][i+1] - q[i]) / 2)
 			else:
@@ -746,6 +779,23 @@ def move_why_not_point(ct, q):		#q here is transformed q
 			new_point.append(u)
 		M.append(new_point)
 	print("M  : " + str(M))
+
+	#Cari cost terendah :
+	current_cost = 99999999999
+	cheapest_index = None
+	for data_index in range(0, len(M)):
+		total_cost = 0
+		for i in range(0, data_length):
+			if(M[data_index][i] != 'null'):
+				total_cost += (abs(M[data_index][i] - ct[i]) * ct_cost[i])
+		if(total_cost < current_cost):
+			cheapest_index = data_index
+	for i in range(0, data_length):
+		if(M[cheapest_index][i] == 'null'):
+			M[cheapest_index][i] = ct[i]
+	print("Move q  TO : " + str(q))
+	print("MOVE ct TO : " + str(M[cheapest_index])) 
+
 
 	"""
 	sort m based on dimension i 		//CANNOT SORT NULL DATA
@@ -765,14 +815,14 @@ def move_why_not_point(ct, q):		#q here is transformed q
 		u1i <- cti //u1 is the first entry in M
 		u|M|j <- ctj // u|M| is the last entry in M
 	"""
-	ull = []
-	for data_index in range(0, len(M)):
-		data = []
-		for i in range(0, data_length):
-			minimal = min(M[data_index][i], M[data_index+1][i])
-			data.append(minimal)
-		ull.append(data)
-	print("ULL : " + str(ull))
+	# ull = []
+	# for data_index in range(0, len(M)):
+	# 	data = []
+	# 	for i in range(0, data_length):
+	# 		minimal = min(M[data_index][i], M[data_index+1][i])
+	# 		data.append(minimal)
+	# 	ull.append(data)
+	# print("ULL : " + str(ull))
 
 
 
