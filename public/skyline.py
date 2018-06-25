@@ -24,12 +24,14 @@ query_point = []
 list_customer = []
 ct = []
 #product_list = "random_specs.txt"
-product_list = "T_D4_N100.txt"
+product_list = "mwq_data.txt"
 intersection = []
 ct_cost = []
 q_cost = []
+jumlah_rsl = 0
+list_rsl = []
 
-def Insert_Local_Skyline(current_specs, bitmap):
+def insert_local_skyline(current_specs, bitmap):
 	global local_skyline
 	global shadow_skyline
 	global virtual_point
@@ -115,7 +117,7 @@ def Insert_Local_Skyline(current_specs, bitmap):
 	return False
 
 
-def Insert_Candidate_Skyline(current_specs, bitmap):
+def insert_candidate_skyline(current_specs, bitmap):
 	global candidate_skyline
 	list_bit_inserted = []
 	dominated = 0
@@ -132,11 +134,11 @@ def Insert_Candidate_Skyline(current_specs, bitmap):
 		if(dominating_candidate == True and dominated_by_candidate == False):
 			candidate_skyline[i][-1] = 'delete'
 			if(candidate_skyline[i][-2] not in list_bit_inserted):
-				Insert_Virtual_Point(current_specs, candidate_skyline[i][-2])
+				insert_virtual_point(current_specs, candidate_skyline[i][-2])
 				list_bit_inserted.append(candidate_skyline[i][-2])
 		elif(dominating_candidate == False and dominated_by_candidate == True):
 			content = list(candidate_skyline[i][:-2])
-			Insert_Virtual_Point(content, bitmap)
+			insert_virtual_point(content, bitmap)
 			dominated = 1
 	candidate_skyline = [i for i in candidate_skyline if i[-1] == 'ok']
 	if(dominated == 0):
@@ -147,7 +149,7 @@ def Insert_Candidate_Skyline(current_specs, bitmap):
 
 
 
-def Insert_Virtual_Point(current_specs, bitmap):
+def insert_virtual_point(current_specs, bitmap):
 	global local_skyline
 	global virtual_point
 	global shadow_skyline
@@ -198,7 +200,7 @@ def Insert_Virtual_Point(current_specs, bitmap):
 	virtual_point[bitmap].append(content)
 
 
-def Update_Global_Skyline():
+def update_global_skyline():
 	global global_skyline
 	global candidate_skyline
 	global shadow_skyline
@@ -266,32 +268,25 @@ def Update_Global_Skyline():
 		n_updated_flag[i] == False
 
 
-# def Generate_Query_Point(): #OLD
-# 	global query_point
-# 	query_point.append(6)
-# 	query_point.append(2)
-# 	query_point.append(1)
-# 	query_point.append(3)
-
-def Generate_Query_Point(): #NEW
+def generate_query_point(): #NEW
 	global query_point
-	query_point = "QP 13 11 13 8"		#SR(q) DAN DDR(ct) berpotongan
+	query_point = "QP 90 80 80 80"		#SR(q) DAN DDR(ct) berpotongan
 	#query_point = "QP 7 5 7 8"		#SR(q) DAN DDR(ct) tidak berpotongan -> KARENA TIDAK ADA SR
 	#query_point = "QP 15 15 15 15"	#base
 	#query_point = "QP 4 6 8 4"
 
-def Generate_Ct():
+def generate_ct():
 	global ct
 	ct.append(float(23))
-	ct.append(float(53))
+	ct.append(float(20))
 	ct.append(float(24))
-	ct.append(float(30))
+	ct.append(float(25))
 	# ct.append(2)
 	# ct.append(5)
 	# ct.append(8)
 	# ct.append(2)
 
-def Generate_Cost():
+def generate_cost():
 	global ct_cost
 	global q_cost
 	ct_cost.append(3)
@@ -303,7 +298,7 @@ def Generate_Cost():
 	q_cost.append(2)
 	q_cost.append(3)
 
-def Calculate_RSL_Q(customer_skyline, query_point):
+def calculate_rsl_q(customer_skyline, query_point):
 	### - MENGHAPUS SEMUA SKYLINE DARI 'customer_skyline' YANG BUKAN RSL DARI Q, SEHINGGA HANYA TERSISA RSL Q
 	### - PASTIKAN NILAI YANG DIPROSES ADALAH HASIL TRANSFORMASI DARI ASLINYA TERHADAP DATA POINT KONSUMEN
 	global data_length
@@ -346,19 +341,20 @@ def Calculate_RSL_Q(customer_skyline, query_point):
 
 
 
-def Generate_Safe_Region_Q():
+def generate_safe_region_q():
 	### - SEMUA CUSTOMER SKYLINE HANYA YANG JADI RSL DARI Q, (PANGGIL FUNGSI GET RSL Q TERLEBIH DAHULU)
 	#This function calculate all safe region areas from every DDR Prime of customer data
 	global customer_skyline
 	global query_point
 	global safe_region
 	global data_length
+	global jumlah_rsl
 
 	query_point = query_point.split()
 	print("CURRENt CUSTOMER SKYLINE : ")
 	for i in customer_skyline:
 		print(customer_skyline[i])
-	Calculate_RSL_Q(customer_skyline, query_point)
+	calculate_rsl_q(customer_skyline, query_point)
 	print("AF RSL Q CUSTOMER SKYLINE : ")
 	for i in customer_skyline:
 		print(customer_skyline[i])
@@ -370,35 +366,21 @@ def Generate_Safe_Region_Q():
 		print("")
 		print("CUSTOMER SKYLINE KE : " + str(dict_index))
 		if(customer_skyline[dict_index][-1] == 'ok'):
+			jumlah_rsl += 1
+			list_rsl.append(dict_index)
 			print("Data CS : " + str(customer_skyline[dict_index]))
 			ddr_prime = []
 			for data_index in range(0, len(customer_skyline[dict_index])-2):
 				data = []
 				for i in range(0, data_length):
 					if(customer_skyline[dict_index][data_index][i+1] != 'null'):
-						# print("A : " + str(customer_skyline[dict_index][-2][i]))
-						# print("B : " + str(customer_skyline[dict_index][data_index][i+1]))
-						# print("E : " + str(customer_skyline[dict_index][data_index]))
 						difference = abs(customer_skyline[dict_index][-2][i] - customer_skyline[dict_index][data_index][i+1])
 						top = customer_skyline[dict_index][-2][i] + difference
 						bottom = customer_skyline[dict_index][-2][i] - difference
 					else:
 						top = 'null'
 						bottom = 'null'
-					# if(sorted_data[data_index][i+1] == 'null' and sorted_data[data_index+1][i+1] == 'null'):
-					# 	top = 'null'
-					# 	bottom = 'null'
-					# elif(sorted_data[data_index][i+1] == 'null'):
-					# 	top = customer_skyline[dict_index][-2][i] + sorted_data[data_index+1][i+1]
-					# 	bottom = customer_skyline[dict_index][-2][i] - sorted_data[data_index+1][i+1]
-					# elif(sorted_data[data_index+1][i+1] == 'null'):
-					# 	top = customer_skyline[dict_index][-2][i] + sorted_data[data_index][i+1]
-					# 	bottom = customer_skyline[dict_index][-2][i] - sorted_data[data_index][i+1]
-					# else:
-					# 	top = max((customer_skyline[dict_index][-2][i] + sorted_data[data_index][i+1]), (customer_skyline[dict_index][-2][i] + sorted_data[data_index+1][i+1]))
-					# 	bottom = min((customer_skyline[dict_index][-2][i] - sorted_data[data_index][i+1]), (customer_skyline[dict_index][-2][i] - sorted_data[data_index+1][i+1]))
 					max_min_value = [top, bottom]
-					print("max_min : " + str(max_min_value))
 					data.append(max_min_value)
 				ddr_prime.append(data)
 			print("DDR_PRIME : " + str(ddr_prime))
@@ -457,7 +439,7 @@ def Generate_Safe_Region_Q():
 
 
 
-def Generate_DDR_Prime_Ct(ct):
+def generate_ddr_prime_ct(ct):
 	#This function will check if query_point is included to ct's skyline
 	#It will return Ct DDR Prime and status of query point
 	global product_list
@@ -485,24 +467,24 @@ def Generate_DDR_Prime_Ct(ct):
 	for line in fp:
 		bitmap = ""
 		transformed_data = Prepare_Data(line, ct)
-		is_skyline = Insert_Local_Skyline(transformed_data, bitmap)
+		is_skyline = insert_local_skyline(transformed_data, bitmap)
 		if(is_skyline == True):
-			Insert_Candidate_Skyline(transformed_data, bitmap)
+			insert_candidate_skyline(transformed_data, bitmap)
 			if(len(candidate_skyline) > t):
-				Update_Global_Skyline()
+				update_global_skyline()
 				candidate_skyline.clear()
-	Update_Global_Skyline()
+	update_global_skyline()
 	candidate_skyline.clear()
 	fp.close()
 
 	#check if the QUERY POINT is part of DSL(ct)
-	Generate_Query_Point()	#The query point exist from here
+	generate_query_point()	#The query point exist from here
 	bitmap = ""
 	transformed_query_point = Prepare_Data(query_point, ct)
-	q_is_local_skyline = Insert_Local_Skyline(transformed_query_point, bitmap)
+	q_is_local_skyline = insert_local_skyline(transformed_query_point, bitmap)
 	if(q_is_local_skyline == True):
-		Insert_Candidate_Skyline(transformed_query_point, bitmap)
-		Update_Global_Skyline()
+		insert_candidate_skyline(transformed_query_point, bitmap)
+		update_global_skyline()
 		candidate_skyline.clear()
 	q_is_dsl = False
 	for i in range(0, len(global_skyline)):
@@ -562,7 +544,7 @@ def Generate_DDR_Prime_Ct(ct):
 
 
 
-def Check_Intersection(safe_region, ddr_prime_ct):
+def check_intersection(safe_region, ddr_prime_ct):
 	global intersection
 	global data_length
 	print("")
@@ -612,7 +594,7 @@ def Check_Intersection(safe_region, ddr_prime_ct):
 				if(top != 'null' and bottom != 'null'):
 					if(bottom > top):
 						intersect_status = False
-			print("Intersect Status : " + str(intersect_status))
+			#print("Intersect Status : " + str(intersect_status))
 			if(intersect_status == True):
 				intersection.append(intersect_data)
 	if(len(intersection) > 0):
@@ -620,7 +602,7 @@ def Check_Intersection(safe_region, ddr_prime_ct):
 	else:
 		return False
 
-def Move_Query_Point():
+def move_query_point():
 	#Output : titik baru untuk query point q
 	print("")
 	print("")
@@ -667,7 +649,7 @@ def Move_Query_Point():
 
 
 
-def Move_Why_Not_Point(ct, q):		#q here is transformed q
+def move_why_not_point(ct, q):		#q here is transformed q
 	global data_length
 	print("")
 	print("RUNNING MOVE WHY NOT POINT")
@@ -826,6 +808,8 @@ def Move_Why_Not_And_Query_Point():
 	global ct_cost
 	global q_cost
 
+	print("RUNNING MOVE WHY NOT AND QUERY POINT")
+
 	#Find edge of SR(q)
 	#Transform all point, ct is center
 	#Remove all data point that dominated by each edge of SR(q)
@@ -919,7 +903,7 @@ def Move_Why_Not_And_Query_Point():
 	"""
 	Mc = []
 	for data_index in range(0, len(Q)):
-		T = Move_Why_Not_Point(ct, Q[data_index][:-1])
+		T = move_why_not_point(ct, Q[data_index][:-1])
 
 
 
@@ -1069,9 +1053,9 @@ def Prepare_Data(line, customer):
 #PREPROCESSING
 #THIS INITIAL PROGRAM WILL CALLED function Generate_All_Dynamic_Skyline
 
-Generate_Ct()
+generate_ct()
 data_length = len(ct)
-user_preference = "unlabeled_user_preference2.txt"
+user_preference = "unlabeled_user_preference3.txt"
 fu = open(user_preference)
 for list_user in fu:
 	temp = [float(x) for x in list_user.split()]
@@ -1089,14 +1073,14 @@ for x in range(0, len(list_customer)):
 	for line in fp:
 		bitmap = ""
 		transformed_data = Prepare_Data(line, list_customer[x])
-		is_skyline = Insert_Local_Skyline(transformed_data, bitmap)
+		is_skyline = insert_local_skyline(transformed_data, bitmap)
 		if is_skyline == True:
-			Insert_Candidate_Skyline(transformed_data, bitmap)
+			insert_candidate_skyline(transformed_data, bitmap)
 			if(len(candidate_skyline) > t):
-				Update_Global_Skyline()
+				update_global_skyline()
 				candidate_skyline.clear()
 	fp.close()
-	Update_Global_Skyline()
+	update_global_skyline()
 
 	#Menyimpan semua skyline untuk tiap user
 	#sisipkan nilai asli customer preference di akhir list untuk digunakan pada fungsi pembandingan q
@@ -1107,9 +1091,7 @@ for x in range(0, len(list_customer)):
 		customer_skyline[str(customer_index)].append(list(list_customer[x]))
 		customer_skyline[str(customer_index)].append("ok")
 		customer_index += 1
-
-#Generate_Query_Point()		#Dihapus jika di fungsi Generate_DDR_Prime_Ct() telah berhasil digenerate
-#Generate_Safe_Region_Q()
+fu.close()
 
 print("")
 print("")
@@ -1120,20 +1102,21 @@ print("per user : ")
 for i in customer_skyline:
 	print(customer_skyline[i])
 print("")
-ddr_prime_ct = Generate_DDR_Prime_Ct(ct)
+ddr_prime_ct = generate_ddr_prime_ct(ct)
 
-safe_region = Generate_Safe_Region_Q()
+safe_region = generate_safe_region_q()
 
-Generate_Cost()
+generate_cost()
 
-intersection_status = Check_Intersection(safe_region, ddr_prime_ct)
+intersection_status = check_intersection(safe_region, ddr_prime_ct)
 if(intersection_status == True):
 	print("OPTION 1")
 	print("Need to move query point : ")
-	Move_Query_Point()
+	move_query_point()
 else:
 	print("OPTION 2")
 	print("Need to move why-not and query point : ")
 	recommendation =  Move_Why_Not_And_Query_Point()
 #print(recommendation)
-fu.close()
+print("Jumlah RSL : " + str(jumlah_rsl))
+print("List RSL   : " + str(list_rsl))
