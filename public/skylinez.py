@@ -25,7 +25,8 @@ list_customer = []
 ct = []
 #product_list = "random_specs.txt"
 #product_list = "mwq_data.txt"
-product_list = "new_data.txt"
+product_list = "testing_product_list.txt"
+user_preference = "testing_user_preference.txt"
 intersection = []
 ct_cost = []
 q_cost = []
@@ -285,8 +286,13 @@ def generate_query_point(): #NEW
 	########
 
 	########
-	query_point = "QP 38 67 47 33"
+	#query_point = "QP 90 80 80 80"
 	#query_point = "QP 38 67 47 33"
+	########
+
+	########
+	query_point = "QP 80 80 80 80"
+	#query_point = "QP 70 69 71 69"
 	########
 
 def generate_ct():
@@ -295,11 +301,24 @@ def generate_ct():
 	# ct.append(float(53))
 	# ct.append(float(24))
 	# ct.append(float(30))
+
+	# ct.append(float(23))
+	# ct.append(float(34.5))
+	# ct.append(float(24))
+	# ct.append(float(33))
 	
-	ct.append(float(30.5))
-	ct.append(float(59.5))
-	ct.append(float(39.5))
-	ct.append(float(30))
+
+	#moving_why_not_and_query_point, q : [80, 80, 80, 80]
+	# ct.append(float(23))
+	# ct.append(float(20))
+	# ct.append(float(24))
+	# ct.append(float(25))
+	#TO
+	ct.append(float(76.5))
+	ct.append(float(77.5))
+	ct.append(float(79.5))
+	ct.append(float(78))
+
 
 	# ct.append(float(23))
 	# ct.append(float(34.5))
@@ -333,6 +352,7 @@ def calculate_rsl_q(customer_skyline, query_point):
 	print("")
 	print("")
 	print("CALCULATE RSL Q")
+	print("Q : " + str(query_point))
 	print("CUSTOMER SKYLINE per user : ")
 	for i in customer_skyline:
 		print(customer_skyline[i])
@@ -342,6 +362,7 @@ def calculate_rsl_q(customer_skyline, query_point):
 		for q in range(0, data_length):
 			transformed_value = abs(float(query_point[q+1]) - customer_skyline[dict_index][-2][q])
 			transformed_query_point.append(transformed_value)
+		print("q menjadi : " + str(transformed_query_point))
 		for data_index in range(0, len(customer_skyline[dict_index]) - 2):
 			dominating_q = False
 			dominating_customer = False
@@ -384,7 +405,7 @@ def generate_safe_region_q():
 		print(customer_skyline[i])
 
 	safe_region = []
-	###PERULANGAN UNTUK SETIAP SKYLINE DARI DATA KONSUMEN
+	#SAFE REGION ADALAH JARAK DARI TIAP USER PREFERENCE KE DDR PRIME NYA MASING_MASING 
 	for dict_index in customer_skyline:		#c is dictionary index
 		print("")
 		print("")
@@ -398,16 +419,48 @@ def generate_safe_region_q():
 				data = []
 				for i in range(0, data_length):
 					if(customer_skyline[dict_index][data_index][i+1] != 'null'):
-						difference = abs(customer_skyline[dict_index][-2][i] - customer_skyline[dict_index][data_index][i+1])
-						top = customer_skyline[dict_index][-2][i] + difference
-						bottom = customer_skyline[dict_index][-2][i] - difference
+						# print("A " + str(query_point[i+1]))
+						# print("B " + str(customer_skyline[dict_index][-2][i]))
+						#difference = abs(float(query_point[i+1]) - customer_skyline[dict_index][-2][i])
+						top = customer_skyline[dict_index][-2][i] + customer_skyline[dict_index][data_index][i+1]
+						bottom = customer_skyline[dict_index][-2][i] - customer_skyline[dict_index][data_index][i+1]
+						#difference = abs(customer_skyline[dict_index][-2][i] - customer_skyline[dict_index][data_index][i+1])
+						# print("A " + str(customer_skyline[dict_index][-2][i]) + " + B " + str(customer_skyline[dict_index][data_index][i+1]))
+						# top = customer_skyline[dict_index][-2][i] + customer_skyline[dict_index][data_index][i+1]
+						# bottom = customer_skyline[dict_index][-2][i] - customer_skyline[dict_index][data_index][i+1]
 					else:
 						top = 'null'
 						bottom = 'null'
 					max_min_value = [top, bottom]
 					data.append(max_min_value)
 				ddr_prime.append(data)
-			print("DDR_PRIME : " + str(ddr_prime))
+			#q juga harus dibandingkan karena q juga adalah bagian RSL dari customer skyline ini
+			data = []
+			for i in range(0, data_length):
+				diff = abs(float(query_point[i+1]) - customer_skyline[dict_index][-2][i])
+				top = customer_skyline[dict_index][-2][i] + diff
+				bottom = customer_skyline[dict_index][-2][i] - diff
+				max_min_value = [top, bottom]
+				data.append(max_min_value)
+			ddr_prime.append(data)
+			print("this ddr_prime : " + str(ddr_prime))
+			print("q              : " + str(query_point))
+			#filtering, mendapatkan semua safe region yang mengandung q di dalamnya
+			used_ddr_prime = []
+			for data_index in range(0, len(ddr_prime)):
+				q_dimension_counter = 0
+				for i in range(0, data_length):
+					# print("TOP    : " + str(ddr_prime[data_index][i][0]))
+					# print("BOTTOM : " + str())
+					if(ddr_prime[data_index][i][0] >= float(query_point[i+1]) and ddr_prime[data_index][i][1] <= float(query_point[i+1])):
+						q_dimension_counter += 1
+
+				if(q_dimension_counter == data_length):
+					used_ddr_prime.append(ddr_prime[data_index])
+			ddr_prime = list(used_ddr_prime)
+
+			print("DDR_PRIME x : " + str(ddr_prime))
+
 			##NEED ADJUSTMENT AT THE END AND BEGINNING OF THE DATA ON DDR PRIME
 			if(len(safe_region) == 0):
 				print("SAFE REGION BARU/////////")
@@ -527,14 +580,15 @@ def generate_ddr_prime_ct(ct):
 
 		ddr_prime_ct = []
 		print("CT GLOBAL SKYLINE : " + str(global_skyline))
+		print("CT                : " + str(ct))
 		for data_index in range(0, len(global_skyline)):
 			#print("GLOBAL : " + str(global_skyline[data_index]))
 			data = []
 			for i in range(0, data_length):
 				if(global_skyline[data_index][i+1] != 'null'):
-					difference = abs(global_skyline[data_index][i+1] - ct[i])
-					top = ct[i] + difference
-					bottom = ct[i] - difference
+					#difference = abs(global_skyline[data_index][i+1] - ct[i])
+					top = ct[i] + global_skyline[data_index][i+1]
+					bottom = ct[i] - global_skyline[data_index][i+1]
 				else:
 					top = 'null'
 					bottom = 'null'
@@ -677,6 +731,12 @@ def move_query_point():
 def move_why_not_point(ct, q):		#q here is transformed q
 	global data_length
 	global ct_cost
+	global node
+	global local_skyline
+	global candidate_skyline
+	global global_skyline
+	global shadow_skyline
+	global virtual_point
 	print("")
 	print("RUNNING MOVE WHY NOT POINT")
 	print("CT : " + str(ct))
@@ -709,29 +769,112 @@ def move_why_not_point(ct, q):		#q here is transformed q
 	A = window_query(ct, q)
 	"""
 	#Mencari titik yang berada diantara dua buah titik, note : q sudah ditransformasikan
-	print("q  : " + str(q))
-	print("ct : " + str(ct))
+	# A = []
+	# fp = open(product_list)
+
+	# for line in fp:
+	# 	product = line.split()
+	# 	status_checker = 0
+	# 	transformed_point = []
+	# 	dimension_in_window = 0
+	# 	for i in range(0, data_length):
+	# 		if(product[i+1] != 'null'):
+	# 			transformed_value = ct[i] + abs(ct[i] - float(product[i+1]))
+	# 			transformed_point.append(transformed_value)
+	# 			if(transformed_value <= q[i]):
+	# 				dimension_in_window += 1
+	# 		else:
+	# 			transformed_point.append('null')
+	# 			dimension_in_window += 1
+	# 	if(dimension_in_window == data_length):
+	# 		A.append(transformed_point)
+	# print("A  : " + str(A))
+
 	A = []
 	fp = open(product_list)
-
 	for line in fp:
 		product = line.split()
-		status_checker = 0
-		print("----------")
 		transformed_point = []
-		dimension_in_window = 0
 		for i in range(0, data_length):
 			if(product[i+1] != 'null'):
+				#memindahkan semua data ke kanan ct, agar bisa dijadikan sebagai acuan
 				transformed_value = ct[i] + abs(ct[i] - float(product[i+1]))
 				transformed_point.append(transformed_value)
-				if(transformed_value <= q[i]):
-					dimension_in_window += 1
 			else:
-				transformed_point.append('null')
-				dimension_in_window += 1
-		if(dimension_in_window == data_length):
-			A.append(transformed_point)
-	print("A  : " + str(A))
+				#ct dipindahkan karena ada suatu nilai yang membatasinya untuk mencapai q, jika tidak ada, ct tidak perlu dipindahkan
+				transformed_point.append(ct[i])
+		A.append(transformed_point)
+
+	print("A awal : " + str(A))
+
+	#PASTIKAN DATA DISINI SEMUA DIMENSINYA LENGKAP
+
+	#hilangkan semua data yang berada diatas q, data yang berada diatas q sudah pasti letaknya bawah/kiri ct
+	for data_index in range(0, len(A)):
+		status = True
+		for i in range(0, data_length):
+			if(A[data_index][i] > q[i]):
+				status = False
+		if(status == False):
+			A[data_index][-1] = 'delete'
+	for i in reversed(A):
+		if(i[-1] == 'delete'):
+			A.remove(i)
+	print("A filt : " + str(A))
+
+	#Tidak perlu menggunakan metode i-skyline karena data di sini semua dimensinya lengkap
+	for data_index in range(0, len(A)):		#transformasikan terhadap q
+		for i in range(0, data_length):
+			#cari jarak, bukan titik
+			A[data_index][i] = abs(q[i] - A[data_index][i])
+		A[data_index].append('ok')
+	for data_index in range(0, len(A)):
+		for data_index_2 in range(0, len(A)):
+			greater = False
+			smaller = False
+			for i in range(0, data_length):
+				if(A[data_index][i] < A[data_index_2][i]):
+					smaller = True
+				elif(A[data_index][i] > A[data_index_2][i]):
+					greater = True
+			if(smaller == True and greater == False):
+				A[data_index_2][-1] = 'delete'
+			elif(smaller == False and greater == True):
+				A[data_index][-1] = 'delete'
+	print("A mark : " + str(A))
+	for i in reversed(A):
+		if(i[-1] == 'delete'):
+			A.remove(i)
+	print("A delt : " + str(A))
+
+	#######MENDAPATKAN TITIK BARU UNTUK ct 		//A masih dalam bentuk jarak dari q
+	####Output : Titik
+	M = []
+	for data_index in range(0, len(A)):
+		data = []
+		for i in range(0, data_length):
+			temp = q[i] - (A[data_index][i] / 2)
+			data.append(temp)
+		M.append(data)
+
+	print("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHh")
+	print("M : " + str(M))
+
+	#Cari cost terendah :
+	current_cost = 99999999999
+	cheapest_index = None
+	for data_index in range(0, len(M)):
+		total_cost = 0
+		for i in range(0, data_length):
+			if(M[data_index][i] != 'null'):
+				total_cost += (abs(M[data_index][i] - ct[i]) * ct_cost[i])
+		if(total_cost < current_cost):
+			cheapest_index = data_index
+	for i in range(0, data_length):
+		if(M[cheapest_index][i] == 'null'):
+			M[cheapest_index][i] = ct[i]
+	print("Move q  TO : " + str(q))
+	print("MOVE ct TO : " + str(M[cheapest_index])) 
 
 
 	"""
@@ -740,25 +883,25 @@ def move_why_not_point(ct, q):		#q here is transformed q
 		if e2 element F such e2 dominate e1 then:
 			remove e1 from F
 	"""
-	F = list(A)
-	print("Fi : " + str(F))
-	for data_index in range(0, len(F)):
-		greater = False
-		smaller = False
-		for data_index_2 in range(0, len(F)):
-			for i in range(0, data_length):
-				if(F[data_index][i] != 'null' and F[data_index_2][i] != 'null'):
-					if(F[data_index][i] > F[data_index_2][i]):
-						greater = True
-					elif(F[data_index][i] < F[data_index_2][i]):
-						smaller = True
-		if(greater == True and smaller == False):
-			F[data_index_2][-1] = 'delete'
-	print("Fd : " + str(F))
-	for i in reversed(F):
-		if(i[-1] == 'delete'):
-			F.remove(i)
-	print("Fn : " + str(F))
+	# F = list(A)
+	# print("Fi : " + str(F))
+	# for data_index in range(0, len(F)):
+	# 	greater = False
+	# 	smaller = False
+	# 	for data_index_2 in range(0, len(F)):
+	# 		for i in range(0, data_length):
+	# 			if(F[data_index][i] != 'null' and F[data_index_2][i] != 'null'):
+	# 				if(F[data_index][i] > F[data_index_2][i]):
+	# 					greater = True
+	# 				elif(F[data_index][i] < F[data_index_2][i]):
+	# 					smaller = True
+	# 	if(greater == True and smaller == False):
+	# 		F[data_index_2][-1] = 'delete'
+	# print("Fd : " + str(F))
+	# for i in reversed(F):
+	# 	if(i[-1] == 'delete'):
+	# 		F.remove(i)
+	# print("Fn : " + str(F))
 	
 	"""
 	M = initiate
@@ -778,34 +921,34 @@ def move_why_not_point(ct, q):		#q here is transformed q
 	# 		new_point.append(u)
 	# 	M.append(new_point)
 	# print("M  : " + str(M))
-	M = []
-	for data_index in range(0, len(F)):
-		new_point = []
-		print("F[data_index] : " + str(F[data_index]))
-		for i in range(0, data_length):
-			if(F[data_index][i] != 'null'):
-				u = F[data_index][i] + (abs(F[data_index][i] - q[i]) / 2)
-			else:
-				u = 'null'
-			new_point.append(u)
-		M.append(new_point)
-	print("M  : " + str(M))
+	# M = []
+	# for data_index in range(0, len(F)):
+	# 	new_point = []
+	# 	print("F[data_index] : " + str(F[data_index]))
+	# 	for i in range(0, data_length):
+	# 		if(F[data_index][i] != 'null'):
+	# 			u = F[data_index][i] + (abs(F[data_index][i] - q[i]) / 2)
+	# 		else:
+	# 			u = 'null'
+	# 		new_point.append(u)
+	# 	M.append(new_point)
+	# print("M  : " + str(M))
 
-	#Cari cost terendah :
-	current_cost = 99999999999
-	cheapest_index = None
-	for data_index in range(0, len(M)):
-		total_cost = 0
-		for i in range(0, data_length):
-			if(M[data_index][i] != 'null'):
-				total_cost += (abs(M[data_index][i] - ct[i]) * ct_cost[i])
-		if(total_cost < current_cost):
-			cheapest_index = data_index
-	for i in range(0, data_length):
-		if(M[cheapest_index][i] == 'null'):
-			M[cheapest_index][i] = ct[i]
-	print("Move q  TO : " + str(q))
-	print("MOVE ct TO : " + str(M[cheapest_index])) 
+	# #Cari cost terendah :
+	# current_cost = 99999999999
+	# cheapest_index = None
+	# for data_index in range(0, len(M)):
+	# 	total_cost = 0
+	# 	for i in range(0, data_length):
+	# 		if(M[data_index][i] != 'null'):
+	# 			total_cost += (abs(M[data_index][i] - ct[i]) * ct_cost[i])
+	# 	if(total_cost < current_cost):
+	# 		cheapest_index = data_index
+	# for i in range(0, data_length):
+	# 	if(M[cheapest_index][i] == 'null'):
+	# 		M[cheapest_index][i] = ct[i]
+	# print("Move q  TO : " + str(q))
+	# print("MOVE ct TO : " + str(M[cheapest_index])) 
 
 
 	"""
@@ -1117,7 +1260,6 @@ def Prepare_Data(line, customer):
 
 generate_ct()
 data_length = len(ct)
-user_preference = "unlabeled_user_preference3.txt"
 fu = open(user_preference)
 for list_user in fu:
 	temp = [float(x) for x in list_user.split()]
