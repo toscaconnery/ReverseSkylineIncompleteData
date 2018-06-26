@@ -2,12 +2,23 @@ import sys
 import random
 from math import ceil
 
-sys.stdout = open("T_D4_N100XY.txt", "wt")
+d = 4
+n = 2000
 
+#title
+data_number_on_title = ""
+thousands = False
+number = n
+if(n >= 1000):
+    thousands = True
+    number = int(n / 1000)
+data_number_on_title = str(number)
+if(thousands == True):
+    data_number_on_title += "K"
+
+sys.stdout = open("T_D" + str(d) + "_N" + str(data_number_on_title) + ".txt", "wt")
 random.seed(122)
 
-d = 4
-n = 100
 missing_persentage = 20
 
 for i in range(0,n):

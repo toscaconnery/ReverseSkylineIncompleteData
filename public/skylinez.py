@@ -4,6 +4,8 @@ import sys
 import time
 import numpy as np
 
+start_time = time.time()
+
 marker = 1
 node = {}
 local_skyline = {}
@@ -25,8 +27,8 @@ list_customer = []
 ct = []
 #product_list = "random_specs.txt"
 #product_list = "mwq_data.txt"
-product_list = "testing_product_list.txt"
-user_preference = "testing_user_preference.txt"
+product_list = "T_D4_N10K.txt"
+user_preference = "unlabeled_user_preference3.txt"
 intersection = []
 ct_cost = []
 q_cost = []
@@ -74,7 +76,7 @@ def insert_local_skyline(current_specs, bitmap):
 		#Delete all dominated local_skyline
 		#Insert P to local_skyline
 		#Delete all dominated shadow_skyline
-	#inser
+	#insert
 	if(dominated == 0):
 		content = list(current_specs)
 		content.append('ok')
@@ -291,9 +293,17 @@ def generate_query_point(): #NEW
 	########
 
 	########
-	query_point = "QP 80 80 80 80"
+	#query_point = "QP 30 40 32 40"
 	#query_point = "QP 70 69 71 69"
 	########
+
+	########
+	query_point = "QP 80 80 80 80"
+	#query_point = "QP 70 69 71 69"
+	########	
+
+
+
 
 def generate_ct():
 	global ct
@@ -308,16 +318,17 @@ def generate_ct():
 	# ct.append(float(33))
 	
 
-	#moving_why_not_and_query_point, q : [80, 80, 80, 80]
-	# ct.append(float(23))
-	# ct.append(float(20))
-	# ct.append(float(24))
-	# ct.append(float(25))
+	#moving_why_not_and_query_point, q : [80, 80, 80, 80], 
+	#product : testing_product_list.txt, user preference : testing_user_preference.txt
+	ct.append(float(23))
+	ct.append(float(20))
+	ct.append(float(24))
+	ct.append(float(25))
 	#TO
-	ct.append(float(76.5))
-	ct.append(float(77.5))
-	ct.append(float(79.5))
-	ct.append(float(78))
+	# ct.append(float(76.5))
+	# ct.append(float(77.5))
+	# ct.append(float(79.5))
+	# ct.append(float(78))
 
 
 	# ct.append(float(23))
@@ -346,17 +357,13 @@ def calculate_rsl_q(customer_skyline, query_point):
 	### - PASTIKAN NILAI YANG DIPROSES ADALAH HASIL TRANSFORMASI DARI ASLINYA TERHADAP DATA POINT KONSUMEN
 	global data_length
 	print("")
-	print("")
-	print("")
-	print("")
-	print("")
-	print("")
-	print("CALCULATE RSL Q")
-	print("Q : " + str(query_point))
-	print("CUSTOMER SKYLINE per user : ")
+	print(">> calculating RSL(q)")
+	print("QUERY_POINT : " + str(query_point))
+	print("CUSTOMER SKYLINE PER USER : ")
+	print("-------------------------------------------^")
 	for i in customer_skyline:
 		print(customer_skyline[i])
-	print("-------------------------------------------x")
+	print("-------------------------------------------v")
 	for dict_index in customer_skyline:
 		transformed_query_point = []
 		for q in range(0, data_length):
@@ -517,6 +524,7 @@ def generate_safe_region_q():
 
 
 def generate_ddr_prime_ct(ct):
+	print(">> generating ddr prime ct")
 	#This function will check if query_point is included to ct's skyline
 	#It will return Ct DDR Prime and status of query point
 	global product_list
@@ -572,6 +580,8 @@ def generate_ddr_prime_ct(ct):
 		#HENTIKAN PROGRAM
 		print("Tidak perlu dilakukan penyesuaian")
 		change_status = 0
+		elapsed_time = time.time() - start_time
+		print("Waktu digunakan : " + str(elapsed_time))
 		exit()
 	else:
 		#create ddr prime of ct
@@ -623,22 +633,13 @@ def generate_ddr_prime_ct(ct):
 
 
 def check_intersection(safe_region, ddr_prime_ct):
+	print("")
+	print(">> checking intersection")
+	print("SAFE_REGION  : " + str(safe_region))
+	print("DDR_PRIME_CT : " + str(ddr_prime_ct))
+
 	global intersection
 	global data_length
-	print("")
-	print("")
-	print("")
-	print("")
-	print("")
-	print("")
-	print("")
-	print("RUNNING CHECK INTERSECTION")
-	print("++++++++++++++++++++++++++")
-	print("")
-	print("SAFE REGION : " + str(safe_region))
-	print("")
-	print("DDR PRIME CT : " + str(ddr_prime_ct))
-	print("")
 
 	intersection = []
 	for safe_index in range(0, len(safe_region)):
@@ -1286,6 +1287,7 @@ for x in range(0, len(list_customer)):
 	fp.close()
 	update_global_skyline()
 
+
 	#Menyimpan semua skyline untuk tiap user
 	#sisipkan nilai asli customer preference di akhir list untuk digunakan pada fungsi pembandingan q
 	# print("test : " + str(list_customer[x]))
@@ -1296,6 +1298,7 @@ for x in range(0, len(list_customer)):
 		customer_skyline[str(customer_index)].append("ok")
 		customer_index += 1
 fu.close()
+print("GLOBAL SKYLINE DIDAPATKAN, WAKTU TERPAKAI : " + str(time.time() - start_time) + " DETIK.")
 
 print("")
 print("")
@@ -1324,3 +1327,6 @@ else:
 #print(recommendation)
 print("Jumlah RSL : " + str(jumlah_rsl))
 print("List RSL   : " + str(list_rsl))
+
+elapsed_time = time.time() - start_time
+print("Waktu terpakai : ")
