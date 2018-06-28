@@ -1,0 +1,10 @@
+A1 null 89 82 91
+A2 44 35 null 39
+A3 77 82 82 null
+A4 null 65 52 62
+A11 23 null 23 23
+A12 13 23 null 13
+A17 34 23 23 45
+A18 32 23 null null
+A19 23 null 23 null
+A20 34 24 null 23

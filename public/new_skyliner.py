@@ -6,7 +6,7 @@ from time import gmtime, strftime
 import numpy as np
 
 a = strftime("%Y-%m-%d-%H-%M-%S", gmtime())
-#sys.stdout = open("log_result_" + str(a) + ".txt", "wt")
+#sys.stdout = open("banding_" + str(a) + ".txt", "wt")
 
 start_time = time.time()
 
@@ -30,9 +30,9 @@ query_point = []
 list_customer = []
 ct = []
 #product_list = "random_specs.txt"
-product_list = "new_data2.txt"
+product_list = "very_small_dataset.txt"
 #product_list = "T_D4_N10K.txt"
-user_preference = "user_preference_D4_N100.txt"
+user_preference = "user_preference_D4_N10.txt"
 intersection = []
 ct_cost = []
 q_cost = []
@@ -275,113 +275,29 @@ def update_global_skyline():
 	for i in n_updated_flag:
 		n_updated_flag[i] == False
 
-
+#wrap
 def generate_query_point(): #NEW
 	global query_point
-	#query_point = "QP 6 2 1 3"
-	#query_point = "QP 15 8 5 26"
-	#query_point = "QP 90 80 80 80"
-	#query_point = "QP 45 40 44 41"
-	#query_point = "QP 7 5 7 8"
-	#query_point = "QP 15 15 15 15"
-	#query_point = "QP 4 6 8 4"
-
-	########
-	#query_point = "QP 45 40 44 41" 	#sampel yang bisa, ct : 23, 34.5, 24, 33, data : new_data.txt
-	#query_point = "QP 45 26 18 25"
-	########
-
-	########
-	#query_point = "QP 90 80 80 80"
-	#query_point = "QP 38 67 47 33"
-	########
-
-	########
-	#query_point = "QP 30 40 32 40"
-	#query_point = "QP 70 69 71 69"
-	########
-
-	########
 	# query_point = "QP 80 80 80 80"
-	# query_point = "QP 48 42 46 46"
-	query_point = "QP 40 42 42 46"
-	########	
-
-
-
+	query_point = "QP 58 62 70 52"
 
 def generate_ct():
 	global ct
-	# ct.append(float(23))
-	# ct.append(float(20))
-	# ct.append(float(24))
-	# ct.append(float(25))
-	####
-	# ct.append(float(35.5))
-	# ct.append(float(32))
-	# ct.append(float(39))
-	# ct.append(float(45.5))
-	###
-	ct.append(float(36))
-	ct.append(float(37))
-	ct.append(float(41))
-	ct.append(float(45.75))
 
-
-
-	# ct.append(float(23))
-	# ct.append(float(53))
-	# ct.append(float(24))
-	# ct.append(float(30))
-
-	# ct.append(float(23))
-	# ct.append(float(34.5))
-	# ct.append(float(24))
-	# ct.append(float(33))
+	# ct.append(float(15))
+	# ct.append(float(15))
+	# ct.append(float(14))
+	# ct.append(float(14))
 	
-
-	#moving_why_not_and_query_point, q : [80, 80, 80, 80], 
-	#product : testing_product_list.txt, user preference : testing_user_preference.txt
-	# ct.append(float(23))
-	# ct.append(float(20))
-	# ct.append(float(24))
-	# ct.append(float(25))
-	#TO
-	# ct.append(float(76.5))
-	# ct.append(float(77.5))
-	# ct.append(float(79.5))
-	# ct.append(float(78))
-
-	#####
-	# ct.append(float(10))
-	# ct.append(float(10))
-	# ct.append(float(10))
-	# ct.append(float(10))
-	####TO
-	# ct.append(float(55.5))
 	# ct.append(float(46))
-	# ct.append(float(45))
-	# ct.append(float(45))
-	###
-	# ct.append(float(67.75))
-	# ct.append(float(71.5))
-	# ct.append(float(77))
-	# ct.append(float(72))
-	##eksperimen
-	# ct.append(float(39.5))
-	# ct.append(float(27))
-	# ct.append(float(28))
-	# ct.append(float(28))
+	# ct.append(float(57.5))
+	# ct.append(float(47))
+	# ct.append(float(59.5))
 
-
-	# ct.append(float(23))
-	# ct.append(float(34.5))
-	# ct.append(float(24))
-	# ct.append(float(33))
-	# ct.append(2)
-	# ct.append(5)
-	# ct.append(8)
-	# ct.append(2)
+	ct.append(float(46))
+	ct.append(float(42.5))
+	ct.append(float(46.5))
+	ct.append(float(48.5))
 
 def generate_cost():
 	global ct_cost
@@ -561,7 +477,7 @@ def generate_safe_region_q():
 				if(len(new_safe_region) > 0):
 					safe_region = list(new_safe_region)
 	# 			print("HASIL SAFE REGION " + str(safe_region))
-	# print("HASIL FINAL SAFE REGION : " + str(safe_region))
+	print("HASIL FINAL SAFE REGION : " + str(safe_region))
 	return safe_region
 
 
@@ -607,23 +523,49 @@ def generate_ddr_prime_ct(ct):
 	fp.close()
 
 	#check if the QUERY POINT is part of DSL(ct)
+	# Q cuman ada satu data, lebih baik dibandingkan dengan cara normal
 	generate_query_point()	#The query point exist from here
-	bitmap = ""
-	transformed_query_point = Prepare_Data(query_point, ct)
-	q_is_local_skyline = insert_local_skyline(transformed_query_point, bitmap)
-	if(q_is_local_skyline == True):
-		insert_candidate_skyline(transformed_query_point, bitmap)
-		update_global_skyline()
-		candidate_skyline.clear()
-	q_is_dsl = False
-	for i in range(0, len(global_skyline)):
-		if(global_skyline[i][0] == "QP"):
-			q_is_dsl = True
-			break
-	if(q_is_dsl == True):
+	print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACCCCCCCCCCCCCCCCCCCCCCCCCCCC")
+	print("q : " + str(query_point))
+	print("g ; " + str(global_skyline))
+	print("ct: " + str(ct))
+	#mengubah q
+	q = query_point.split()
+	for i in range(0, data_length):
+		q[i+1] = abs(float(q[i+1]) - ct[i])
+	q.append("qp")
+	q.append("ok")
+	print("q : " + str(q))
+
+	q_is_skyline = True
+	for data_index in range(0, len(global_skyline)):
+		smaller = False
+		greater = False
+		for i in range(0, data_length):
+			if(q[i+1] < ct[i]):
+				smaller = True
+			elif(q[i+1] > ct[i]):
+				greater = True
+		if(smaller == True and greater == False):
+			pass#tetap True
+		elif(smaller == False and greater == True):
+			q_is_skyline = False
+
+	# q_is_dsl = False
+	# for i in range(0, len(global_skyline)):
+	# 	if(global_skyline[i][0] == "QP"):
+	# 		q_is_dsl = True
+	# 		break
+	if(len(global_skyline) == 0):
+		print("CT tidak mempunyai skyline")
+		print("CT bisa dipindahkan ke dekat")
+		elapsed_time = time.time() - start_time
+		print("Waktu digunakan : " + str(elapsed_time))
+		exit()
+	print("GLOBAL SKYLINE CT : " + str(global_skyline))
+	if(q_is_skyline == True):
 		#HENTIKAN PROGRAM
 		print("Tidak perlu dilakukan penyesuaian")
-		change_status = 0
 		elapsed_time = time.time() - start_time
 		print("Waktu digunakan : " + str(elapsed_time))
 		exit()
@@ -640,7 +582,6 @@ def generate_ddr_prime_ct(ct):
 			data = []
 			for i in range(0, data_length):
 				if(global_skyline[data_index][i+1] != 'null'):
-					#difference = abs(global_skyline[data_index][i+1] - ct[i])
 					top = ct[i] + global_skyline[data_index][i+1]
 					bottom = ct[i] - global_skyline[data_index][i+1]
 				else:
@@ -758,8 +699,8 @@ def move_why_not_point(ct, q):		#q here is transformed q
 	global virtual_point
 	# print("")
 	print(">> move why-not point")
-	# print("CT : " + str(ct))
-	# print("Q  : " + str(q))
+	print("CT : " + str(ct))
+	print("Q  : " + str(q))
 
 	#Mentransformasikan semua titik (produk) yang ada terhadap ct
 	A = []
@@ -767,33 +708,41 @@ def move_why_not_point(ct, q):		#q here is transformed q
 	for line in fp:
 		product = line.split()
 		transformed_point = []
+		print("product : " + str(product))
 		for i in range(0, data_length):
 			if(product[i+1] != 'null'):
 				#memindahkan semua data ke kanan ct, agar bisa dijadikan sebagai acuan untuk perpindahan ct
 				transformed_value = ct[i] + abs(ct[i] - float(product[i+1]))
+				# print("**@ o : " + str(float(product[i+1])))
+				# print("**  t : " + str(transformed_value))
+				# print("-")
 				transformed_point.append(transformed_value)
 			else:
 				#ct dipindahkan karena ada suatu nilai yang membatasinya untuk mencapai q, jika tidak ada, ct tidak perlu dipindahkan
 				transformed_point.append(ct[i])
 		A.append(transformed_point)
 
-	print("A awal : " + str(A))
+	print("A awal : ")
+	for data_index in range(0, len(A)):
+		print(A[data_index])
 
 	#PASTIKAN DATA DISINI SEMUA DIMENSINYA LENGKAP
 
 	#hilangkan semua data yang berada diatas q, data yang berada diatas q sudah pasti letaknya bawah/kiri ct
 	# print("Q : " + str(q))
-	# for data_index in range(0, len(A)):
-	# 	status = True
-	# 	for i in range(0, data_length):
-	# 		if(A[data_index][i] > q[i]):
-	# 			status = False
-	# 	if(status == False):
-	# 		A[data_index][-1] = 'delete'
-	# for i in reversed(A):
-	# 	if(i[-1] == 'delete'):
-	# 		A.remove(i)
-	print("A filt : " + str(A))
+	for data_index in range(0, len(A)):
+		status = True
+		for i in range(0, data_length):
+			if(A[data_index][i] > q[i]):
+				status = False
+		if(status == False):
+			A[data_index][-1] = 'delete'
+	for i in reversed(A):
+		if(i[-1] == 'delete'):
+			A.remove(i)
+	print("A filt : ")
+	for data_index in range(0, len(A)):
+		print(A[data_index])
 
 	#Tidak perlu menggunakan metode i-skyline karena data di sini semua dimensinya lengkap
 	for data_index in range(0, len(A)):		#transformasikan terhadap q
@@ -801,6 +750,7 @@ def move_why_not_point(ct, q):		#q here is transformed q
 			#cari jarak, bukan titik
 			A[data_index][i] = abs(q[i] - A[data_index][i])
 		A[data_index].append('ok')
+	print("Q : " + str(q))
 	for data_index in range(0, len(A)):
 		for data_index_2 in range(0, len(A)):
 			greater = False
@@ -814,11 +764,15 @@ def move_why_not_point(ct, q):		#q here is transformed q
 				A[data_index_2][-1] = 'delete'
 			elif(smaller == False and greater == True):
 				A[data_index][-1] = 'delete'
-	print("A mark : " + str(A))
+	print("A mark for dominated : ")
+	for data_index in range(0, len(A)):
+		print(A[data_index])
 	for i in reversed(A):
 		if(i[-1] == 'delete'):
 			A.remove(i)
-	print("A delt : " + str(A))
+	print("A deletion for dominated : ")
+	for data_index in range(0, len(A)):
+		print(A[data_index])
 
 	#######MENDAPATKAN TITIK BARU UNTUK ct 		//A masih dalam bentuk jarak dari q
 	####Output : Titik
@@ -834,7 +788,7 @@ def move_why_not_point(ct, q):		#q here is transformed q
 	# print("M : " + str(M))
 
 	#Cari cost terendah :
-	print("M : " + str(M))
+	print("M, titik baru untuk ct : " + str(M))
 	current_cost = 99999999999
 	cheapest_index = None
 	for data_index in range(0, len(M)):
@@ -934,6 +888,7 @@ def Move_Why_Not_And_Query_Point():
 		T -> move_why_not and query point /Alg 1
 		Mc = Mc U T
 	"""
+	print("<< Perpindahan untuk q : " + str(Q))
 	Mc = []
 	for data_index in range(0, len(Q)):
 		T = move_why_not_point(ct, Q[data_index][:-1])
@@ -945,7 +900,7 @@ def Move_Why_Not_And_Query_Point():
 		if(Mc[data_index]["cost"] < cheapest_cost):
 			cheapest_index = data_index
 
-	print("RESULT : ")
+	print("RESULT : x")
 	print("q  : " + str(Mc[cheapest_index]["q"]))
 	print("ct : " + str(Mc[cheapest_index]["ct"]))
 
