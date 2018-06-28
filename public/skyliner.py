@@ -6,7 +6,7 @@ from time import gmtime, strftime
 import numpy as np
 
 a = strftime("%Y-%m-%d-%H-%M-%S", gmtime())
-sys.stdout = open("log_result_" + str(a) + ".txt", "wt")
+#sys.stdout = open("log_result_" + str(a) + ".txt", "wt")
 
 start_time = time.time()
 
@@ -324,10 +324,10 @@ def generate_ct():
 
 	#moving_why_not_and_query_point, q : [80, 80, 80, 80], 
 	#product : testing_product_list.txt, user preference : testing_user_preference.txt
-	# ct.append(float(23))
-	# ct.append(float(20))
-	# ct.append(float(24))
-	# ct.append(float(25))
+	ct.append(float(23))
+	ct.append(float(20))
+	ct.append(float(24))
+	ct.append(float(25))
 	#TO
 	# ct.append(float(76.5))
 	# ct.append(float(77.5))
@@ -340,15 +340,20 @@ def generate_ct():
 	# ct.append(float(10))
 	# ct.append(float(10))
 	####TO
-	ct.append(float(55.5))
-	ct.append(float(46))
-	ct.append(float(45))
-	ct.append(float(45))
+	# ct.append(float(55.5))
+	# ct.append(float(46))
+	# ct.append(float(45))
+	# ct.append(float(45))
 	###
-	# ct.append(float(80))
-	# ct.append(float(76))
-	# ct.append(float(75))
-	# ct.append(float(79.5))
+	# ct.append(float(67.75))
+	# ct.append(float(71.5))
+	# ct.append(float(77))
+	# ct.append(float(72))
+	##eksperimen
+	# ct.append(float(39.5))
+	# ct.append(float(27))
+	# ct.append(float(28))
+	# ct.append(float(28))
 
 
 	# ct.append(float(23))
@@ -407,6 +412,8 @@ def calculate_rsl_q(customer_skyline, query_point):
 			for i in range(len(customer_skyline[dict_index]) - 3, -1, -1):
 				if(customer_skyline[dict_index][i][-1] == 'delete'):
 					customer_skyline[dict_index].remove(customer_skyline[dict_index][i])
+		if(len(customer_skyline[dict_index]) <= 2):
+			customer_skyline[dict_index][-1] = 'delete'
 	return customer_skyline
 
 
@@ -424,13 +431,13 @@ def generate_safe_region_q():
 	print(">> generate safe region q")
 
 	query_point = query_point.split()
-	# print("CURRENT CUSTOMER SKYLINE : ")
-	# for i in customer_skyline:
-	# 	print(customer_skyline[i])
+	print("CURRENT CUSTOMER SKYLINE : ")
+	for i in customer_skyline:
+		print(customer_skyline[i])
 	calculate_rsl_q(customer_skyline, query_point)
-	#print("AFTER CALCULATING RSL Q, CUSTOMER SKYLINE : ")
-	# for i in customer_skyline:
-	# 	print(customer_skyline[i])
+	print("AFTER CALCULATING RSL Q, CUSTOMER SKYLINE : ")
+	for i in customer_skyline:
+		print(customer_skyline[i])
 
 	safe_region = []
 	#SAFE REGION ADALAH JARAK DARI TIAP USER PREFERENCE KE DDR PRIME NYA MASING_MASING 
@@ -438,7 +445,7 @@ def generate_safe_region_q():
 		# print("")
 		# print("")
 		# print("CUSTOMER SKYLINE KE : " + str(dict_index))
-		if(customer_skyline[dict_index][-1] == 'ok'):
+		if(customer_skyline[dict_index][-1] == 'ok' and len(customer_skyline)>2):
 			jumlah_rsl += 1
 			list_rsl.append(dict_index)
 			#print("Data CS : " + str(customer_skyline[dict_index]))
@@ -1020,6 +1027,10 @@ ddr_prime_ct = generate_ddr_prime_ct(ct)
 safe_region = generate_safe_region_q()
 
 generate_cost()
+
+print("CURRENT DATA : ")
+print("q  : " + str(query_point))
+print("ct : " + str(ct))
 
 intersection_status = check_intersection(safe_region, ddr_prime_ct)
 if(intersection_status == True):
