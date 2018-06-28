@@ -1,0 +1,15 @@
+T1 5 24 15 43
+T2 null 29 16 26
+T3 null 22 32 5
+T4 23 24 null 21
+T5 32 null 12 19
+T6 31 12 10 null
+T7 27 13 3 13
+T8 14 23 null 4
+T9 null 24 6 19
+T10 26 24 21 14
+T11 24 31 12 13
+T12 7 33 27 31
+T13 27 23 null null
+T14 null 3 29 12
+T15 23 null 34 null

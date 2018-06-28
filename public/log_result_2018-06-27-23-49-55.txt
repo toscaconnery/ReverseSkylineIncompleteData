@@ -1,0 +1,4 @@
+##global skyline semua user didapatkan, waktu terpakai : 0.07812118530273438 DETIK.
+>> generating ddr prime ct
+Tidak perlu dilakukan penyesuaian
+Waktu digunakan : 0.07812118530273438

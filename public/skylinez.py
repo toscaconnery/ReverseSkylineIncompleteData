@@ -27,7 +27,7 @@ list_customer = []
 ct = []
 #product_list = "random_specs.txt"
 #product_list = "mwq_data.txt"
-product_list = "T_D4_N10K.txt"
+product_list = "T_D4_N4K.txt"
 user_preference = "unlabeled_user_preference3.txt"
 intersection = []
 ct_cost = []
@@ -320,15 +320,31 @@ def generate_ct():
 
 	#moving_why_not_and_query_point, q : [80, 80, 80, 80], 
 	#product : testing_product_list.txt, user preference : testing_user_preference.txt
-	ct.append(float(23))
-	ct.append(float(20))
-	ct.append(float(24))
-	ct.append(float(25))
+	# ct.append(float(23))
+	# ct.append(float(20))
+	# ct.append(float(24))
+	# ct.append(float(25))
 	#TO
 	# ct.append(float(76.5))
 	# ct.append(float(77.5))
 	# ct.append(float(79.5))
 	# ct.append(float(78))
+
+	#####
+	# ct.append(float(23))
+	# ct.append(float(20))
+	# ct.append(float(24))
+	# ct.append(float(25))
+	####TO
+	# ct.append(float(79.5))
+	# ct.append(float(56))
+	# ct.append(float(65))
+	# ct.append(float(78.5))
+	###
+	ct.append(float(80))
+	ct.append(float(76))
+	ct.append(float(75))
+	ct.append(float(79.5))
 
 
 	# ct.append(float(23))
@@ -456,11 +472,16 @@ def generate_safe_region_q():
 			used_ddr_prime = []
 			for data_index in range(0, len(ddr_prime)):
 				q_dimension_counter = 0
+				print("DDR PRIME : " + str(ddr_prime[data_index]))
 				for i in range(0, data_length):
 					# print("TOP    : " + str(ddr_prime[data_index][i][0]))
 					# print("BOTTOM : " + str())
-					if(ddr_prime[data_index][i][0] >= float(query_point[i+1]) and ddr_prime[data_index][i][1] <= float(query_point[i+1])):
+					if(ddr_prime[data_index][i][0] != 'null'):
+						if(ddr_prime[data_index][i][0] >= float(query_point[i+1]) and ddr_prime[data_index][i][1] <= float(query_point[i+1])):
+							q_dimension_counter += 1
+					else:
 						q_dimension_counter += 1
+
 
 				if(q_dimension_counter == data_length):
 					used_ddr_prime.append(ddr_prime[data_index])
@@ -742,55 +763,8 @@ def move_why_not_point(ct, q):		#q here is transformed q
 	print("RUNNING MOVE WHY NOT POINT")
 	print("CT : " + str(ct))
 	print("Q  : " + str(q))
-	"""
-	A = window_query(ct, q)
-	F <- A
-	for each e1 element F do:
-		if e2 element F such e2 dominate e1 then:
-			remove e1 from F
-	M = initiate
-	for each e1 element F do
-		ul computation //new location
-		add ul to M
-	sort m based on dimension i
-	for ul, ul+1 element M do:
-		ul,l+1 = min (ul, ul+1) for all dimensions
-		if ul is the first entry in M :
-			replace ul+1 in M by ul,l+1
-		else if ul+1 is the last entry in M :
-			replace ul in M by ul,l+1
-		else :
-			replace ul and ul+1 in M by ul,l+1
-		u1i <- cti //u1 is the first entry in M
-		u|M|j <- ctj // u|M| is the last entry in M
 
-	"""
-
-	"""
-	A = window_query(ct, q)
-	"""
-	#Mencari titik yang berada diantara dua buah titik, note : q sudah ditransformasikan
-	# A = []
-	# fp = open(product_list)
-
-	# for line in fp:
-	# 	product = line.split()
-	# 	status_checker = 0
-	# 	transformed_point = []
-	# 	dimension_in_window = 0
-	# 	for i in range(0, data_length):
-	# 		if(product[i+1] != 'null'):
-	# 			transformed_value = ct[i] + abs(ct[i] - float(product[i+1]))
-	# 			transformed_point.append(transformed_value)
-	# 			if(transformed_value <= q[i]):
-	# 				dimension_in_window += 1
-	# 		else:
-	# 			transformed_point.append('null')
-	# 			dimension_in_window += 1
-	# 	if(dimension_in_window == data_length):
-	# 		A.append(transformed_point)
-	# print("A  : " + str(A))
-
+	#Mentransformasikan semua titik (produk) yang ada terhadap ct
 	A = []
 	fp = open(product_list)
 	for line in fp:
@@ -798,7 +772,7 @@ def move_why_not_point(ct, q):		#q here is transformed q
 		transformed_point = []
 		for i in range(0, data_length):
 			if(product[i+1] != 'null'):
-				#memindahkan semua data ke kanan ct, agar bisa dijadikan sebagai acuan
+				#memindahkan semua data ke kanan ct, agar bisa dijadikan sebagai acuan untuk perpindahan ct
 				transformed_value = ct[i] + abs(ct[i] - float(product[i+1]))
 				transformed_point.append(transformed_value)
 			else:
@@ -1246,13 +1220,10 @@ def Prepare_Data(line, customer):
 			transformed_data.append(float(difference))
 	if bitmap not in node:
 		node[bitmap] = []
-		node[bitmap].append(data)
 		local_skyline[bitmap] = []
 		shadow_skyline[bitmap] = []
 		virtual_point[bitmap] = []
 		n_updated_flag[bitmap] = False
-	else:
-		node[bitmap].append(data)
 	return transformed_data
 
 
@@ -1329,4 +1300,4 @@ print("Jumlah RSL : " + str(jumlah_rsl))
 print("List RSL   : " + str(list_rsl))
 
 elapsed_time = time.time() - start_time
-print("Waktu terpakai : ")
+print("Waktu terpakai : " + str(elapsed_time))

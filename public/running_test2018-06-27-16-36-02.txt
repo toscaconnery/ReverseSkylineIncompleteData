@@ -1,0 +1,13 @@
+##global skyline semua user didapatkan, waktu terpakai : 192.14652395248413 DETIK.
+>> generating ddr prime ct
+>> generate safe region q
+>> calculating RSL(q)
+>> checking intersection
+RUNNING MOVE WHY NOT AND QUERY POINT
+>> move why-not point
+RESULT : 
+q  : [81.0, 80.0, 80.0, 80.0]
+ct : [80.75, 77.0, 80.0, 80.0]
+Jumlah RSL : 8
+List RSL   : ['5', '6', '10', '12', '15', '16', '25', '41']
+Waktu terpakai : 194.56433844566345
