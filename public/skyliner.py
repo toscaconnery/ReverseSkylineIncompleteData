@@ -302,8 +302,9 @@ def generate_query_point(): #NEW
 	########
 
 	########
-	query_point = "QP 80 80 80 80"
-	#query_point = "QP 70 69 71 69"
+	#query_point = "QP 80 80 80 80"
+	#query_point = "QP 48 42 46 46"
+	query_point = "QP 40 42 42 46"
 	########	
 
 
@@ -311,6 +312,23 @@ def generate_query_point(): #NEW
 
 def generate_ct():
 	global ct
+	# ct.append(float(23))
+	# ct.append(float(20))
+	# ct.append(float(24))
+	# ct.append(float(25))
+	####
+	# ct.append(float(35.5))
+	# ct.append(float(32))
+	# ct.append(float(39))
+	# ct.append(float(45.5))
+	###
+	ct.append(float(36))
+	ct.append(float(37))
+	ct.append(float(41))
+	ct.append(float(45.75))
+
+
+
 	# ct.append(float(23))
 	# ct.append(float(53))
 	# ct.append(float(24))
@@ -324,10 +342,10 @@ def generate_ct():
 
 	#moving_why_not_and_query_point, q : [80, 80, 80, 80], 
 	#product : testing_product_list.txt, user preference : testing_user_preference.txt
-	ct.append(float(23))
-	ct.append(float(20))
-	ct.append(float(24))
-	ct.append(float(25))
+	# ct.append(float(23))
+	# ct.append(float(20))
+	# ct.append(float(24))
+	# ct.append(float(25))
 	#TO
 	# ct.append(float(76.5))
 	# ct.append(float(77.5))
@@ -759,22 +777,23 @@ def move_why_not_point(ct, q):		#q here is transformed q
 				transformed_point.append(ct[i])
 		A.append(transformed_point)
 
-	#print("A awal : " + str(A))
+	print("A awal : " + str(A))
 
 	#PASTIKAN DATA DISINI SEMUA DIMENSINYA LENGKAP
 
 	#hilangkan semua data yang berada diatas q, data yang berada diatas q sudah pasti letaknya bawah/kiri ct
-	for data_index in range(0, len(A)):
-		status = True
-		for i in range(0, data_length):
-			if(A[data_index][i] > q[i]):
-				status = False
-		if(status == False):
-			A[data_index][-1] = 'delete'
-	for i in reversed(A):
-		if(i[-1] == 'delete'):
-			A.remove(i)
-	#print("A filt : " + str(A))
+	# print("Q : " + str(q))
+	# for data_index in range(0, len(A)):
+	# 	status = True
+	# 	for i in range(0, data_length):
+	# 		if(A[data_index][i] > q[i]):
+	# 			status = False
+	# 	if(status == False):
+	# 		A[data_index][-1] = 'delete'
+	# for i in reversed(A):
+	# 	if(i[-1] == 'delete'):
+	# 		A.remove(i)
+	print("A filt : " + str(A))
 
 	#Tidak perlu menggunakan metode i-skyline karena data di sini semua dimensinya lengkap
 	for data_index in range(0, len(A)):		#transformasikan terhadap q
@@ -795,11 +814,11 @@ def move_why_not_point(ct, q):		#q here is transformed q
 				A[data_index_2][-1] = 'delete'
 			elif(smaller == False and greater == True):
 				A[data_index][-1] = 'delete'
-	#print("A mark : " + str(A))
+	print("A mark : " + str(A))
 	for i in reversed(A):
 		if(i[-1] == 'delete'):
 			A.remove(i)
-	#print("A delt : " + str(A))
+	print("A delt : " + str(A))
 
 	#######MENDAPATKAN TITIK BARU UNTUK ct 		//A masih dalam bentuk jarak dari q
 	####Output : Titik
@@ -815,6 +834,7 @@ def move_why_not_point(ct, q):		#q here is transformed q
 	# print("M : " + str(M))
 
 	#Cari cost terendah :
+	print("M : " + str(M))
 	current_cost = 99999999999
 	cheapest_index = None
 	for data_index in range(0, len(M)):
