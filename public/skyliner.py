@@ -30,9 +30,9 @@ query_point = []
 list_customer = []
 ct = []
 #product_list = "random_specs.txt"
-product_list = "new_data2.txt"
+product_list = "small_dataset2.txt"
 #product_list = "T_D4_N10K.txt"
-user_preference = "user_preference_D4_N100.txt"
+user_preference = "user_preference_D4_N10.txt"
 intersection = []
 ct_cost = []
 q_cost = []
@@ -304,7 +304,7 @@ def generate_query_point(): #NEW
 	########
 	# query_point = "QP 80 80 80 80"
 	# query_point = "QP 48 42 46 46"
-	query_point = "QP 40 42 42 46"
+	query_point = "QP 80 80 80 80"
 	########	
 
 

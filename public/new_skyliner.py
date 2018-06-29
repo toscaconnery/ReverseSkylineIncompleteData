@@ -275,29 +275,31 @@ def update_global_skyline():
 	for i in n_updated_flag:
 		n_updated_flag[i] == False
 
-#wrap
+#here
 def generate_query_point(): #NEW
 	global query_point
-	# query_point = "QP 80 80 80 80"
-	query_point = "QP 58 62 70 52"
+	query_point = "QP 80 80 80 80"
+	#query_point = "QP 45 45 45 45"
+	#query_point = "QP 70 70 70 70"
+
 
 def generate_ct():
 	global ct
 
-	# ct.append(float(15))
-	# ct.append(float(15))
-	# ct.append(float(14))
-	# ct.append(float(14))
+	ct.append(float(57))
+	ct.append(float(51.5))
+	ct.append(float(51.5))
+	ct.append(float(62.5))
 	
 	# ct.append(float(46))
 	# ct.append(float(57.5))
 	# ct.append(float(47))
 	# ct.append(float(59.5))
 
-	ct.append(float(46))
-	ct.append(float(42.5))
-	ct.append(float(46.5))
-	ct.append(float(48.5))
+	# ct.append(float(10))
+	# ct.append(float(10))
+	# ct.append(float(10))
+	# ct.append(float(10))
 
 def generate_cost():
 	global ct_cost
@@ -361,6 +363,7 @@ def generate_safe_region_q():
 	global safe_region
 	global data_length
 	global jumlah_rsl
+	global ct
 
 	print(">> generate safe region q")
 
@@ -369,6 +372,9 @@ def generate_safe_region_q():
 	for i in customer_skyline:
 		print(customer_skyline[i])
 	calculate_rsl_q(customer_skyline, query_point)
+	q = []
+	for i in range(0, data_length):
+		q.append(float(query_point[i+1]))
 	print("AFTER CALCULATING RSL Q, CUSTOMER SKYLINE : ")
 	for i in customer_skyline:
 		print(customer_skyline[i])
@@ -399,14 +405,14 @@ def generate_safe_region_q():
 			#q juga harus dibandingkan karena q juga adalah bagian RSL dari customer skyline ini
 			data = []
 			for i in range(0, data_length):
-				diff = abs(float(query_point[i+1]) - customer_skyline[dict_index][-2][i])
+				diff = abs(float(q[i]) - customer_skyline[dict_index][-2][i])
 				top = customer_skyline[dict_index][-2][i] + diff
 				bottom = customer_skyline[dict_index][-2][i] - diff
 				max_min_value = [top, bottom]
 				data.append(max_min_value)
 			ddr_prime.append(data)
 			# print("this ddr_prime : " + str(ddr_prime))
-			# print("q              : " + str(query_point))
+			# print("q              : " + str(q))
 			#filtering, mendapatkan semua safe region yang mengandung q di dalamnya
 			used_ddr_prime = []
 			for data_index in range(0, len(ddr_prime)):
@@ -416,7 +422,7 @@ def generate_safe_region_q():
 					# print("TOP    : " + str(ddr_prime[data_index][i][0]))
 					# print("BOTTOM : " + str())
 					if(ddr_prime[data_index][i][0] != 'null'):
-						if(ddr_prime[data_index][i][0] >= float(query_point[i+1]) and ddr_prime[data_index][i][1] <= float(query_point[i+1])):
+						if(ddr_prime[data_index][i][0] >= float(q[i]) and ddr_prime[data_index][i][1] <= float(q[i])):
 							q_dimension_counter += 1
 					else:
 						q_dimension_counter += 1
@@ -478,6 +484,17 @@ def generate_safe_region_q():
 					safe_region = list(new_safe_region)
 	# 			print("HASIL SAFE REGION " + str(safe_region))
 	print("HASIL FINAL SAFE REGION : " + str(safe_region))
+
+	if(len(safe_region) == 0):
+		print("Tidak ada safe region, perlu penanganan khusus")
+		print("X ct: " + str(ct))
+		print("Y q : " + str(q))
+		generate_cost()
+		T = move_why_not_point(ct, q)
+
+		print("HASIL AKHIR : " + str(T))
+
+		exit()
 	return safe_region
 
 
@@ -526,9 +543,9 @@ def generate_ddr_prime_ct(ct):
 	# Q cuman ada satu data, lebih baik dibandingkan dengan cara normal
 	generate_query_point()	#The query point exist from here
 	print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACCCCCCCCCCCCCCCCCCCCCCCCCCCC")
-	print("q : " + str(query_point))
-	print("g ; " + str(global_skyline))
-	print("ct: " + str(ct))
+	print("Query point       : " + str(query_point))
+	print("Global Skyline CT : " + str(global_skyline))
+	print("CT                : " + str(ct))
 	#mengubah q
 	q = query_point.split()
 	for i in range(0, data_length):
@@ -793,8 +810,12 @@ def move_why_not_point(ct, q):		#q here is transformed q
 	cheapest_index = None
 	for data_index in range(0, len(M)):
 		total_cost = 0
+		print("CT COST : " + str(ct_cost))
 		for i in range(0, data_length):
 			if(M[data_index][i] != 'null'):
+				print("A : " + str(M[data_index][i]))
+				print("B : " + str(ct[i]))
+				print("C : " + str(ct_cost[i]))
 				total_cost += (abs(M[data_index][i] - ct[i]) * ct_cost[i])
 		if(total_cost < current_cost):
 			cheapest_index = data_index
@@ -828,7 +849,7 @@ def Move_Why_Not_And_Query_Point():
 	# E adalah corner point dengan jarak terdekat ke ct,
 	# Bertujuan untuk mempersingkat jarak antara ct dan q
 	# q yang dipindahkan dalam area ini tidak akan kehilangan satu RSL pun
-	E = []
+	E = []		#corner_points
 	#print("SR : " + str(safe_region))
 	for safe_index in range(0, len(safe_region)):
 		#print("sr : " + str(safe_region[safe_index]))
@@ -847,9 +868,7 @@ def Move_Why_Not_And_Query_Point():
 	#print("E  : " + str(E))
 	
 
-	"""
-	Q = transformed_space(E, ct)	/ct is origin
-	"""
+	# Q adalah transformed space semua perpindahan query_point terhadap ct, 
 	Q = []
 	for data_index in range(0, len(E)):
 		data = []
@@ -864,6 +883,9 @@ def Move_Why_Not_And_Query_Point():
 	for each e1,e2 element Q such that e1 dominate e2:
 		remove e2
 	"""
+	# eliminasi semua titik perpindahan query point yang didominasi oleh hasil lainnya.
+	# titik yang didominasi sudah pasti lebih jauh dari ct
+	# KARENA DATANYA TIDAK LENGKAP, PERLU DIPIKIRKAN ULANG APAKAH PERLU DILAKUKAN HAL INI
 	for data_index in range(0, len(E)):
 		greater = False
 		smaller = False
@@ -885,11 +907,14 @@ def Move_Why_Not_And_Query_Point():
 	"""
 	Mc = initiate
 	for each e1 element Q do:
-		T -> move_why_not and query point /Alg 1
+		T -> move why not and query point /Alg 1
 		Mc = Mc U T
 	"""
 	print("<< Perpindahan untuk q : " + str(Q))
 	Mc = []
+	print("NNNNNNNNNNNNNNNNN ")
+	print("CT : " + str(ct))
+	print("Q  : " + str(Q))
 	for data_index in range(0, len(Q)):
 		T = move_why_not_point(ct, Q[data_index][:-1])
 		Mc.append(T)
