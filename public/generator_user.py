@@ -16,24 +16,22 @@ data_number_on_title = str(number)
 if(thousands == True):
     data_number_on_title += "K"
 
-sys.stdout = open("user_preference_D" + str(d) + "_N" + str(data_number_on_title) + ".txt", "wt")
+sys.stdout = open("new_user_preference_D" + str(d) + "_N" + str(data_number_on_title) + ".txt", "wt")
 random.seed(122)
 
 missing_persentage = 20
 
 for i in range(0,n):
-    # base = random.uniform(0,1)
-    # basedim = ceil(base / (1/d))-1
-    # basedata = random.uniform(0, 1)
     row = ''
 
-    base = random.randint(0,8)
+    base = random.randint(1,9)
     base = base * 10
 
-    row += '%d' % (base + random.randint(0,15))
-
-    for dim in range(0,d-1):
-       # row += ' %d' % base + random.randint(0,15)
-        row += ' %d' % (base + random.randint(0,15))
-
+    for dimension in range(0, d):
+        last_digit = random.randint(0,9)
+        number = base + last_digit
+        if(dimension == 0):
+            row += '%d' % (number)
+        else:
+            row += ' %d' % (number)
     print(row)

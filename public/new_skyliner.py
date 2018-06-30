@@ -33,7 +33,7 @@ ct_has_skyline = True
 #product_list = "random_specs.txt"
 #product_list = "very_small_dataset2.txt"
 product_list = "IND_D4_N10K.txt"
-user_preference = "user_preference_D4_N10.txt"
+user_preference = "new_user_preference_D4_N100.txt"
 intersection = []
 ct_cost = []
 q_cost = []
@@ -378,16 +378,16 @@ def generate_safe_region_q():
 	print(">> generate safe region q")
 
 	query_point = query_point.split()
-	print("CURRENT CUSTOMER SKYLINE : ")
-	for i in customer_skyline:
-		print(customer_skyline[i])
+	# print("CURRENT CUSTOMER SKYLINE : ")
+	# for i in customer_skyline:
+	# 	print(customer_skyline[i])
 	calculate_rsl_q(customer_skyline, query_point)
 	q = []
 	for i in range(0, data_length):
 		q.append(float(query_point[i+1]))
-	print("AFTER CALCULATING RSL Q, CUSTOMER SKYLINE : ")
-	for i in customer_skyline:
-		print(customer_skyline[i])
+	# print("AFTER CALCULATING RSL Q, CUSTOMER SKYLINE : ")
+	# for i in customer_skyline:
+	# 	print(customer_skyline[i])
 
 	safe_region = []
 	#SAFE REGION ADALAH JARAK DARI TIAP USER PREFERENCE KE DDR PRIME NYA MASING_MASING 
@@ -496,9 +496,9 @@ def generate_safe_region_q():
 	print("HASIL FINAL SAFE REGION : " + str(safe_region))
 
 	if(len(safe_region) == 0):
-		print("Tidak ada safe region, perlu penanganan khusus")
+		print("!!!! q tidak memliki safe region, memindahkan why-not point terhadap q")
 		print("X ct: " + str(ct))
-		print("Y q : " + str(q))
+		# print("Y q : " + str(q))
 		generate_cost()
 		T = move_why_not_point(ct, q)
 
@@ -564,7 +564,6 @@ def generate_ddr_prime_ct(ct):
 		q[i+1] = abs(float(q[i+1]) - ct[i])
 	q.append("qp")
 	q.append("ok")
-	print("q : " + str(q))
 
 	q_is_skyline = True
 	for data_index in range(0, len(global_skyline)):
@@ -784,7 +783,7 @@ def move_why_not_point(ct, q):		#q here is transformed q
 	for i in reversed(A):
 		if(i[-1] == 'delete'):
 			A.remove(i)
-	print("A filt : ")
+	#print("A filt : ")
 	for data_index in range(0, len(A)):
 		print(A[data_index])
 
@@ -808,13 +807,13 @@ def move_why_not_point(ct, q):		#q here is transformed q
 				A[data_index_2][-1] = 'delete'
 			elif(smaller == False and greater == True):
 				A[data_index][-1] = 'delete'
-	print("A mark for dominated : ")
+	#print("A mark for dominated : ")
 	for data_index in range(0, len(A)):
 		print(A[data_index])
 	for i in reversed(A):
 		if(i[-1] == 'delete'):
 			A.remove(i)
-	print("A deletion for dominated : ")
+	#print("A deletion for dominated : ")
 	for data_index in range(0, len(A)):
 		print(A[data_index])
 
@@ -833,16 +832,13 @@ def move_why_not_point(ct, q):		#q here is transformed q
 
 	#Cari cost terendah :
 	print("M, titik baru untuk ct : " + str(M))
+	print("jumlah rekomendasi perubahan ct : " + str(len(M)))
 	current_cost = 99999999999
 	cheapest_index = None
 	for data_index in range(0, len(M)):
 		total_cost = 0
-		print("CT COST : " + str(ct_cost))
 		for i in range(0, data_length):
 			if(M[data_index][i] != 'null'):
-				print("A : " + str(M[data_index][i]))
-				print("B : " + str(ct[i]))
-				print("C : " + str(ct_cost[i]))
 				total_cost += (abs(M[data_index][i] - ct[i]) * ct_cost[i])
 		if(total_cost < current_cost):
 			cheapest_index = data_index
@@ -939,9 +935,9 @@ def Move_Why_Not_And_Query_Point():
 	"""
 	print("<< Perpindahan untuk q : " + str(Q))
 	Mc = []
-	print("NNNNNNNNNNNNNNNNN ")
-	print("CT : " + str(ct))
-	print("Q  : " + str(Q))
+	# print("NNNNNNNNNNNNNNNNN ")
+	# print("CT : " + str(ct))
+	# print("Q  : " + str(Q))
 	for data_index in range(0, len(Q)):
 		T = move_why_not_point(ct, Q[data_index][:-1])
 		Mc.append(T)
@@ -952,7 +948,7 @@ def Move_Why_Not_And_Query_Point():
 		if(Mc[data_index]["cost"] < cheapest_cost):
 			cheapest_index = data_index
 
-	print("RESULT : x")
+	print("RESULT : Memindahan why-not dan query point")
 	print("q  : " + str(Mc[cheapest_index]["q"]))
 	print("ct : " + str(Mc[cheapest_index]["ct"]))
 
@@ -1040,15 +1036,6 @@ for x in range(0, len(list_customer)):
 fu.close()
 print("##global skyline semua user didapatkan, waktu terpakai : " + str(time.time() - start_time) + " DETIK.")
 
-# print("")
-# print("")
-# print("")
-# print("")
-# print("CUSTOMER SKYLINE CUSTOMER SKYLINE CUSTOMER SKYLINE CUSTOMER SKYLINE CUSTOMER SKYLINE CUSTOMER SKYLINE CUSTOMER SKYLINE CUSTOMER SKYLINE : ")
-# print("per user : ")
-# for i in customer_skyline:
-# 	print(customer_skyline[i])
-# print("")
 ddr_prime_ct = generate_ddr_prime_ct(ct)
 
 safe_region = generate_safe_region_q()
