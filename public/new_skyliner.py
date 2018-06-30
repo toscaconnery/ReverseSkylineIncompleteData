@@ -29,15 +29,61 @@ customer_index = 0
 query_point = []
 list_customer = []
 ct = []
+ct_has_skyline = True
 #product_list = "random_specs.txt"
-product_list = "very_small_dataset.txt"
-#product_list = "T_D4_N10K.txt"
+#product_list = "very_small_dataset2.txt"
+product_list = "IND_D4_N10K.txt"
 user_preference = "user_preference_D4_N10.txt"
 intersection = []
 ct_cost = []
 q_cost = []
 jumlah_rsl = 0
 list_rsl = []
+
+
+#here
+def generate_query_point(): #NEW
+	global query_point
+	query_point = "QP 50 50 50 50"
+	#query_point = "QP 45 45 45 45"
+	#query_point = "QP 70 70 70 70"
+
+
+def generate_ct():
+	global ct
+
+	ct.append(float(12))
+	ct.append(float(15))
+	ct.append(float(10))
+	ct.append(float(12))
+	#
+	# ct.append(float(31))
+	# ct.append(float(32.5))
+	# ct.append(float(47.5))
+	# ct.append(float(49.5))
+
+	
+	# ct.append(float(46))
+	# ct.append(float(57.5))
+	# ct.append(float(47))
+	# ct.append(float(59.5))
+
+	# ct.append(float(10))
+	# ct.append(float(10))
+	# ct.append(float(10))
+	# ct.append(float(10))
+
+def generate_cost():
+	global ct_cost
+	global q_cost
+	ct_cost.append(3)
+	ct_cost.append(3)
+	ct_cost.append(3)
+	ct_cost.append(2)
+	q_cost.append(4)
+	q_cost.append(3)
+	q_cost.append(2)
+	q_cost.append(3)
 
 def insert_local_skyline(current_specs, bitmap):
 	global local_skyline
@@ -275,43 +321,7 @@ def update_global_skyline():
 	for i in n_updated_flag:
 		n_updated_flag[i] == False
 
-#here
-def generate_query_point(): #NEW
-	global query_point
-	query_point = "QP 80 80 80 80"
-	#query_point = "QP 45 45 45 45"
-	#query_point = "QP 70 70 70 70"
 
-
-def generate_ct():
-	global ct
-
-	ct.append(float(57))
-	ct.append(float(51.5))
-	ct.append(float(51.5))
-	ct.append(float(62.5))
-	
-	# ct.append(float(46))
-	# ct.append(float(57.5))
-	# ct.append(float(47))
-	# ct.append(float(59.5))
-
-	# ct.append(float(10))
-	# ct.append(float(10))
-	# ct.append(float(10))
-	# ct.append(float(10))
-
-def generate_cost():
-	global ct_cost
-	global q_cost
-	ct_cost.append(3)
-	ct_cost.append(3)
-	ct_cost.append(3)
-	ct_cost.append(2)
-	q_cost.append(4)
-	q_cost.append(3)
-	q_cost.append(2)
-	q_cost.append(3)
 
 def calculate_rsl_q(customer_skyline, query_point):
 	### - MENGHAPUS SEMUA SKYLINE DARI 'customer_skyline' YANG BUKAN RSL DARI Q, SEHINGGA HANYA TERSISA RSL Q
@@ -515,7 +525,10 @@ def generate_ddr_prime_ct(ct):
 	global query_point
 	global t
 	global data_length
+	global ct_has_skyline
 	#global safe_region 		#
+
+	ct_has_skyline = True
 
 	fp = open(product_list)
 	#Harusnya disini menggunakan variabel global_skyline yang berbeda. (Karena nilai global disimpan dalam variabel lain, sepertinya boleh untuk dihapus)
@@ -542,10 +555,9 @@ def generate_ddr_prime_ct(ct):
 	#check if the QUERY POINT is part of DSL(ct)
 	# Q cuman ada satu data, lebih baik dibandingkan dengan cara normal
 	generate_query_point()	#The query point exist from here
-	print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACCCCCCCCCCCCCCCCCCCCCCCCCCCC")
-	print("Query point       : " + str(query_point))
-	print("Global Skyline CT : " + str(global_skyline))
-	print("CT                : " + str(ct))
+	# print("Query point       : " + str(query_point))
+	# print("Global Skyline CT : " + str(global_skyline))
+	# print("CT                : " + str(ct))
 	#mengubah q
 	q = query_point.split()
 	for i in range(0, data_length):
@@ -575,10 +587,11 @@ def generate_ddr_prime_ct(ct):
 	# 		break
 	if(len(global_skyline) == 0):
 		print("CT tidak mempunyai skyline")
-		print("CT bisa dipindahkan ke dekat")
+		print("CT bisa dipindahkan ke dekat q")
 		elapsed_time = time.time() - start_time
 		print("Waktu digunakan : " + str(elapsed_time))
-		exit()
+		ct_has_skyline = False
+		# exit()
 	print("GLOBAL SKYLINE CT : " + str(global_skyline))
 	if(q_is_skyline == True):
 		#HENTIKAN PROGRAM
@@ -625,6 +638,7 @@ def check_intersection(safe_region, ddr_prime_ct):
 		for ddr_index in range(0, len(ddr_prime_ct)):
 			intersect_data = []
 			intersect_status = True
+			null_counter = 0
 			for i in range(0, data_length):
 				#top
 				if(safe_region[safe_index][i][0] == 'null' and ddr_prime_ct[ddr_index][i][0] == 'null'):
@@ -652,8 +666,11 @@ def check_intersection(safe_region, ddr_prime_ct):
 				if(top != 'null' and bottom != 'null'):
 					if(bottom > top):
 						intersect_status = False
+				elif(top == 'null' and bottom == 'null'):
+					null_counter += 1
+
 			#print("Intersect Status : " + str(intersect_status))
-			if(intersect_status == True):
+			if(intersect_status == True and null_counter != data_length):
 				intersection.append(intersect_data)
 	if(len(intersection) > 0):
 		return True
@@ -685,6 +702,16 @@ def move_query_point():
 			else:
 				nearest_point.append(intersection[data_index][i][0])
 				nearest_distance.append(top_diff)
+
+			# top_diff = abs(float(query_point[i+1]) - intersection[data_index][i][0])
+			# bottom_diff = abs(float(query_point[i+1]) - intersection[data_index][i][1])
+			# #minimal_distance = min(a,b)
+			# if(bottom_diff < top_diff):
+			# 	nearest_point.append(intersection[data_index][i][1])
+			# 	nearest_distance.append(bottom_diff)
+			# else:
+			# 	nearest_point.append(intersection[data_index][i][0])
+			# 	nearest_distance.append(top_diff)
 		modified_value.append(nearest_point)
 		distance_value.append(nearest_distance)
 	#done, tinggal return kedua nilai ini untuk di analisa
@@ -1032,7 +1059,10 @@ print("CURRENT DATA : ")
 print("q  : " + str(query_point))
 print("ct : " + str(ct))
 
-intersection_status = check_intersection(safe_region, ddr_prime_ct)
+if(ct_has_skyline == True):
+	intersection_status = check_intersection(safe_region, ddr_prime_ct)
+else:
+	intersection_status = False
 if(intersection_status == True):
 	move_query_point()
 else:
