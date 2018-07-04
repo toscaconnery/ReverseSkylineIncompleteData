@@ -6,7 +6,7 @@ from time import gmtime, strftime
 import numpy as np
 
 a = strftime("%Y-%m-%d-%H-%M-%S", gmtime())
-#sys.stdout = open("banding_" + str(a) + ".txt", "wt")
+#sys.stdout = open("result_" + str(a) + ".txt", "wt")
 
 start_time = time.time()
 
@@ -32,8 +32,8 @@ ct = []
 ct_has_skyline = True
 #product_list = "random_specs.txt"
 #product_list = "very_small_dataset2.txt"
-product_list = "IND_D4_N10K.txt"
-user_preference = "new_user_preference_D4_N100.txt"
+product_list = "IND_D4_N1K.txt"
+user_preference = "user_preference_D4_N100.txt"
 intersection = []
 ct_cost = []
 q_cost = []
@@ -327,7 +327,7 @@ def calculate_rsl_q(customer_skyline, query_point):
 	### - MENGHAPUS SEMUA SKYLINE DARI 'customer_skyline' YANG BUKAN RSL DARI Q, SEHINGGA HANYA TERSISA RSL Q
 	### - PASTIKAN NILAI YANG DIPROSES ADALAH HASIL TRANSFORMASI DARI ASLINYA TERHADAP DATA POINT KONSUMEN
 	global data_length
-	print(">> calculating RSL(q)")
+	print(">> CALCULATING RSL Q")
 	# print("QUERY_POINT : " + str(query_point))
 	# print("CUSTOMER SKYLINE PER USER : ")
 	# print("-------------------------------------------^")
@@ -375,13 +375,12 @@ def generate_safe_region_q():
 	global jumlah_rsl
 	global ct
 
-	print(">> generate safe region q")
 
 	query_point = query_point.split()
-	# print("CURRENT CUSTOMER SKYLINE : ")
-	# for i in customer_skyline:
-	# 	print(customer_skyline[i])
 	calculate_rsl_q(customer_skyline, query_point)
+	
+	print(">> GENERATING SAFE REGION Q")
+	
 	q = []
 	for i in range(0, data_length):
 		q.append(float(query_point[i+1]))
@@ -493,16 +492,18 @@ def generate_safe_region_q():
 				if(len(new_safe_region) > 0):
 					safe_region = list(new_safe_region)
 	# 			print("HASIL SAFE REGION " + str(safe_region))
-	print("HASIL FINAL SAFE REGION : " + str(safe_region))
+	print("   SAFE REGION Q : " + str(safe_region))
 
 	if(len(safe_region) == 0):
-		print("!!!! q tidak memliki safe region, memindahkan why-not point terhadap q")
-		print("X ct: " + str(ct))
+		print("## Q DOESN'T HAVE SAFE REGION, SPECIAL TREATMENT NEEDED, MOVING CT TO Q")
 		# print("Y q : " + str(q))
 		generate_cost()
 		T = move_why_not_point(ct, q)
 
-		print("HASIL AKHIR : " + str(T))
+		print("")
+		print("RESULT : MOVING WHY-NOT POINT")
+		print("Q      : " + str(T["q"]))
+		print("CT     : " + str(T["ct"]))
 
 		exit()
 	return safe_region
@@ -511,7 +512,7 @@ def generate_safe_region_q():
 
 
 def generate_ddr_prime_ct(ct):
-	print(">> generating ddr prime ct")
+	print(">> GENERATING DDR PRIME CT")
 	#This function will check if query_point is included to ct's skyline
 	#It will return Ct DDR Prime and status of query point
 	global product_list
@@ -585,18 +586,16 @@ def generate_ddr_prime_ct(ct):
 	# 		q_is_dsl = True
 	# 		break
 	if(len(global_skyline) == 0):
-		print("CT tidak mempunyai skyline")
-		print("CT bisa dipindahkan ke dekat q")
+		print("## CT DOESN'T HAVE ANY SKYLINE, SPECIAL TREATMENT NEEDED, MOVING CT TO Q")
 		elapsed_time = time.time() - start_time
-		print("Waktu digunakan : " + str(elapsed_time))
 		ct_has_skyline = False
 		# exit()
-	print("GLOBAL SKYLINE CT : " + str(global_skyline))
+	print("   CT SKYLINE : " + str(global_skyline))
 	if(q_is_skyline == True):
 		#HENTIKAN PROGRAM
-		print("Tidak perlu dilakukan penyesuaian")
+		print("   TIDAK PERLU DILAKUKAN PENYESUAIAN")
 		elapsed_time = time.time() - start_time
-		print("Waktu digunakan : " + str(elapsed_time))
+		print("   TIME USED : " + str(elapsed_time))
 		exit()
 	else:
 		#create ddr prime of ct
@@ -625,7 +624,7 @@ def generate_ddr_prime_ct(ct):
 
 def check_intersection(safe_region, ddr_prime_ct):
 	# print("")
-	print(">> checking intersection")
+	print(">> CHECKING INTERSECTION")
 	# print("SAFE_REGION  : " + str(safe_region))
 	# print("DDR_PRIME_CT : " + str(ddr_prime_ct))
 
@@ -679,7 +678,7 @@ def check_intersection(safe_region, ddr_prime_ct):
 def move_query_point():
 	#Output : titik baru untuk query point q
 	# print("")
-	print(">> move query point")
+	print(">> MOVING QUERY POINT")
 	# print("")
 	global intersection
 	global query_point
@@ -727,7 +726,7 @@ def move_query_point():
 			cheapest_index = data_index
 	recommendation = modified_value[cheapest_index]
 	#print(recommendation)
-	print("Move query point to : " + str(recommendation))
+	print("   MOVING QUERY POINT TO : " + str(recommendation))
 
 
 
@@ -741,9 +740,9 @@ def move_why_not_point(ct, q):		#q here is transformed q
 	global shadow_skyline
 	global virtual_point
 	# print("")
-	print(">> move why-not point")
-	print("CT : " + str(ct))
-	print("Q  : " + str(q))
+	print(">> MOVING WHY-NOT POINT")
+	print("   CT : " + str(ct))
+	print("   Q  : " + str(q))
 
 	#Mentransformasikan semua titik (produk) yang ada terhadap ct
 	A = []
@@ -751,7 +750,7 @@ def move_why_not_point(ct, q):		#q here is transformed q
 	for line in fp:
 		product = line.split()
 		transformed_point = []
-		print("product : " + str(product))
+		# print("product : " + str(product))
 		for i in range(0, data_length):
 			if(product[i+1] != 'null'):
 				#memindahkan semua data ke kanan ct, agar bisa dijadikan sebagai acuan untuk perpindahan ct
@@ -765,9 +764,9 @@ def move_why_not_point(ct, q):		#q here is transformed q
 				transformed_point.append(ct[i])
 		A.append(transformed_point)
 
-	print("A awal : ")
-	for data_index in range(0, len(A)):
-		print(A[data_index])
+	# print("A awal : ")
+	# for data_index in range(0, len(A)):
+	# 	print(A[data_index])
 
 	#PASTIKAN DATA DISINI SEMUA DIMENSINYA LENGKAP
 
@@ -784,8 +783,8 @@ def move_why_not_point(ct, q):		#q here is transformed q
 		if(i[-1] == 'delete'):
 			A.remove(i)
 	#print("A filt : ")
-	for data_index in range(0, len(A)):
-		print(A[data_index])
+	# for data_index in range(0, len(A)):
+	# 	print(A[data_index])
 
 	#Tidak perlu menggunakan metode i-skyline karena data di sini semua dimensinya lengkap
 	for data_index in range(0, len(A)):		#transformasikan terhadap q
@@ -793,7 +792,6 @@ def move_why_not_point(ct, q):		#q here is transformed q
 			#cari jarak, bukan titik
 			A[data_index][i] = abs(q[i] - A[data_index][i])
 		A[data_index].append('ok')
-	print("Q : " + str(q))
 	for data_index in range(0, len(A)):
 		for data_index_2 in range(0, len(A)):
 			greater = False
@@ -808,14 +806,14 @@ def move_why_not_point(ct, q):		#q here is transformed q
 			elif(smaller == False and greater == True):
 				A[data_index][-1] = 'delete'
 	#print("A mark for dominated : ")
-	for data_index in range(0, len(A)):
-		print(A[data_index])
+	# for data_index in range(0, len(A)):
+	# 	print(A[data_index])
 	for i in reversed(A):
 		if(i[-1] == 'delete'):
 			A.remove(i)
 	#print("A deletion for dominated : ")
-	for data_index in range(0, len(A)):
-		print(A[data_index])
+	# for data_index in range(0, len(A)):
+	# 	print(A[data_index])
 
 	#######MENDAPATKAN TITIK BARU UNTUK ct 		//A masih dalam bentuk jarak dari q
 	####Output : Titik
@@ -831,8 +829,8 @@ def move_why_not_point(ct, q):		#q here is transformed q
 	# print("M : " + str(M))
 
 	#Cari cost terendah :
-	print("M, titik baru untuk ct : " + str(M))
-	print("jumlah rekomendasi perubahan ct : " + str(len(M)))
+	print("   NUMBER OF CT' RECOMMENDATION : " + str(len(M)))
+	print("   LIST OF RECOMMENDATION CT' : " + str(M))
 	current_cost = 99999999999
 	cheapest_index = None
 	for data_index in range(0, len(M)):
@@ -867,7 +865,7 @@ def Move_Why_Not_And_Query_Point():
 	global ct_cost
 	global q_cost
 
-	print(">> move why-not and query point")
+	print(">> MOVING WHY-NOT AND QUERY POINT")
 
 	# E adalah corner point dengan jarak terdekat ke ct,
 	# Bertujuan untuk mempersingkat jarak antara ct dan q
@@ -933,7 +931,8 @@ def Move_Why_Not_And_Query_Point():
 		T -> move why not and query point /Alg 1
 		Mc = Mc U T
 	"""
-	print("<< Perpindahan untuk q : " + str(Q))
+	print("   NUMBER OF Q' RECOMMENDATION : " + str(len(Q)))
+	print("   LIST OF RECOMMENDATION Q'   : " + str(Q))
 	Mc = []
 	# print("NNNNNNNNNNNNNNNNN ")
 	# print("CT : " + str(ct))
@@ -947,10 +946,10 @@ def Move_Why_Not_And_Query_Point():
 	for data_index in range(0, len(Mc)):
 		if(Mc[data_index]["cost"] < cheapest_cost):
 			cheapest_index = data_index
-
-	print("RESULT : Memindahan why-not dan query point")
-	print("q  : " + str(Mc[cheapest_index]["q"]))
-	print("ct : " + str(Mc[cheapest_index]["ct"]))
+	print("")
+	print("   RESULT : MOVING WHY-NOT AND QUERY-POINT")
+	print("   Q      : " + str(Mc[cheapest_index]["q"]))
+	print("   CT     : " + str(Mc[cheapest_index]["ct"]))
 
 
 
@@ -1034,7 +1033,8 @@ for x in range(0, len(list_customer)):
 		customer_skyline[str(customer_index)].append("ok")
 		customer_index += 1
 fu.close()
-print("##global skyline semua user didapatkan, waktu terpakai : " + str(time.time() - start_time) + " DETIK.")
+print(">> FINISHED CALCULATING GLOBAL")
+print("   TIME USED : " + str(time.time() - start_time) + " SECONDS")
 
 ddr_prime_ct = generate_ddr_prime_ct(ct)
 
@@ -1042,9 +1042,12 @@ safe_region = generate_safe_region_q()
 
 generate_cost()
 
-print("CURRENT DATA : ")
-print("q  : " + str(query_point))
-print("ct : " + str(ct))
+print(">> ORIGINAL DATA : ")
+print("   Q  : " + str(query_point))
+print("   CT : " + str(ct))
+print("   UP : " + str(user_preference))
+print("   PL : " + str(product_list))
+print("   D  : " + str(data_length))
 
 if(ct_has_skyline == True):
 	intersection_status = check_intersection(safe_region, ddr_prime_ct)
@@ -1055,8 +1058,8 @@ if(intersection_status == True):
 else:
 	Move_Why_Not_And_Query_Point()
 #print(recommendation)
-print("Jumlah RSL : " + str(jumlah_rsl))
-print("List RSL   : " + str(list_rsl))
+print("   NUMBER OF RSL : " + str(jumlah_rsl))
+print("   LIST RSL   : " + str(list_rsl))
 
 elapsed_time = time.time() - start_time
-print("Waktu terpakai : " + str(elapsed_time))
+print("   FINAL TIME USED : " + str(elapsed_time))

@@ -2,8 +2,8 @@ import sys
 import random
 from math import ceil
 
-d = 4
-n = 10000
+d = 10
+n = 200000
 
 #title
 data_number_on_title = ""
@@ -16,7 +16,7 @@ data_number_on_title = str(number)
 if(thousands == True):
     data_number_on_title += "K"
 
-sys.stdout = open("IND_D" + str(d) + "_N" + str(data_number_on_title) + ".txt", "wt")
+sys.stdout = open("TESTING_IND_D" + str(d) + "_N" + str(data_number_on_title) + ".txt", "wt")
 random.seed(122)
 
 missing_persentage = 20
@@ -27,7 +27,7 @@ for i in range(0,n):
     basedim = ceil(base / (1/d))-1
     basedata = random.uniform(0, 1)
     row = 'T'
-    row += '%d' % (i+1+100)
+    row += '%d' % (i+1)
 
     for dim in range(0,d):
         ran = random.randint(1,100)
