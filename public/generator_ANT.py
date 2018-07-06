@@ -2,12 +2,24 @@ import sys
 import random
 from math import ceil
 
-sys.stdout = open("ANT_D10_N200.txt", "wt")
-
 random.seed(122)
 
 d = 10
-n = 200
+n = 30000
+
+#title
+data_number_on_title = ""
+thousands = False
+number = n
+if(n >= 1000):
+    thousands = True
+    number = int(n / 1000)
+data_number_on_title = str(number)
+if(thousands == True):
+    data_number_on_title += "K"
+
+sys.stdout = open("TESTING_ANT_D" + str(d) + "_N" + str(data_number_on_title) + ".txt", "wt")
+
 missing_persentage = 20
 
 for i in range(0,n):
@@ -16,7 +28,7 @@ for i in range(0,n):
     basedata = random.uniform(0, 1)
     row = 'A'
     row += '%d' % (i+1)
-    may_null =  4
+    may_null = 1
     for dim in range(0,d):
         if dim != basedim:
             ran = random.randint(1, 100)

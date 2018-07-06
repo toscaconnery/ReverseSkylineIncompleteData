@@ -43,12 +43,12 @@ list_rsl = []
 loop_status = True
 maximum = []
 minimal = []
-
+skyline_combination = []
 
 #here
 def generate_query_point(): #NEW
 	global query_point
-	query_point = "QP 85 90 80 80"
+	query_point = "QP 40 40 40 40"
 	#query_point = "QP 45 45 45 45"
 	#query_point = "QP 70 70 70 70"
 
@@ -612,24 +612,6 @@ def generate_ddr_prime_ct(ct):
 		#sorted_data = list(sorted(global_skyline, key=lambda newlist: newlist[1]))
 
 		naive_algorithm(ct, q)
-
-		# ddr_prime_ct = []
-		# # print("CT GLOBAL SKYLINE : " + str(global_skyline))
-		# # print("CT                : " + str(ct))
-		# for data_index in range(0, len(global_skyline)):
-		# 	#print("GLOBAL : " + str(global_skyline[data_index]))
-		# 	data = []
-		# 	for i in range(0, data_length):
-		# 		if(global_skyline[data_index][i+1] != 'null'):
-		# 			top = ct[i] + global_skyline[data_index][i+1]
-		# 			bottom = ct[i] - global_skyline[data_index][i+1]
-		# 		else:
-		# 			top = 'null'
-		# 			bottom = 'null'
-		# 		max_min_value = [top, bottom]
-		# 		data.append(max_min_value)
-		# 	ddr_prime_ct.append(data)
-	# print("DDR PRIME CT : " + str(ddr_prime_ct))
 	return True
 
 
@@ -639,19 +621,25 @@ def naive_algorithm(ct, q):
 	global maximum
 	global minimal
 
-	maximum = list(q)
+	maximum = list(q[1:data_length+1])
 	minimal = list(ct)
 	pivot = list(ct)
+
+	print("PIVOT   : " + str(pivot))
+	print("MAXIMUM : " + str(maximum))
 
 	list_perubahan = []
 
 	loop_status = True
 	while(loop_status == True):
 		pivot[0] += 1
-		if(pivot[0] > maks[0]):
+		if(pivot[0] > maximum[0]):
 			pivot[0] = ct[0]
 			increment_dimension(1)
 		print(pivot)
+		check_is_skyline(pivot, q)
+		#check apakah ct baru dengan nilai pivot akan menjadikannya sebagai skyline
+		
 
 def increment_dimension(x):
 	global data_length
@@ -667,6 +655,93 @@ def increment_dimension(x):
 		if(pivot[x] > maximum[x]):
 			pivot[x] = minimal[x]
 			increment_dimension(x+1)
+
+def check_is_skyline(pivot, q):
+	print("CHECKING SKYLINE BRUTEFORCE")
+	global product_list
+	global node
+	global local_skyline
+	global candidate_skyline
+	global global_skyline
+	global shadow_skyline
+	global virtual_point
+	global bitmap
+	#global query_point
+	global t
+	global data_length
+	global skyline_combination
+	#global safe_region 		#
+
+	print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+	print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+	print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+	print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+	print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+	print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+	print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+	print("PIVOT : " + str(pivot))
+	print("Q     : " + str(q))
+
+	fp = open(product_list)
+	#Harusnya disini menggunakan variabel global_skyline yang berbeda. (Karena nilai global disimpan dalam variabel lain, sepertinya boleh untuk dihapus)
+	#Variabel local_skyline, candidate_skyline, shadow_skyline, dan virtual point harus diinisialisasi ulang
+	local_skyline.clear()
+	candidate_skyline.clear()
+	global_skyline.clear()
+	shadow_skyline.clear()
+	virtual_point.clear()
+	node.clear()
+	for line in fp:
+		bitmap = ""
+		transformed_data = Prepare_Data(line, pivot)
+		is_skyline = insert_local_skyline(transformed_data, bitmap)			#check apakah ada variabel q dan ct
+		if(is_skyline == True):
+			insert_candidate_skyline(transformed_data, bitmap)				#check apakah ada variabel q dan ct
+			if(len(candidate_skyline) > t):
+				update_global_skyline()										#check apakah ada variabel q dan ct
+				candidate_skyline.clear()
+	update_global_skyline()													#check apakah ada variabel q dan ct
+	candidate_skyline.clear()
+	fp.close()
+
+	# q = query_point.split()
+	for i in range(0, data_length):
+		q[i+1] = abs(float(q[i+1]) - pivot[i])
+	# q.append("qp")
+	# q.append("ok")
+
+	print("SAL")
+	print("QP : " + str(q))
+	print("pivot : " + str(pivot))
+
+	q_is_skyline = True
+	for data_index in range(0, len(global_skyline)):
+		smaller = False
+		greater = False
+		for i in range(0, data_length):
+			if(q[i+1] < pivot[i]):
+				smaller = True
+			elif(q[i+1] > pivot[i]):
+				greater = True
+		if(smaller == True and greater == False):
+			pass#tetap True
+		elif(smaller == False and greater == True):
+			q_is_skyline = False
+	exit()
+	# q_is_dsl = False
+	# for i in range(0, len(global_skyline)):
+	# 	if(global_skyline[i][0] == "QP"):
+	# 		q_is_dsl = True
+	# 		break
+	# if(len(global_skyline) == 0):
+	# 	print("## CT DOESN'T HAVE ANY SKYLINE, SPECIAL TREATMENT NEEDED, MOVING CT TO Q")
+	# 	elapsed_time = time.time() - start_time
+	# 	ct_has_skyline = False
+		# exit()
+	# print("   CT SKYLINE : " + str(global_skyline))
+	if(q_is_skyline == True):
+		#HENTIKAN PROGRAM
+		skyline_combination.append(pivot)
 
 
 # def naive_algorithm(ct, q):
@@ -685,6 +760,7 @@ def increment_dimension(x):
 # 		top_boundary.append(q[i+1])
 # 		bottom_boundary.append(ct[i])
 	
+	check_global_skyline()
 # 	#melakukan bruteforce
 # 	for i in range(0, data_length):
 # 		dimension_limit = i

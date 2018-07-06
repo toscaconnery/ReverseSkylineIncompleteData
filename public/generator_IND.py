@@ -22,7 +22,7 @@ random.seed(122)
 missing_persentage = 20
 
 for i in range(0,n):
-    may_null = 2
+    may_null = 4
     base = random.uniform(0,1)
     basedim = ceil(base / (1/d))-1
     basedata = random.uniform(0, 1)

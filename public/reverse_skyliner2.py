@@ -6,7 +6,7 @@ from time import gmtime, strftime
 import numpy as np
 
 a = strftime("%d%H-%M%S", gmtime())
-sys.stdout = open("result_" + str(a) + ".txt", "wt")
+sys.stdout = open("FC_TESTING_result_" + str(a) + ".txt", "wt")
 
 
 start_time = time.time()
@@ -33,8 +33,8 @@ ct = []
 ct_has_skyline = True
 #product_list = "random_specs.txt"
 #product_list = "very_small_dataset2.txt"
-product_list = "IND_D4_N1K.txt"
-user_preference = "user_preference_D4_N10.txt"
+product_list = "TESTING_FC_D3_N100.txt"
+user_preference = "TESTING_USER_D3_N10.txt"
 intersection = []
 ct_cost = []
 q_cost = []
@@ -45,7 +45,7 @@ list_rsl = []
 #here
 def generate_query_point(): #NEW
 	global query_point
-	query_point = "QP 85 90 80 80"
+	query_point = "QP 85 90 80"
 	#query_point = "QP 45 45 45 45"
 	#query_point = "QP 70 70 70 70"
 
@@ -56,7 +56,7 @@ def generate_ct():
 	ct.append(float(12))
 	ct.append(float(15))
 	ct.append(float(10))
-	ct.append(float(10))
+	#ct.append(float(10))
 	#
 	# ct.append(float(31))
 	# ct.append(float(32.5))
