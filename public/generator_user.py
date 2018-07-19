@@ -2,8 +2,8 @@ import sys
 import random
 from math import ceil
 
-d = 3
-n = 200
+d = 2
+n = 10
 
 #title
 data_number_on_title = ""

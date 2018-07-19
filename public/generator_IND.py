@@ -2,8 +2,8 @@ import sys
 import random
 from math import ceil
 
-d = 10
-n = 200000
+d = 4
+n = 30000
 
 #title
 data_number_on_title = ""
@@ -22,7 +22,7 @@ random.seed(122)
 missing_persentage = 20
 
 for i in range(0,n):
-    may_null = 4
+    may_null = 2
     base = random.uniform(0,1)
     basedim = ceil(base / (1/d))-1
     basedata = random.uniform(0, 1)

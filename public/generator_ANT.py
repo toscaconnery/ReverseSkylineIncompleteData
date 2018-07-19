@@ -4,7 +4,7 @@ from math import ceil
 
 random.seed(122)
 
-d = 10
+d = 4
 n = 30000
 
 #title
@@ -28,7 +28,7 @@ for i in range(0,n):
     basedata = random.uniform(0, 1)
     row = 'A'
     row += '%d' % (i+1)
-    may_null = 1
+    may_null = 2
     for dim in range(0,d):
         if dim != basedim:
             ran = random.randint(1, 100)

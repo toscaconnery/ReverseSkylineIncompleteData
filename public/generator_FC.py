@@ -7,7 +7,7 @@ from math import ceil
 
 random.seed(122)
 
-d = 5
+d = 4
 n = 30000
 
 #title
@@ -38,7 +38,7 @@ missing_persentage = 20
 
 fp = open('covtype.data')
 for line in fp:
-    may_null = 4
+    may_null = 2
     row = ''
     data_line = line.split(',')
     filtered_data_line = list(data_line[0:d])

@@ -6,8 +6,7 @@ from time import gmtime, strftime
 import numpy as np
 
 a = strftime("%d%H-%M%S", gmtime())
-sys.stdout = open("FC_TESTING_result_" + str(a) + ".txt", "wt")
-
+# sys.stdout = open("RESULT_B_" + str(a) + ".txt", "wt")
 
 start_time = time.time()
 
@@ -31,21 +30,25 @@ query_point = []
 list_customer = []
 ct = []
 ct_has_skyline = True
+recomm = {}
 #product_list = "random_specs.txt"
 #product_list = "very_small_dataset2.txt"
-product_list = "TESTING_FC_D3_N100.txt"
-user_preference = "TESTING_USER_D3_N10.txt"
+product_list = "IND_D4_N1K.txt"
+user_preference = "user_preference_D4_N10.txt"
 intersection = []
 ct_cost = []
 q_cost = []
 jumlah_rsl = 0
 list_rsl = []
-
+loop_status = True
+maximum = []
+minimal = []
+skyline_combination = []
 
 #here
 def generate_query_point(): #NEW
 	global query_point
-	query_point = "QP 85 90 80"
+	query_point = "QP 40 40 40 40"
 	#query_point = "QP 45 45 45 45"
 	#query_point = "QP 70 70 70 70"
 
@@ -53,10 +56,10 @@ def generate_query_point(): #NEW
 def generate_ct():
 	global ct
 
-	ct.append(float(3))
-	ct.append(float(3))
-	ct.append(float(3))
-	#ct.append(float(10))
+	ct.append(float(15))
+	ct.append(float(10))
+	ct.append(float(12))
+	ct.append(float(10))
 	#
 	# ct.append(float(31))
 	# ct.append(float(32.5))
@@ -494,7 +497,7 @@ def generate_safe_region_q():
 				if(len(new_safe_region) > 0):
 					safe_region = list(new_safe_region)
 	# 			print("HASIL SAFE REGION " + str(safe_region))
-	print("   NUMBER OF RSL : " + str(jumlah_rsl))
+		print("   NUMBER OF RSL : " + str(jumlah_rsl))
 	print("   SAFE REGION Q : " + str(safe_region))
 
 	if(len(safe_region) == 0):
@@ -562,9 +565,9 @@ def generate_ddr_prime_ct(ct):
 	#check if the QUERY POINT is part of DSL(ct)
 	# Q cuman ada satu data, lebih baik dibandingkan dengan cara normal
 	#generate_query_point()	#The query point exist from here
-	# print("Query point       : " + str(query_point))
-	# print("Global Skyline CT : " + str(global_skyline))
-	# print("CT                : " + str(ct))
+	print("Query point       : " + str(query_point))
+	print("Global Skyline CT : " + str(global_skyline))
+	print("CT                : " + str(ct))
 	#mengubah q
 	q = query_point.split()
 	for i in range(0, data_length):
@@ -591,12 +594,12 @@ def generate_ddr_prime_ct(ct):
 	# 	if(global_skyline[i][0] == "QP"):
 	# 		q_is_dsl = True
 	# 		break
-	if(len(global_skyline) == 0):
-		print("## CT DOESN'T HAVE ANY SKYLINE, SPECIAL TREATMENT NEEDED, MOVING CT TO Q")
-		elapsed_time = time.time() - start_time
-		ct_has_skyline = False
+	# if(len(global_skyline) == 0):
+	# 	print("## CT DOESN'T HAVE ANY SKYLINE, SPECIAL TREATMENT NEEDED, MOVING CT TO Q")
+	# 	elapsed_time = time.time() - start_time
+	# 	ct_has_skyline = False
 		# exit()
-	print("   CT SKYLINE : " + str(global_skyline))
+	# print("   CT SKYLINE : " + str(global_skyline))
 	if(q_is_skyline == True):
 		#HENTIKAN PROGRAM
 		print("   TIDAK PERLU DILAKUKAN PENYESUAIAN")
@@ -608,24 +611,170 @@ def generate_ddr_prime_ct(ct):
 		#print("ADA " + str(len(global_skyline)) + " DATA DI GLOBAL")
 		#sorted_data = list(sorted(global_skyline, key=lambda newlist: newlist[1]))
 
-		ddr_prime_ct = []
-		# print("CT GLOBAL SKYLINE : " + str(global_skyline))
-		# print("CT                : " + str(ct))
-		for data_index in range(0, len(global_skyline)):
-			#print("GLOBAL : " + str(global_skyline[data_index]))
-			data = []
-			for i in range(0, data_length):
-				if(global_skyline[data_index][i+1] != 'null'):
-					top = ct[i] + global_skyline[data_index][i+1]
-					bottom = ct[i] - global_skyline[data_index][i+1]
-				else:
-					top = 'null'
-					bottom = 'null'
-				max_min_value = [top, bottom]
-				data.append(max_min_value)
-			ddr_prime_ct.append(data)
-	# print("DDR PRIME CT : " + str(ddr_prime_ct))
-	return ddr_prime_ct
+		naive_algorithm(ct, q)
+	return True
+
+
+def naive_algorithm(ct, q):
+	global data_length
+	global loop_status
+	global maximum
+	global minimal
+
+	maximum = list(q[1:data_length+1])
+	minimal = list(ct)
+	pivot = list(ct)
+
+	print("PIVOT   : " + str(pivot))
+	print("MAXIMUM : " + str(maximum))
+
+	list_perubahan = []
+
+	loop_status = True
+	while(loop_status == True):
+		pivot[0] += 1
+		if(pivot[0] > maximum[0]):
+			pivot[0] = ct[0]
+			increment_dimension(1)
+		print(pivot)
+		check_is_skyline(pivot, q)
+		#check apakah ct baru dengan nilai pivot akan menjadikannya sebagai skyline
+		
+
+def increment_dimension(x):
+	global data_length
+	global loop_status
+	global maximum
+	global minimal
+	global pivot
+	
+	if(x == data_length):
+		loop_status = False
+	else:
+		pivot[x] += 1
+		if(pivot[x] > maximum[x]):
+			pivot[x] = minimal[x]
+			increment_dimension(x+1)
+
+def check_is_skyline(pivot, q):
+	print("CHECKING SKYLINE BRUTEFORCE")
+	global product_list
+	global node
+	global local_skyline
+	global candidate_skyline
+	global global_skyline
+	global shadow_skyline
+	global virtual_point
+	global bitmap
+	#global query_point
+	global t
+	global data_length
+	global skyline_combination
+	#global safe_region 		#
+
+	print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+	print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+	print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+	print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+	print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+	print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+	print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+	print("PIVOT : " + str(pivot))
+	print("Q     : " + str(q))
+
+	fp = open(product_list)
+	#Harusnya disini menggunakan variabel global_skyline yang berbeda. (Karena nilai global disimpan dalam variabel lain, sepertinya boleh untuk dihapus)
+	#Variabel local_skyline, candidate_skyline, shadow_skyline, dan virtual point harus diinisialisasi ulang
+	local_skyline.clear()
+	candidate_skyline.clear()
+	global_skyline.clear()
+	shadow_skyline.clear()
+	virtual_point.clear()
+	node.clear()
+	for line in fp:
+		bitmap = ""
+		transformed_data = Prepare_Data(line, pivot)
+		is_skyline = insert_local_skyline(transformed_data, bitmap)			#check apakah ada variabel q dan ct
+		if(is_skyline == True):
+			insert_candidate_skyline(transformed_data, bitmap)				#check apakah ada variabel q dan ct
+			if(len(candidate_skyline) > t):
+				update_global_skyline()										#check apakah ada variabel q dan ct
+				candidate_skyline.clear()
+	update_global_skyline()													#check apakah ada variabel q dan ct
+	candidate_skyline.clear()
+	fp.close()
+
+	# q = query_point.split()
+	for i in range(0, data_length):
+		q[i+1] = abs(float(q[i+1]) - pivot[i])
+	# q.append("qp")
+	# q.append("ok")
+
+	print("SAL")
+	print("QP : " + str(q))
+	print("pivot : " + str(pivot))
+
+	q_is_skyline = True
+	for data_index in range(0, len(global_skyline)):
+		smaller = False
+		greater = False
+		for i in range(0, data_length):
+			if(q[i+1] < pivot[i]):
+				smaller = True
+			elif(q[i+1] > pivot[i]):
+				greater = True
+		if(smaller == True and greater == False):
+			pass#tetap True
+		elif(smaller == False and greater == True):
+			q_is_skyline = False
+	exit()
+	# q_is_dsl = False
+	# for i in range(0, len(global_skyline)):
+	# 	if(global_skyline[i][0] == "QP"):
+	# 		q_is_dsl = True
+	# 		break
+	# if(len(global_skyline) == 0):
+	# 	print("## CT DOESN'T HAVE ANY SKYLINE, SPECIAL TREATMENT NEEDED, MOVING CT TO Q")
+	# 	elapsed_time = time.time() - start_time
+	# 	ct_has_skyline = False
+		# exit()
+	# print("   CT SKYLINE : " + str(global_skyline))
+	if(q_is_skyline == True):
+		#HENTIKAN PROGRAM
+		skyline_combination.append(pivot)
+
+
+# def naive_algorithm(ct, q):
+# 	global recomm
+# 	global data_length
+# 	print(">> NAIVE ALGORITHM")
+# 	print("CT : " + str(ct))
+# 	print("Q  : " + str(q))
+
+# 	#dapatkan jarak tiap dimensi
+# 	distance = []
+# 	#perulangan untuk query_point
+# 	top_boundary = []
+# 	bottop_boundary = []
+# 	for i in range(0, data_length)
+# 		top_boundary.append(q[i+1])
+# 		bottom_boundary.append(ct[i])
+	
+	check_global_skyline()
+# 	#melakukan bruteforce
+# 	for i in range(0, data_length):
+# 		dimension_limit = i
+# 		for j in range(0, dimension_limit+1):
+# 			for k in range(bottom_boundary)
+
+# 	new_ct = list(bottom_boundary)
+# 	for i in range(0, data_length):
+# 		dimension_limit = i
+# 		for j in range(0, dimension_limit+1):
+# 			for 
+
+# 	exit()
+
 
 
 def check_intersection(safe_region, ddr_prime_ct):
@@ -746,9 +895,9 @@ def move_why_not_point(ct, q):		#q here is transformed q
 	global shadow_skyline
 	global virtual_point
 	# print("")
-	print(">> MOVING WHY-NOT POINT, data used:")
-	print("   Q  : " + str(q))
+	print(">> MOVING WHY-NOT POINT")
 	print("   CT : " + str(ct))
+	print("   Q  : " + str(q))
 
 	#Mentransformasikan semua titik (produk) yang ada terhadap ct
 	A = []
@@ -1002,7 +1151,6 @@ def Prepare_Data(line, customer):
 #PREPROCESSING
 #THIS INITIAL PROGRAM WILL CALLED function Generate_All_Dynamic_Skyline
 
-
 generate_ct()
 data_length = len(ct)
 fu = open(user_preference)
@@ -1048,13 +1196,16 @@ print("   TIME USED : " + str(time.time() - start_time) + " SECONDS")
 generate_query_point()
 
 print(">> ORIGINAL DATA : ")
-print("   Query Pnt : " + str(query_point))
-print("   CT Point  : " + str(ct))
-print("   User Pref : " + str(user_preference))
-print("   Prod List : " + str(product_list))
-print("   Dimension : " + str(data_length))
+print("   Q  : " + str(query_point))
+print("   CT : " + str(ct))
+print("   UP : " + str(user_preference))
+print("   PL : " + str(product_list))
+print("   D  : " + str(data_length))
 
-ddr_prime_ct = generate_ddr_prime_ct(ct)
+generate_ddr_prime_ct(ct)
+
+print("STOP")
+exit()
 
 safe_region = generate_safe_region_q()
 

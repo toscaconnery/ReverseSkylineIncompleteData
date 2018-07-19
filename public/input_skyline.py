@@ -6,7 +6,7 @@ from time import gmtime, strftime
 import numpy as np
 
 a = strftime("%d%H-%M%S", gmtime())
-sys.stdout = open("FC_TESTING_result_" + str(a) + ".txt", "wt")
+#sys.stdout = open("FC_TESTING_result_" + str(a) + ".txt", "wt")
 
 
 start_time = time.time()
@@ -328,7 +328,7 @@ def calculate_rsl_q(customer_skyline, query_point):
 	### - MENGHAPUS SEMUA SKYLINE DARI 'customer_skyline' YANG BUKAN RSL DARI Q, SEHINGGA HANYA TERSISA RSL Q
 	### - PASTIKAN NILAI YANG DIPROSES ADALAH HASIL TRANSFORMASI DARI ASLINYA TERHADAP DATA POINT KONSUMEN
 	global data_length
-	print(">> CALCULATING RSL Q")
+	# print(">> CALCULATING RSL Q")
 	# print("QUERY_POINT : " + str(query_point))
 	# print("CUSTOMER SKYLINE PER USER : ")
 	# print("-------------------------------------------^")
@@ -381,7 +381,7 @@ def generate_safe_region_q():
 	query_point = query_point.split()
 	calculate_rsl_q(customer_skyline, query_point)
 	
-	print(">> GENERATING SAFE REGION Q")
+	# print(">> GENERATING SAFE REGION Q")
 	
 	q = []
 	for i in range(0, data_length):
@@ -494,11 +494,11 @@ def generate_safe_region_q():
 				if(len(new_safe_region) > 0):
 					safe_region = list(new_safe_region)
 	# 			print("HASIL SAFE REGION " + str(safe_region))
-	print("   NUMBER OF RSL : " + str(jumlah_rsl))
-	print("   SAFE REGION Q : " + str(safe_region))
+	# print("   NUMBER OF RSL : " + str(jumlah_rsl))
+	# print("   SAFE REGION Q : " + str(safe_region))
 
 	if(len(safe_region) == 0):
-		print("## Q DOESN'T HAVE SAFE REGION, SPECIAL TREATMENT NEEDED, MOVING CT TO Q")
+		# print("## Q DOESN'T HAVE SAFE REGION, SPECIAL TREATMENT NEEDED, MOVING CT TO Q")
 		# print("Y q : " + str(q))
 		generate_cost()
 		T = move_why_not_point(ct, q)
@@ -508,8 +508,8 @@ def generate_safe_region_q():
 		print("   Q      : " + str(T["q"]))
 		print("   CT     : " + str(T["ct"]))
 
-		elapsed_time = time.time() - start_time
-		print("   FINAL TIME USED : " + str(elapsed_time))
+		# elapsed_time = time.time() - start_time
+		# print("   FINAL TIME USED : " + str(elapsed_time))
 
 		exit()
 	return safe_region
@@ -518,7 +518,7 @@ def generate_safe_region_q():
 
 
 def generate_ddr_prime_ct(ct):
-	print(">> GENERATING DDR PRIME CT")
+	# print(">> GENERATING DDR PRIME CT")
 	#This function will check if query_point is included to ct's skyline
 	#It will return Ct DDR Prime and status of query point
 	global product_list
@@ -592,16 +592,16 @@ def generate_ddr_prime_ct(ct):
 	# 		q_is_dsl = True
 	# 		break
 	if(len(global_skyline) == 0):
-		print("## CT DOESN'T HAVE ANY SKYLINE, SPECIAL TREATMENT NEEDED, MOVING CT TO Q")
+		# print("## CT DOESN'T HAVE ANY SKYLINE, SPECIAL TREATMENT NEEDED, MOVING CT TO Q")
 		elapsed_time = time.time() - start_time
 		ct_has_skyline = False
 		# exit()
-	print("   CT SKYLINE : " + str(global_skyline))
+	# print("   CT SKYLINE : " + str(global_skyline))
 	if(q_is_skyline == True):
 		#HENTIKAN PROGRAM
-		print("   TIDAK PERLU DILAKUKAN PENYESUAIAN")
+		print("Query point adalah produk yang diminati oleh ct.")
 		elapsed_time = time.time() - start_time
-		print("   TIME USED : " + str(elapsed_time))
+		# print("   TIME USED : " + str(elapsed_time))
 		exit()
 	else:
 		#create ddr prime of ct
@@ -630,7 +630,7 @@ def generate_ddr_prime_ct(ct):
 
 def check_intersection(safe_region, ddr_prime_ct):
 	# print("")
-	print(">> CHECKING INTERSECTION")
+	# print(">> CHECKING INTERSECTION")
 	# print("SAFE_REGION  : " + str(safe_region))
 	# print("DDR_PRIME_CT : " + str(ddr_prime_ct))
 
@@ -684,7 +684,7 @@ def check_intersection(safe_region, ddr_prime_ct):
 def move_query_point():
 	#Output : titik baru untuk query point q
 	# print("")
-	print(">> MOVING QUERY POINT")
+	# print(">> MOVING QUERY POINT")
 	# print("")
 	global intersection
 	global query_point
@@ -746,9 +746,9 @@ def move_why_not_point(ct, q):		#q here is transformed q
 	global shadow_skyline
 	global virtual_point
 	# print("")
-	print(">> MOVING WHY-NOT POINT, data used:")
-	print("   Q  : " + str(q))
-	print("   CT : " + str(ct))
+	# print(">> MOVING WHY-NOT POINT, data used:")
+	# print("   Q  : " + str(q))
+	# print("   CT : " + str(ct))
 
 	#Mentransformasikan semua titik (produk) yang ada terhadap ct
 	A = []
@@ -835,8 +835,8 @@ def move_why_not_point(ct, q):		#q here is transformed q
 	# print("M : " + str(M))
 
 	#Cari cost terendah :
-	print("   NUMBER OF CT' RECOMMENDATION : " + str(len(M)))
-	print("   LIST OF RECOMMENDATION CT' : " + str(M))
+	# print("   NUMBER OF CT' RECOMMENDATION : " + str(len(M)))
+	# print("   LIST OF RECOMMENDATION CT' : " + str(M))
 	current_cost = 99999999999
 	cheapest_index = None
 	for data_index in range(0, len(M)):
@@ -872,7 +872,7 @@ def Move_Why_Not_And_Query_Point():
 	global q_cost
 	global start_time
 
-	print(">> MOVING WHY-NOT AND QUERY POINT")
+	# print(">> MOVING WHY-NOT AND QUERY POINT")
 
 	# E adalah corner point dengan jarak terdekat ke ct,
 	# Bertujuan untuk mempersingkat jarak antara ct dan q
@@ -938,8 +938,8 @@ def Move_Why_Not_And_Query_Point():
 		T -> move why not and query point /Alg 1
 		Mc = Mc U T
 	"""
-	print("   NUMBER OF Q' RECOMMENDATION : " + str(len(Q)))
-	print("   LIST OF RECOMMENDATION Q'   : " + str(Q))
+	# print("   NUMBER OF Q' RECOMMENDATION : " + str(len(Q)))
+	# print("   LIST OF RECOMMENDATION Q'   : " + str(Q))
 	Mc = []
 	# print("NNNNNNNNNNNNNNNNN ")
 	# print("CT : " + str(ct))
@@ -953,13 +953,13 @@ def Move_Why_Not_And_Query_Point():
 	for data_index in range(0, len(Mc)):
 		if(Mc[data_index]["cost"] < cheapest_cost):
 			cheapest_index = data_index
-	print("")
+	# print("")
 	print("   RESULT : MOVING WHY-NOT AND QUERY-POINT")
 	print("   Q      : " + str(Mc[cheapest_index]["q"]))
 	print("   CT     : " + str(Mc[cheapest_index]["ct"]))
 
-	elapsed_time = time.time() - start_time
-	print("   FINAL TIME USED : " + str(elapsed_time))
+	# elapsed_time = time.time() - start_time
+	# print("   FINAL TIME USED : " + str(elapsed_time))
 
 
 
@@ -978,6 +978,9 @@ def Prepare_Data(line, customer):
 	current_spec = line.split()
 	data = []
 	transformed_data = []
+	# print("C")
+	# print(current_spec)
+	# print("c")
 	transformed_data.append(current_spec[0])
 	data.append(current_spec[0])
 	for i in range(1, data_length+1):
@@ -1002,8 +1005,27 @@ def Prepare_Data(line, customer):
 #PREPROCESSING
 #THIS INITIAL PROGRAM WILL CALLED function Generate_All_Dynamic_Skyline
 
+input_q = sys.argv[1]
+input_q = input_q.split('-')
+query_point = "QP"
+for i in range(0, len(input_q)):
+	#query_point = "QP 85 90 80"
+	query_point = query_point + " " + str(float(input_q[i]))
+input_ct = sys.argv[2]
 
-generate_ct()
+input_ct = input_ct.split('-')
+ct = []
+for i in range(0, len(input_ct)):
+	ct.append(float(input_ct[i]))
+#ct.append(float(3))
+
+# print(query_point)
+# print(ct)
+# exit()
+
+
+
+# generate_ct()
 data_length = len(ct)
 fu = open(user_preference)
 for list_user in fu:
@@ -1042,17 +1064,17 @@ for x in range(0, len(list_customer)):
 		customer_skyline[str(customer_index)].append("ok")
 		customer_index += 1
 fu.close()
-print(">> FINISHED CALCULATING GLOBAL")
-print("   TIME USED : " + str(time.time() - start_time) + " SECONDS")
+# print(">> FINISHED CALCULATING GLOBAL")
+# print("   TIME USED : " + str(time.time() - start_time) + " SECONDS")
 
-generate_query_point()
+# generate_query_point()
 
-print(">> ORIGINAL DATA : ")
-print("   Query Pnt : " + str(query_point))
-print("   CT Point  : " + str(ct))
-print("   User Pref : " + str(user_preference))
-print("   Prod List : " + str(product_list))
-print("   Dimension : " + str(data_length))
+# print(">> ORIGINAL DATA : ")
+# print("   Query Pnt : " + str(query_point))
+# print("   CT Point  : " + str(ct))
+# print("   User Pref : " + str(user_preference))
+# print("   Prod List : " + str(product_list))
+# print("   Dimension : " + str(data_length))
 
 ddr_prime_ct = generate_ddr_prime_ct(ct)
 
@@ -1070,8 +1092,8 @@ if(intersection_status == True):
 else:
 	Move_Why_Not_And_Query_Point()
 #print(recommendation)
-print("   NUMBER OF RSL : " + str(jumlah_rsl))
-print("   LIST RSL   : " + str(list_rsl))
+# print("   NUMBER OF RSL : " + str(jumlah_rsl))
+# print("   LIST RSL   : " + str(list_rsl))
 
-elapsed_time = time.time() - start_time
-print("   FINAL TIME USED : " + str(elapsed_time))
+# elapsed_time = time.time() - start_time
+# print("   FINAL TIME USED : " + str(elapsed_time))
