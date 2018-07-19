@@ -24,3 +24,9 @@ Route::get('/main', 'SkylineController@main');
 Route::get('/index', 'SkylineController@index');
 
 Route::get('/runbasic', 'SkylineController@runbasic');
+
+Route::get('/testOutPut2', 'SkylineController@testOutPut');
+
+Route::get('/showForm', 'SkylineController@showForm');
+
+Route::post('post_input', 'SkylineController@post_input');
