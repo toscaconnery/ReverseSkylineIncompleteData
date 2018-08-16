@@ -42,7 +42,7 @@ jumlah_rsl = 0
 list_rsl = []
 
 
-#here
+#Query point ditentukan disini
 def generate_query_point(): #NEW
 	global query_point
 	query_point = "QP 85 90 80"
@@ -50,6 +50,7 @@ def generate_query_point(): #NEW
 	#query_point = "QP 70 70 70 70"
 
 
+#CT ditentukan disini, jumlah data sebanyak jumlah ct
 def generate_ct():
 	global ct
 
@@ -57,34 +58,19 @@ def generate_ct():
 	ct.append(float(3))
 	ct.append(float(3))
 	#ct.append(float(10))
-	#
-	# ct.append(float(31))
-	# ct.append(float(32.5))
-	# ct.append(float(47.5))
-	# ct.append(float(49.5))
-
 	
-	# ct.append(float(46))
-	# ct.append(float(57.5))
-	# ct.append(float(47))
-	# ct.append(float(59.5))
-
-	# ct.append(float(10))
-	# ct.append(float(10))
-	# ct.append(float(10))
-	# ct.append(float(10))
-
+#Cost untuk perubahan tiap dimensi ditentukan disini
 def generate_cost():
 	global ct_cost
 	global q_cost
 	ct_cost.append(3)
 	ct_cost.append(3)
 	ct_cost.append(3)
-	ct_cost.append(2)
+	# ct_cost.append(2)
 	q_cost.append(4)
 	q_cost.append(3)
 	q_cost.append(2)
-	q_cost.append(3)
+	# q_cost.append(3)
 
 #Fungsi insersi local skyline. Fungsi ini akan mengecek apakah tiap data yang diinputkan layak
 #menjadi local skyline dengan cara membandingkan tiap data yang masuk dengan local skyline dari
