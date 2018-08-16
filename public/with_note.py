@@ -151,7 +151,6 @@ def Insert_Candidate_Skyline(current_specs, current_bit):
 
 def Insert_Virtual_Point(content, current_bit):
 	global virtual_point
-	print("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
 	if current_bit in virtual_point:
 		virtual_point[current_bit].append(content)
 	else:
